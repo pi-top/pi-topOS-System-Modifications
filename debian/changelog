@@ -1,17 +1,5 @@
-pt-desktop (1.0.3-1) jessie; urgency=low
+pt-display (2.0.0-1) jessie; urgency=low
 
-  * Add support for unsupported hardware message
+  * Initial release - v2 to avoid backwards compatibility with a retired package with the same name.
 
- -- Ben Pring <ben@pi-top.com>  Tue, 10 Oct 2017 15:02:14 +0100
- 
-pt-desktop (1.0.2-1) jessie; urgency=low
-
-  * Misc fixes
-
- -- Matt Simons <matt@pi-top.com>  Thu, 05 Oct 2017 14:44:19 +0100
- 
-pt-desktop (1.0.1-1) jessie; urgency=low
-
-  * Initial release - replaces pt-display; add in message service handling.
-
- -- Matt Simons <matt@pi-top.com>  Wed, 24 Aug 2017 11:08:06 +0100
+ -- Mike Roberts <mike@pi-top.com>  Thu, 16 Nov 2017 13:29:36 +0000
