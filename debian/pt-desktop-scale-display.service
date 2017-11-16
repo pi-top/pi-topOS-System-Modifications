@@ -1,0 +1,9 @@
+[Unit]
+Description=pi-top desktop layout configuration service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/pt-desktop-scale-display
+
+[Install]
+WantedBy=graphical.target

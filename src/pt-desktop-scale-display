@@ -1,0 +1,157 @@
+#!/bin/bash -e
+
+PI_CFG="/home/pi/.config"
+XDG_SYS="/etc/xdg"
+USR_SHR="/usr/share"
+
+SYS_LXPANEL_FILE="$XDG_SYS/lxpanel/default/panels/panel"
+SYS_GTK_FILE="$USR_SHR/raspi-ui-overrides/gtk.css"
+SYS_LXSESSION_FILE="$XDG_SYS/lxsession/LXDE-pi/desktop.conf"
+SYS_PCMANFM_FILE="$XDG_SYS/pcmanfm/LXDE-pi/desktop-items-0.conf"
+SYS_LXTERMINAL_FILE="$USR_SHR/lxterminal/lxterminal.conf"
+
+PI_LXPANEL_FILE="$PI_CFG/lxpanel/LXDE-pi/panels/panel"
+PI_GTK_FILE="$PI_CFG/gtk-3.0/gtk.css"
+PI_LXSESSION_FILE="$PI_CFG/lxsession/LXDE-pi/desktop.conf"
+PI_PCMANFM_FILE="$PI_CFG/pcmanfm/LXDE-pi/desktop-items-0.conf"
+PI_LXTERMINAL_FILE="$PI_CFG/lxterminal/lxterminal.conf"
+
+
+main() {
+    echo "Configuring display for screen size"
+    determine_display_sizes_from_screen
+    configure_screen_system "$menu_height" "$font_size" "$terminal_font_size"
+    wait_for_user_files_to_exist
+    configure_screen_pi "$menu_height" "$font_size" "$terminal_font_size"
+}
+
+determine_display_sizes_from_screen() {
+    dimensions_w_quotes="$(fbset -s | grep "mode " | cut -d' ' -f2)"
+    dimensions_wo_suffix="${dimensions_w_quotes%\"}"
+    dimensions="${dimensions_wo_suffix#\"}"
+    width="$(echo "$dimensions" | cut -d'x' -f1)"
+    height="$(echo "$dimensions" | cut -d'x' -f2)"
+
+    echo "Width: $width, height: $height"
+    if [[ "$width" == "1366" ]] && [[ "$height" == "768" ]]; then
+        echo "Valid screen resolution"
+        menu_height=36; font_size=12; terminal_font_size=10
+    elif [[ "$width" == "1920" ]] && [[ "$height" == "1080" ]]; then
+        echo "Valid screen resolution"
+        menu_height=48; font_size=16; terminal_font_size=13
+    else
+        echo "Invalid screen resolution"
+        exit 1
+    fi
+}
+
+wait_for_user_files_to_exist() {
+    set +e
+
+    user_files_exist
+    user_files_missing_at_start=$?
+
+    if [ $user_files_missing_at_start ]; then
+        echo "Waiting for files to be created..."
+
+        COUNTER=0
+        while ! user_files_exist && [ $COUNTER -lt 600 ]; do
+            COUNTER=$((++COUNTER))
+            echo $COUNTER
+            sleep 0.05
+        done
+
+        if user_files_exist && [ $user_files_missing_at_start ]; then
+            echo "Done"
+        else
+            echo "Unable to run - could not find all files"
+            exit 1
+        fi
+    fi
+
+    set -e
+}
+
+user_files_exist() {
+    if [ -f "$PI_LXPANEL_FILE" ] && [ -f "$PI_GTK_FILE" ] && [ -f "$PI_LXSESSION_FILE" ] && [ -f "$PI_PCMANFM_FILE" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+change_value_in_file() {
+    line_str_to_find="$1"
+    file_path="$2"
+    separator="$3"
+    new_value="$4"
+    line=$(grep "$line_str_to_find" "$file_path" || printf "")
+    if [[ "$line" == "" ]]; then
+        echo "Unable to find '$line_str_to_find' in $file_path"
+    else
+        old_value="$(echo "$line" | awk -F "$separator" '{print $NF}')"
+
+        new_line="${line/$old_value/$new_value}"
+        sed -i "s|.*$line_str_to_find.*|$new_line|g" "$file_path"
+    fi
+}
+
+change_size_in_file() {
+    line_str_to_find="$1"
+    file_path="$2"
+    new_value="$3"
+    separator="="
+    change_value_in_file "$line_str_to_find" "$file_path" "$separator" "$new_value"
+}
+
+change_fontsize_in_file() {
+    line_str_to_find="$1"
+    file_path="$2"
+    new_value="$3"
+    separator=" "
+    change_value_in_file "$line_str_to_find" "$file_path" "$separator" "$new_value"
+}
+
+configure_screen_system() {
+    echo "Configuring system configuration files... menu height: $menu_height, font size: $font_size"
+    
+    # Set menu size - system
+    change_size_in_file "height=" "$SYS_LXPANEL_FILE" "$1"
+#    change_size_in_file "iconsize=" "$SYS_LXPANEL_FILE" "$1"  # User config setting for icon size not retrieved from this file
+
+    # Set font size - system
+    change_fontsize_in_file "font:" "$SYS_GTK_FILE" "$2"
+    change_fontsize_in_file "sGtk/FontName=" "$SYS_LXSESSION_FILE" "$2"
+    change_fontsize_in_file "desktop_font=" "$SYS_PCMANFM_FILE" "$2"
+
+    # Set terminal font size - system
+    change_fontsize_in_file "fontname=" "$SYS_LXTERMINAL_FILE" "$3"
+}
+
+configure_screen_pi() {
+    echo "Configuring pi user's configuration files... menu height: $menu_height, font size: $font_size"
+    
+    # Set menu size - user
+    change_size_in_file "height=" "$PI_LXPANEL_FILE" "$1"
+    change_size_in_file "iconsize=" "$PI_LXPANEL_FILE" "$1"
+
+    # Set font size - user
+    change_fontsize_in_file "font:" "$PI_GTK_FILE" "$2"
+    change_fontsize_in_file "sGtk/FontName=" "$PI_LXSESSION_FILE" "$2"
+    change_fontsize_in_file "desktop_font=" "$PI_PCMANFM_FILE" "$2"
+
+    if [[ ! -f "$PI_LXTERMINAL_FILE" ]]; then
+        lxterminal -e "sleep 0"
+        sleep 1
+        if [[ ! -f "$PI_LXTERMINAL_FILE" ]]; then
+            echo "Unable to configure terminal font size - no config file to edit"
+            exit 1
+        fi
+    fi
+    # Set terminal font size - user
+    change_fontsize_in_file "fontname=" "$PI_LXTERMINAL_FILE" "$3"
+
+    echo "Done configuring"
+}
+
+main
