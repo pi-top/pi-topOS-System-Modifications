@@ -6,4 +6,4 @@ Type=oneshot
 ExecStart=/usr/bin/pt-desktop-scale-display
 
 [Install]
-WantedBy=graphical.target
+WantedBy=multi-user.target
