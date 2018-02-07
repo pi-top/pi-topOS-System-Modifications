@@ -21,8 +21,9 @@ main() {
     echo "Configuring display for screen size"
     determine_display_sizes_from_screen
     configure_screen_system "$menu_height" "$font_size" "$terminal_font_size"
-    wait_for_user_files_to_exist
-    configure_screen_pi "$menu_height" "$font_size" "$terminal_font_size"
+    if user_files_exist; then
+        configure_screen_pi "$menu_height" "$font_size" "$terminal_font_size"
+    fi
 }
 
 determine_display_sizes_from_screen() {
@@ -43,33 +44,6 @@ determine_display_sizes_from_screen() {
         echo "Invalid screen resolution"
         exit 1
     fi
-}
-
-wait_for_user_files_to_exist() {
-    set +e
-
-    user_files_exist
-    user_files_missing_at_start=$?
-
-    if [ $user_files_missing_at_start ]; then
-        echo "Waiting for files to be created..."
-
-        COUNTER=0
-        while ! user_files_exist && [ $COUNTER -lt 600 ]; do
-            COUNTER=$((++COUNTER))
-            # echo $COUNTER
-            sleep 0.05
-        done
-
-        if user_files_exist; then
-            echo "Done"
-        else
-            echo "Unable to run - could not find all files"
-            exit 1
-        fi
-    fi
-
-    set -e
 }
 
 user_files_exist() {
@@ -140,27 +114,11 @@ configure_screen_pi() {
     change_fontsize_in_file "sGtk/FontName=" "$PI_LXSESSION_FILE" "$2"
     change_fontsize_in_file "desktop_font=" "$PI_PCMANFM_FILE" "$2"
 
-    if [[ ! -f "$PI_LXTERMINAL_FILE" ]]; then
-        echo "No user lxterminal file - attempting to generate by launching lxterminal"
-    fi
-
-    COUNTER=0
-    while [[ ! -f "$PI_LXTERMINAL_FILE" ]]; do
-        COUNTER=$((++COUNTER))
-        # echo $COUNTER
-        
-        lxterminal -e "sleep 0" || true
-        sleep 0.05
-
-        if [ $COUNTER -gt 600 ]; then
-            echo "Unable to configure terminal font size - no config file to edit"
-            exit 1
-        fi
-    done
-
-    if [[ ! -f "$PI_LXTERMINAL_FILE" ]]; then
+    if [[ -f "$PI_LXTERMINAL_FILE" ]]; then
         # Set terminal font size - user
         change_fontsize_in_file "fontname=" "$PI_LXTERMINAL_FILE" "$3"
+    else
+        echo "No user lxterminal file - skipping"
     fi
 
     echo "Done configuring"
