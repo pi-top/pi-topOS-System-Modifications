@@ -57,11 +57,11 @@ wait_for_user_files_to_exist() {
         COUNTER=0
         while ! user_files_exist && [ $COUNTER -lt 600 ]; do
             COUNTER=$((++COUNTER))
-            echo $COUNTER
+            # echo $COUNTER
             sleep 0.05
         done
 
-        if user_files_exist && [ $user_files_missing_at_start ]; then
+        if user_files_exist; then
             echo "Done"
         else
             echo "Unable to run - could not find all files"
@@ -141,15 +141,27 @@ configure_screen_pi() {
     change_fontsize_in_file "desktop_font=" "$PI_PCMANFM_FILE" "$2"
 
     if [[ ! -f "$PI_LXTERMINAL_FILE" ]]; then
-        lxterminal -e "sleep 0"
-        sleep 1
-        if [[ ! -f "$PI_LXTERMINAL_FILE" ]]; then
+        echo "No user lxterminal file - attempting to generate by launching lxterminal"
+    fi
+
+    COUNTER=0
+    while [[ ! -f "$PI_LXTERMINAL_FILE" ]]; do
+        COUNTER=$((++COUNTER))
+        # echo $COUNTER
+        
+        lxterminal -e "sleep 0" || true
+        sleep 0.05
+
+        if [ $COUNTER -gt 600 ]; then
             echo "Unable to configure terminal font size - no config file to edit"
             exit 1
         fi
+    done
+
+    if [[ ! -f "$PI_LXTERMINAL_FILE" ]]; then
+        # Set terminal font size - user
+        change_fontsize_in_file "fontname=" "$PI_LXTERMINAL_FILE" "$3"
     fi
-    # Set terminal font size - user
-    change_fontsize_in_file "fontname=" "$PI_LXTERMINAL_FILE" "$3"
 
     echo "Done configuring"
 }
