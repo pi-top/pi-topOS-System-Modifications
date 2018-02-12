@@ -7,7 +7,7 @@ override_dh_installinit:
 	dh_installinit --noscripts
 
 override_dh_systemd_enable:
-	dh_systemd_enable --name=pt-desktop-scale-display
+	dh_systemd_enable --name=pt-display-scale-desktop-ui
 
 override_dh_systemd_start:
-	dh_systemd_start --no-start pt-desktop-scale-display
+	dh_systemd_start --no-start pt-display-scale-desktop-ui
