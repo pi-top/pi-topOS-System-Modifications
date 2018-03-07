@@ -98,7 +98,7 @@ configure_screen_system() {
 #    change_size_in_file "iconsize=" "$sys_lxpanel_file" "$1"  # User config setting for icon size not retrieved from this file
 
     # Set font size - system
-    change_fontsize_in_file "font:" "$sys_gtk_file" "$2" || true
+    change_fontsize_in_file "font-size:" "$sys_gtk_file" "$2" || true
     change_fontsize_in_file "sGtk/FontName=" "$sys_lxsession_file" "$2" || true
     change_fontsize_in_file "desktop_font=" "$sys_pcmanfm_file" "$2" || true
 
@@ -111,14 +111,18 @@ configure_screen_pi() {
 
     # Set menu size - user
     if [[ -f "$pi_lxpanel_file" ]]; then
-        if change_size_in_file "height=" "$pi_lxpanel_file" "$1" || change_size_in_file "iconsize=" "$pi_lxpanel_file" "$1" && display_var_is_set; then
+        change_size_in_file "height=" "$pi_lxpanel_file" "$1"
+        height_changed=$?
+        change_size_in_file "iconsize=" "$pi_lxpanel_file" "$1"
+        iconsize_changed=$?
+        if ( height_changed || iconsize_changed ) && display_var_is_set; then
             echo "lxpanel configuration changed - refreshing"
             lxpanelctl restart
         fi
     fi
     # Set font size - user
     if [[ -f "$pi_gtk_file" ]]; then
-        change_fontsize_in_file "font:" "$pi_gtk_file" "$2"
+        change_fontsize_in_file "font-size:" "$pi_gtk_file" "$2"
     fi
     if [[ -f "$pi_lxsession_file" ]]; then
         change_fontsize_in_file "sGtk/FontName=" "$pi_lxsession_file" "$2"
