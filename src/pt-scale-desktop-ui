@@ -94,8 +94,8 @@ configure_screen_system() {
     echo "Configuring system configuration files... menu height: $menu_height, font size: $font_size"
 
     # Set menu size - system
-    change_size_in_file "height=" "$sys_lxpanel_file" "$1" || true
-#    change_size_in_file "iconsize=" "$sys_lxpanel_file" "$1"  # User config setting for icon size not retrieved from this file
+    change_size_in_file "height=" "$sys_lxpanel_file" "$1"
+    change_size_in_file "iconsize=" "$sys_lxpanel_file" "$1"
 
     # Set font size - system
     change_fontsize_in_file "font-size:" "$sys_gtk_file" "$2" || true
