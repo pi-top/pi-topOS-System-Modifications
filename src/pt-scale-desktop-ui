@@ -1,6 +1,5 @@
 #!/bin/bash
 
-pi_cfg="/home/pi/.config"
 xdg_sys="/etc/xdg"
 usr_shr="/usr/share"
 lxde_usr="LXDE-pt"
@@ -11,18 +10,11 @@ sys_lxsession_file="$xdg_sys/lxsession/$lxde_usr/desktop.conf"
 sys_pcmanfm_file="$xdg_sys/pcmanfm/$lxde_usr/desktop-items-0.conf"
 sys_lxterminal_file="$usr_shr/lxterminal/lxterminal.conf"
 
-pi_lxpanel_file="$pi_cfg/lxpanel/$lxde_usr/panels/panel"
-pi_gtk_file="$pi_cfg/gtk-3.0/gtk.css"
-pi_lxsession_file="$pi_cfg/lxsession/$lxde_usr/desktop.conf"
-pi_pcmanfm_file="$pi_cfg/pcmanfm/$lxde_usr/desktop-items-0.conf"
-pi_lxterminal_file="$pi_cfg/lxterminal/lxterminal.conf"
-
-
 main() {
     echo "Configuring display for screen size"
     determine_display_sizes_from_screen
     configure_screen_system "$menu_height" "$font_size" "$terminal_font_size"
-    configure_screen_pi "$menu_height" "$font_size" "$terminal_font_size"
+    configure_screen_all_users "$user" "$menu_height" "$font_size" "$terminal_font_size"
 
 }
 
@@ -106,40 +98,61 @@ configure_screen_system() {
     change_fontsize_in_file "fontname=" "$sys_lxterminal_file" "$3" || true
 }
 
-configure_screen_pi() {
-    echo "Configuring pi user's configuration files... menu height: $menu_height, font size: $font_size"
+set_filepaths_for_user() {
+    user=$1
+    echo "Configuring config filepaths for $user user"
+
+    user_cfg="/home/$user/.config"
+
+    user_lxpanel_file="$user_cfg/lxpanel/$lxde_usr/panels/panel"
+    user_gtk_file="$user_cfg/gtk-3.0/gtk.css"
+    user_lxsession_file="$user_cfg/lxsession/$lxde_usr/desktop.conf"
+    user_pcmanfm_file="$user_cfg/pcmanfm/$lxde_usr/desktop-items-0.conf"
+    user_lxterminal_file="$user_cfg/lxterminal/lxterminal.conf"
+}
+
+configure_screen_all_users() {
+    users=$(ls /home/)
+    for user in $users; do
+        set_filepaths_for_user "$user"
+        configure_screen_user "$user" "$menu_height" "$font_size" "$terminal_font_size"
+    done
+}
+
+configure_screen_user() {
+    echo "Configuring $user user's configuration files... menu height: $menu_height, font size: $font_size, terminal font size: $terminal_font_size"
 
     # Set menu size - user
-    if [[ -f "$pi_lxpanel_file" ]]; then
-        change_size_in_file "height=" "$pi_lxpanel_file" "$1"
+    if [[ -f "$user_lxpanel_file" ]]; then
+        change_size_in_file "height=" "$user_lxpanel_file" "$2"
         height_changed=$?
-        change_size_in_file "iconsize=" "$pi_lxpanel_file" "$1"
+        change_size_in_file "iconsize=" "$user_lxpanel_file" "$2"
         iconsize_changed=$?
-        if ( height_changed || iconsize_changed ) && display_var_is_set; then
+        if ([ $height_changed ] || [ $iconsize_changed ]) && display_var_is_set; then
             echo "lxpanel configuration changed - refreshing"
             lxpanelctl restart
         fi
     fi
     # Set font size - user
-    if [[ -f "$pi_gtk_file" ]]; then
-        change_fontsize_in_file "font-size:" "$pi_gtk_file" "$2"
+    if [[ -f "$user_gtk_file" ]]; then
+        change_fontsize_in_file "font-size:" "$user_gtk_file" "$3"
     fi
-    if [[ -f "$pi_lxsession_file" ]]; then
-        change_fontsize_in_file "sGtk/FontName=" "$pi_lxsession_file" "$2"
-        # if change_fontsize_in_file "sGtk/FontName=" "$pi_lxsession_file" "$2" && display_var_is_set; then
+    if [[ -f "$user_lxsession_file" ]]; then
+        change_fontsize_in_file "sGtk/FontName=" "$user_lxsession_file" "$3"
+        # if change_fontsize_in_file "sGtk/FontName=" "$user_lxsession_file" "$2" && display_var_is_set; then
         #     echo "lxsession configuration changed - refreshing"
-        #     su - pi -c "DISPLAY=:0 lxsession --reload &"
+        #     su - $user -c "DISPLAY=:0 lxsession --reload &"
         # fi
     fi
-    if [[ -f "$pi_pcmanfm_file" ]]; then
-        if change_fontsize_in_file "desktop_font=" "$pi_pcmanfm_file" "$2" && display_var_is_set; then
+    if [[ -f "$user_pcmanfm_file" ]]; then
+        if change_fontsize_in_file "desktop_font=" "$user_pcmanfm_file" "$3" && display_var_is_set; then
             echo "pcmanfm configuration changed - refreshing"
-            su - pi -c "DISPLAY=:0 pcmanfm --reconfigure"
+            su - $user -c "DISPLAY=:0 pcmanfm --reconfigure"
         fi
     fi
-    if [[ -f "$pi_lxterminal_file" ]]; then
+    if [[ -f "$user_lxterminal_file" ]]; then
         # Set terminal font size - user
-        change_fontsize_in_file "fontname=" "$pi_lxterminal_file" "$3"
+        change_fontsize_in_file "fontname=" "$user_lxterminal_file" "$4"
     else
         echo "No user lxterminal file - skipping"
     fi
