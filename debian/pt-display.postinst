@@ -1,3 +1,3 @@
 #!/bin/bash
 
-/usr/lib/pt-display/pt-scale-desktop-ui
+/usr/lib/pt-display/pt-scale-desktop-ui 1920 1080
