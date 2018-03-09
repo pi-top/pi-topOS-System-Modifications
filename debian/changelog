@@ -1,3 +1,9 @@
+pt-display (2.0.1-1) stretch; urgency=low
+
+  * Updated package for Stretch
+
+ -- Mike Roberts <mike@pi-top.com>  Thu, 16 Nov 2017 13:29:36 +0000
+
 pt-display (2.0.0-1) jessie; urgency=low
 
   * Initial release - v2 to avoid backwards compatibility with a retired package with the same name.
