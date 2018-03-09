@@ -6,4 +6,4 @@ Type=oneshot
 ExecStart=/usr/lib/pt-display/pt-scale-desktop-ui
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=local-fs.target
