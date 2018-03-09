@@ -12,7 +12,14 @@ sys_lxterminal_file="$usr_shr/lxterminal/lxterminal.conf"
 
 main() {
     echo "Configuring display for screen size"
-    determine_display_sizes_from_screen
+    if [ $# -ne 2 ]; then
+        echo "Invalid number of parameters specified - setting from screen"
+        determine_display_sizes_from_screen
+    else
+        # Assume 1080p
+        echo "Using parameters specified"
+        set_sizes_from_width_and_height $1 $2
+    fi
     configure_screen_system "$menu_height" "$font_size" "$terminal_font_size"
     configure_screen_all_users "$user" "$menu_height" "$font_size" "$terminal_font_size"
 
@@ -34,6 +41,10 @@ determine_display_sizes_from_screen() {
     height="$(echo "$dimensions" | cut -d'x' -f2)"
 
     echo "Width: $width, height: $height"
+    set_sizes_from_width_and_height $width $height 
+}
+
+set_sizes_from_width_and_height() {
     if [[ "$width" == "1366" ]] && [[ "$height" == "768" ]]; then
         echo "Valid screen resolution"
         menu_height=36; font_size=12; terminal_font_size=10
