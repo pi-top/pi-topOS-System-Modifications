@@ -4,7 +4,8 @@ xdg_sys="/etc/xdg"
 usr_shr="/usr/share"
 lxde_usr="LXDE-pt"
 
-sys_lxpanel_file="$xdg_sys/lxpanel/default/panels/panel"
+sys_lxde_user_default_lxpanel_file="$xdg_sys/lxpanel/profile/$lxde_usr/panels/panel"
+sys_default_lxpanel_file="$xdg_sys/lxpanel/default/panels/panel"
 sys_gtk_file="$usr_shr/pt-ui-overrides/gtk.css"
 sys_lxsession_file="$xdg_sys/lxsession/$lxde_usr/desktop.conf"
 sys_pcmanfm_file="$xdg_sys/pcmanfm/$lxde_usr/desktop-items-0.conf"
@@ -97,11 +98,14 @@ configure_screen_system() {
     echo "Configuring system configuration files... menu height: $menu_height, font size: $font_size"
 
     # Set menu size - system
-    change_size_in_file "height=" "$sys_lxpanel_file" "$1"
-    change_size_in_file "iconsize=" "$sys_lxpanel_file" "$1"
+    change_size_in_file "height=" "$sys_lxde_user_default_lxpanel_file" "$1"
+    change_size_in_file "iconsize=" "$sys_lxde_user_default_lxpanel_file" "$1"
+    
+    change_size_in_file "height=" "$sys_default_lxpanel_file" "$1"
+    change_size_in_file "iconsize=" "$sys_default_lxpanel_file" "$1"
 
     # Set font size - system
-    change_fontsize_in_file "font-size:" "$sys_gtk_file" "$2" || true
+    change_fontsize_in_file "font-size:" "$sys_gtk_file" "$2pt;" || true
     change_fontsize_in_file "sGtk/FontName=" "$sys_lxsession_file" "$2" || true
     change_fontsize_in_file "desktop_font=" "$sys_pcmanfm_file" "$2" || true
 
@@ -146,7 +150,7 @@ configure_screen_user() {
     fi
     # Set font size - user
     if [[ -f "$user_gtk_file" ]]; then
-        change_fontsize_in_file "font-size:" "$user_gtk_file" "$3"
+        change_fontsize_in_file "font-size:" "$user_gtk_file" "$3pt;"
     fi
     if [[ -f "$user_lxsession_file" ]]; then
         change_fontsize_in_file "sGtk/FontName=" "$user_lxsession_file" "$3"
