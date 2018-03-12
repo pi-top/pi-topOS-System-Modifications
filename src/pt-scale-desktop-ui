@@ -13,8 +13,6 @@ sys_lxterminal_file="$usr_shr/lxterminal/lxterminal.conf"
 
 main() {
     echo "Configuring display for screen size"
-    echo $#
-    echo $@
     if [ $# -ne 2 ]; then
         echo "Invalid number of parameters specified - setting from screen"
         determine_display_sizes_from_screen
@@ -177,4 +175,4 @@ configure_screen_user() {
     echo "Done configuring"
 }
 
-main
+main $@
