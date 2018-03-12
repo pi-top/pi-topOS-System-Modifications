@@ -19,7 +19,9 @@ main() {
     else
         # Assume 1080p
         echo "Using parameters specified"
-        set_sizes_from_width_and_height $1 $2
+        width=$1
+        height=$2
+        set_sizes_from_width_and_height "$width" "$height"
     fi
     configure_screen_system "$menu_height" "$font_size" "$terminal_font_size"
     configure_screen_all_users "$user" "$menu_height" "$font_size" "$terminal_font_size"
@@ -42,7 +44,7 @@ determine_display_sizes_from_screen() {
     height="$(echo "$dimensions" | cut -d'x' -f2)"
 
     echo "Width: $width, height: $height"
-    set_sizes_from_width_and_height $width $height 
+    set_sizes_from_width_and_height "$width" "$height"
 }
 
 set_sizes_from_width_and_height() {
