@@ -7,7 +7,7 @@ Homepage: https://pi-top.com/
 
 Package: pt-display
 Architecture: armhf
-Depends: ${misc:Depends}, sed (>=4.2.2-4), lxterminal (>= 0.2.0-1+rpi1)
+Depends: ${misc:Depends}, sed, lxterminal
 Description: pi-top display-dependent desktop management
  pi-top desktop management includes configuring desktop
  components for optimal layout for the detected display.
