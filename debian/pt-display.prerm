@@ -1,0 +1,9 @@
+#!/bin/bash -e
+
+echo "Stopping pt-scale-desktop-ui service..."
+systemctl stop pt-scale-desktop-ui
+
+echo "Disabling pt-scale-desktop-ui service..."
+systemctl disable pt-scale-desktop-ui
+
+exit 0
