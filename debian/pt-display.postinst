@@ -1,12 +1,12 @@
 #!/bin/bash -e
 
 echo "Unmasking pt-scale-desktop-ui service..."
-systemctl unmask pt-scale-desktop-ui
+systemctl unmask pt-display-scale-desktop-ui
 
 echo "Enabling pt-scale-desktop-ui service..."
-systemctl enable pt-scale-desktop-ui
+systemctl enable pt-display-scale-desktop-ui
 
 echo "Starting pt-scale-desktop-ui service..."
-systemctl start pt-scale-desktop-ui
+systemctl start pt-display-scale-desktop-ui
 
 exit 0
