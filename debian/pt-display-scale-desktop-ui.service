@@ -1,9 +1,0 @@
-[Unit]
-Description=pi-top desktop layout configuration service
-
-[Service]
-Type=oneshot
-ExecStart=/usr/lib/pt-display/pt-scale-desktop-ui
-
-[Install]
-WantedBy=local-fs.target
