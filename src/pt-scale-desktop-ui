@@ -1,15 +1,6 @@
 #!/bin/bash
 
-xdg_sys="/etc/xdg"
-usr_shr="/usr/share"
 lxde_usr="LXDE-pt"
-
-sys_lxde_user_default_lxpanel_file="$xdg_sys/lxpanel/profile/$lxde_usr/panels/panel"
-sys_default_lxpanel_file="$xdg_sys/lxpanel/default/panels/panel"
-sys_gtk_file="$usr_shr/pt-ui-overrides/gtk.css"
-sys_lxsession_file="$xdg_sys/lxsession/$lxde_usr/desktop.conf"
-sys_pcmanfm_file="$xdg_sys/pcmanfm/$lxde_usr/desktop-items-0.conf"
-sys_lxterminal_file="$usr_shr/lxterminal/lxterminal.conf"
 
 main() {
     echo "Configuring display for screen size"
@@ -23,7 +14,6 @@ main() {
         height=$2
         set_sizes_from_width_and_height "$width" "$height"
     fi
-    configure_screen_system "$menu_height" "$font_size" "$terminal_font_size"
     configure_screen_all_users "$user" "$menu_height" "$font_size" "$terminal_font_size"
 
 }
@@ -96,25 +86,6 @@ change_fontsize_in_file() {
     return $?
 }
 
-configure_screen_system() {
-    echo "Configuring system configuration files... menu height: $menu_height, font size: $font_size"
-
-    # Set menu size - system
-    change_size_in_file "height=" "$sys_lxde_user_default_lxpanel_file" "$1"
-    change_size_in_file "iconsize=" "$sys_lxde_user_default_lxpanel_file" "$1"
-    
-    change_size_in_file "height=" "$sys_default_lxpanel_file" "$1"
-    change_size_in_file "iconsize=" "$sys_default_lxpanel_file" "$1"
-
-    # Set font size - system
-    change_fontsize_in_file "font-size:" "$sys_gtk_file" "$2pt;" || true
-    change_fontsize_in_file "sGtk/FontName=" "$sys_lxsession_file" "$2" || true
-    change_fontsize_in_file "desktop_font=" "$sys_pcmanfm_file" "$2" || true
-
-    # Set terminal font size - system
-    change_fontsize_in_file "fontname=" "$sys_lxterminal_file" "$3" || true
-}
-
 set_filepaths_for_user() {
     user=$1
     echo "Configuring config filepaths for $user user"
@@ -164,7 +135,7 @@ configure_screen_user() {
     if [[ -f "$user_pcmanfm_file" ]]; then
         if change_fontsize_in_file "desktop_font=" "$user_pcmanfm_file" "$3" && display_var_is_set; then
             echo "pcmanfm configuration changed - refreshing"
-            su - $user -c "DISPLAY=:0 pcmanfm --reconfigure"
+            su - "$user" -c "DISPLAY=:0 pcmanfm --reconfigure"
         fi
     fi
     if [[ -f "$user_lxterminal_file" ]]; then
@@ -177,4 +148,4 @@ configure_screen_user() {
     echo "Done configuring"
 }
 
-main $@
+main "$@"
