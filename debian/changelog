@@ -1,6 +1,8 @@
 pt-display (2.0.1-1) stretch; urgency=low
 
   * Updated package for Stretch
+  * Moved files to /usr/lib/pt-display
+  * Removed systemd service to integrate with pt-ui-mods
 
  -- Mike Roberts <mike@pi-top.com>  Thu, 16 Nov 2017 13:29:36 +0000
 
