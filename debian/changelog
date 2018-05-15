@@ -1,3 +1,9 @@
+pt-display (2.0.1-2) stretch; urgency=low
+
+  * Updated sed dependency with version
+
+ -- Mike Roberts <mike@pi-top.com>  Tue, 15 May 2018 14:02:31 +0100
+
 pt-display (2.0.1-1) stretch; urgency=low
 
   * Updated package for Stretch
