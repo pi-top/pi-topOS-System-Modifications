@@ -1,1 +1,1 @@
-src/pt-scale-desktop-ui                 /usr/lib/pt-display/
+src/pt-xhost-local-root.conf                 /etc/lightdm/lightdm.conf.d/

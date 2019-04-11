@@ -1,19 +1,5 @@
-pt-display (2.0.1-2) stretch; urgency=low
+pt-display (3.0.0-1) stretch; urgency=low
 
-  * Updated sed dependency with version
+  * Use as mechanism for root to access the display
 
- -- Mike Roberts <mike@pi-top.com>  Tue, 15 May 2018 14:02:31 +0100
-
-pt-display (2.0.1-1) stretch; urgency=low
-
-  * Updated package for Stretch
-  * Moved files to /usr/lib/pt-display
-  * Removed systemd service to integrate with pt-ui-mods
-
- -- Mike Roberts <mike@pi-top.com>  Thu, 16 Nov 2017 13:29:36 +0000
-
-pt-display (2.0.0-1) jessie; urgency=low
-
-  * Initial release - v2 to avoid backwards compatibility with a retired package with the same name.
-
- -- Mike Roberts <mike@pi-top.com>  Thu, 16 Nov 2017 13:29:36 +0000
+ -- Mike Roberts <mike@pi-top.com>  Thu, 11 Apr 2019 19:23:55 +0800

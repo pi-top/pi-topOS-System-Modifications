@@ -7,7 +7,7 @@ Homepage: https://pi-top.com/
 
 Package: pt-display
 Architecture: armhf
-Depends: ${misc:Depends}, sed (>= 4.4-1), lxterminal, pt-ui-mods
+Depends: ${misc:Depends}
+Recommends: lightdm
 Description: pi-top Display Management
- pi-top desktop management includes configuring desktop
- components for optimal layout for the detected display.
+ Configures lightdm to enable root access to the display.
