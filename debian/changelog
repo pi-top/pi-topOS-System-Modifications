@@ -1,3 +1,9 @@
+pt-display (3.0.2-1) buster; urgency=medium
+
+  * Update lightdm config file to suppress deprecation warning
+
+ -- Mike Roberts <mike@pi-top.com>  Tue, 25 Jun 2019 15:10:39 +0100
+
 pt-display (3.0.1-1) buster; urgency=medium
 
   * Move to Buster
