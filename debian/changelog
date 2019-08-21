@@ -1,3 +1,9 @@
+pt-display (3.0.3-1) buster; urgency=medium
+
+  * Close security vulnerability by only allowing required access to xhost
+
+ -- Ben Pring <ben@pi-top.com>  Wed, 21 Aug 2019 10:26:30 +0100
+
 pt-display (3.0.2-1) buster; urgency=medium
 
   * Update lightdm config file to suppress deprecation warning
