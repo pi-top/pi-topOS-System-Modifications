@@ -1,6 +1,7 @@
-pt-os-mods (4.0.0-1) buster; urgency=medium
+pt-os-mods (4.0.0-2) buster; urgency=medium
 
   * Rename package.
+  * Replace pt-display in control file.
 
  -- Ben Pring <ben@pi-top.com>  Wed, 21 Aug 2019 10:33:46 +0100
 
