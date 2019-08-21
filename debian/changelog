@@ -1,23 +1,23 @@
-pt-display (3.0.3-1) buster; urgency=medium
+pt-os-mods (4.0.0-1) buster; urgency=medium
+
+  * Rename package.
+
+ -- Ben Pring <ben@pi-top.com>  Wed, 21 Aug 2019 10:33:46 +0100
+
+pt-os-mods (3.0.3-1) buster; urgency=medium
 
   * Close security vulnerability by only allowing required access to xhost
 
  -- Ben Pring <ben@pi-top.com>  Wed, 21 Aug 2019 10:26:30 +0100
 
-pt-display (3.0.2-1) buster; urgency=medium
+pt-os-mods (3.0.2-1) buster; urgency=medium
 
   * Update lightdm config file to suppress deprecation warning
 
  -- Mike Roberts <mike@pi-top.com>  Tue, 25 Jun 2019 15:10:39 +0100
 
-pt-display (3.0.1-1) buster; urgency=medium
+pt-os-mods (3.0.1-1) buster; urgency=medium
 
   * Move to Buster
 
  -- Mike Roberts <mike@pi-top.com>  Tue, 25 Jun 2019 15:10:39 +0100
-
-pt-display (3.0.0-1) stretch; urgency=low
-
-  * Use as mechanism for root to access the display
-
- -- Mike Roberts <mike@pi-top.com>  Thu, 11 Apr 2019 19:23:55 +0800
