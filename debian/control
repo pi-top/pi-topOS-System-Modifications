@@ -8,6 +8,8 @@ Homepage: https://pi-top.com/
 Package: pt-os-mods
 Architecture: armhf
 Depends: ${misc:Depends}
+Replaces: pt-display
 Recommends: lightdm
-Description: pi-top Display Management
- Configures lightdm to enable root access to the display.
+Description: pi-top OS Config Management
+ Manages pi-top modifications to the base operating system
+ configuration
