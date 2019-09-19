@@ -1,2 +1,3 @@
 src/pt-xhost-local-root.conf                /etc/lightdm/lightdm.conf.d/
 src/g_ether.conf                            /etc/modprobe.d/
+src/90-pt4usb0.rules                        /etc/udev/rules.d/
