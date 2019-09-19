@@ -1,1 +1,2 @@
-src/pt-xhost-local-root.conf                 /etc/lightdm/lightdm.conf.d/
+src/pt-xhost-local-root.conf                /etc/lightdm/lightdm.conf.d/
+src/g_ether.conf                            /etc/modprobe.d/
