@@ -1,3 +1,9 @@
+pt-os-mods (4.0.1-1) buster; urgency=medium
+
+  * Rename the USB OTG interface to pt4usb0 to reduce potential for conflicts
+
+ -- Mike Roberts <mike@pi-top.com>  Fri, 20 Sep 2019 13:39:21 +0100
+
 pt-os-mods (4.0.0-2) buster; urgency=medium
 
   * Rename package.
