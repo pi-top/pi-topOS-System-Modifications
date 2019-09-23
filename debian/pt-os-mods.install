@@ -1,3 +1,5 @@
 src/pt-xhost-local-root.conf                /etc/lightdm/lightdm.conf.d/
 src/g_ether.conf                            /etc/modprobe.d/
-src/90-ptusb0.rules                        /etc/udev/rules.d/
+src/90-ptusb0.rules                         /etc/udev/rules.d/
+src/pt-dispsetup.sh                         /usr/share/
+src/pt-arandr-autostart.desktop             /etc/xdg/autostart/
