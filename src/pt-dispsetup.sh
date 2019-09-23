@@ -7,6 +7,7 @@ force_mode_h="1080"
 
 
 main() {
+	remove_default_arandr_autostart_if_exists
 	if graphics_stack_is_valid; then
 		if display_is_connected; then
 			# Do what arandr wanted to do originally
@@ -14,6 +15,14 @@ main() {
 		else
 			add_and_set_forced_resolution
 		fi
+	fi
+}
+
+# Helper functions
+remove_default_arandr_autostart_if_exists() {
+	default_arandr_autostart_file="/etc/xdg/autostart/arandr-autostart.desktop"
+	if [ -f "${default_arandr_autostart_file}" ]; then
+		rm "${default_arandr_autostart_file}"
 	fi
 }
 
