@@ -27,7 +27,7 @@ graphics_stack_is_valid() {
 
 display_is_connected() {
   edid_dump_file="/tmp/pt-dispsetup-test-edid-dump.dat"
-  if tvservice -d "${edid_dump_file}"; then
+  if [[ $(tvservice -d "${edid_dump_file}") != *"Nothing written!"* ]]; then
     rm "${edid_dump_file}"
     return 0
   else
