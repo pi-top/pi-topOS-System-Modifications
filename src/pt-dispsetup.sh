@@ -6,7 +6,6 @@ force_mode_w="1920"
 force_mode_h="1080"
 
 main() {
-  remove_default_arandr_autostart_if_exists
   if graphics_stack_is_valid; then
     if display_is_connected; then
       # Do what arandr wanted to do originally
@@ -18,13 +17,6 @@ main() {
 }
 
 # Helper functions
-remove_default_arandr_autostart_if_exists() {
-  default_arandr_autostart_file="/etc/xdg/autostart/arandr-autostart.desktop"
-  if [ -f "${default_arandr_autostart_file}" ]; then
-    rm "${default_arandr_autostart_file}"
-  fi
-}
-
 graphics_stack_is_valid() {
   if grep -q okay /proc/device-tree/soc/v3d@7ec00000/status 2>/dev/null || grep -q okay /proc/device-tree/soc/firmwarekms@7e600000/status 2>/dev/null; then
     return 0
