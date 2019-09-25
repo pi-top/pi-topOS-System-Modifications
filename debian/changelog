@@ -1,3 +1,9 @@
+pt-os-mods (4.0.2-1) buster; urgency=medium
+
+  * Use the VNC-set resolution if no display is connected
+
+ -- Ben Pring <ben@pi-top.com>  Wed, 25 Sep 2019 17:44:13 +0100
+
 pt-os-mods (4.0.1-1) buster; urgency=medium
 
   * Rename the USB OTG interface to pt4usb0 to reduce potential for conflicts
