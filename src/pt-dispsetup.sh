@@ -7,11 +7,11 @@ force_mode_h="1080"
 
 main() {
   if graphics_stack_is_valid; then
-    if display_is_connected; then
+    if display_has_been_connected; then
       # Do what arandr wanted to do originally
       /usr/share/dispsetup.sh
     else
-      add_and_set_forced_resolution
+      set_vnc_resolution_if_available
     fi
   fi
 }
@@ -25,8 +25,9 @@ graphics_stack_is_valid() {
   fi
 }
 
-display_is_connected() {
+display_has_been_connected() {
   edid_dump_file="/tmp/pt-dispsetup-test-edid-dump.dat"
+  rm -f "${edid_dump_file}" || true
   if [[ $(tvservice -d "${edid_dump_file}") != *"Nothing written!"* ]]; then
     rm "${edid_dump_file}"
     return 0
@@ -35,36 +36,12 @@ display_is_connected() {
   fi
 }
 
-add_and_set_forced_resolution() {
-  # Better to determine these dynamically...
+set_vnc_resolution_if_available() {
+  local force_mode_res="${force_mode_w}x${force_mode_h}_vnc"
 
-  local force_mode_clk_mhz="173.00"
-
-  local force_mode_flags="-hsync +vsync"
-
-  local force_mode_hsync_start=2048
-  local force_mode_hsync_end=2248
-  local force_mode_hsync_total=2576
-
-  local force_mode_vsync_start=1083
-  local force_mode_vsync_end=1088
-  local force_mode_vsync_total=1120
-
-  local force_mode_res="${force_mode_w}x${force_mode_h}"
-
-  # If desired resolution not available
-  if ! xrandr --output "${display_name}" --mode "${force_mode_res}" --dryrun; then
-
-    # Add desired resolution
-    xrandr --newmode "${force_mode_res}" "${force_mode_clk_mhz}" \
-      "${force_mode_w}" "${force_mode_hsync_start}" "${force_mode_hsync_end}" "${force_mode_hsync_total}" \
-      "${force_mode_h}" "${force_mode_vsync_start}" "${force_mode_vsync_end}" "${force_mode_vsync_total}" \
-      "${force_mode_flags}"
-    xrandr --addmode "${display_name}" "${force_mode_res}"
+  if xrandr --output "${display_name}" --mode "${force_mode_res}" --dryrun; then
+    xrandr --output "${display_name}" --mode "${force_mode_res}"
   fi
-
-  # Set resolution to desired resolution
-  xrandr --output "${display_name}" --mode "${force_mode_res}"
 }
 
 main
