@@ -1,7 +1,0 @@
-#!/bin/bash -e
-
-default_arandr_autostart_file="/etc/xdg/autostart/arandr-autostart.desktop"
-
-if [ -f "${default_arandr_autostart_file}" ]; then
-  rm "${default_arandr_autostart_file}"
-fi
