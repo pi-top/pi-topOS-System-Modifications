@@ -1,3 +1,9 @@
+pt-os-mods (4.0.3-1) buster; urgency=medium
+
+  * Remove VNC RandR configuration
+
+ -- Choudhry Amjad <choudhry@pi-top.com>  Thu, 10 Oct 2019 12:06:23 +0100
+
 pt-os-mods (4.0.2-1) buster; urgency=medium
 
   * Use the VNC-set resolution if no display is connected
