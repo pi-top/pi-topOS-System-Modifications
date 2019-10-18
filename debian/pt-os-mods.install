@@ -1,4 +1,3 @@
 src/pt-xhost-local-root.conf                /etc/lightdm/lightdm.conf.d/
 src/g_ether.conf                            /etc/modprobe.d/
 src/90-ptusb0.rules                         /etc/udev/rules.d/
-src/autorandr                               /usr/bin/
