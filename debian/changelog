@@ -1,5 +1,11 @@
 pt-os-mods (4.0.4-1) buster; urgency=medium
 
+  * Move autorandr to pt-ui-mods
+
+ -- Mike Roberts <mike@pi-top.com>  Fri, 18 Oct 2019 12:07:27 +0800
+
+pt-os-mods (4.0.4-1) buster; urgency=medium
+
   * Add unreleased version of autorandr
 
  -- Choudhry Amjad <choudhry@pi-top.com>  Thu, 17 Oct 2019 13:49:15 +0100
