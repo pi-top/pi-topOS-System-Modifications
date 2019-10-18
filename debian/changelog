@@ -1,4 +1,4 @@
-pt-os-mods (4.0.4-1) buster; urgency=medium
+pt-os-mods (4.0.5-1) buster; urgency=medium
 
   * Move autorandr to pt-ui-mods
 
