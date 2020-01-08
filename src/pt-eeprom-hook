@@ -1,0 +1,28 @@
+#!/usr/bin/python3
+
+from subprocess import run
+from sys import stdin, stdout
+
+rpi_config = {
+    "WAKE_ON_GPIO": "1",
+    "POWER_OFF_ON_HALT": "0"
+}
+pt4_config = {
+    "WAKE_ON_GPIO": "0",
+    "POWER_OFF_ON_HALT": "1"
+}
+
+config = rpi_config
+
+resp = run(['pt-host'], capture_output=True)
+
+if resp.stdout is not None and "pi-top [4]" in resp.stdout.decode('utf-8'):
+    config = pt4_config
+
+for line in stdin:
+    for field in config:
+        if field in line:
+            line = field + "=" + config[field] + "\n"
+            break
+
+    stdout.write(line)
