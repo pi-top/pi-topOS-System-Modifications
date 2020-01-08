@@ -1,5 +1,15 @@
 #!/usr/bin/python3
 
+# This script takes in a Raspberry Pi bootloader config,
+# and writes out a modified version that is suitable for the
+# given device (as determined by 'pt-host')
+
+# This script is used by /usr/bin/pt-rpi-eeprom-update for checking if
+# the configuration is correct when no update is available.
+
+# This script is used by /usr/bin/rpi-eeprom-update to patch the
+# configuration during an update.
+
 from subprocess import run
 from sys import stdin, stdout
 
@@ -12,13 +22,17 @@ pt4_config = {
     "POWER_OFF_ON_HALT": "1"
 }
 
+# Default to Raspberry Pi configuration
 config = rpi_config
 
+# Check pi-top host device
 resp = run(['pt-host'], capture_output=True)
 
+# Change configuration based on pi-top host device
 if resp.stdout is not None and "pi-top [4]" in resp.stdout.decode('utf-8'):
     config = pt4_config
 
+# Patch configuration
 for line in stdin:
     for field in config:
         if field in line:

@@ -4,4 +4,4 @@ systemctl disable rpi-eeprom-update.service
 
 # TODO: Comment out EEPROM_CONFIG_HOOK in /etc/default/rpi-eeprom-update if it exists
 
-echo "EEPROM_CONFIG_HOOK=\"/usr/lib/rpi-eeprom-update/pt-hook.sh\"" >>/etc/default/rpi-eeprom-update
+echo 'EEPROM_CONFIG_HOOK="/usr/lib/rpi-eeprom-update/pt-hook.sh"' >>/etc/default/rpi-eeprom-update
