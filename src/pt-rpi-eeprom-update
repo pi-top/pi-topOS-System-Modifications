@@ -67,7 +67,7 @@ if [[ "${bootloader_current}" == "${bootloader_latest}" ]] && [[ "${vl805_curren
       echo
       echo "DIFF:"
       echo
-      diff --suppress-common-lines <(echo "${orig_bootloader_config}") <(echo "${mod_bootloader_config}")
+      diff --color='always' --suppress-common-lines <(echo "${orig_bootloader_config}") <(echo "${mod_bootloader_config}")
 
       echo
 
