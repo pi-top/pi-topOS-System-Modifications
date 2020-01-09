@@ -1,6 +1,6 @@
 #!/bin/bash
 
-model="$(cat /proc/device-tree/model)"
+model="$(tr -d '\0' </proc/device-tree/model)"
 echo "Model: ${model}"
 
 if [[ "${model}" != *"Raspberry Pi 4"* ]]; then
@@ -15,11 +15,21 @@ fi
 
 output="$(rpi-eeprom-update)"
 
-bootloader_current="$(echo "${output}" | ag "CURRENT" | head -n1)"
-bootloader_latest="$(echo "${output}" | ag "LATEST" | head -n1)"
+bootloader_current="$(echo "${output}" | ag "CURRENT" | head -n1 | awk '{print $NF}' | sed 's/[()]//g')"
+bootloader_latest="$(echo "${output}" | ag "LATEST" | head -n1 | awk '{print $NF}' | sed 's/[()]//g')"
 
 vl805_current="$(echo "${output}" | ag "CURRENT" | tail -n1)"
 vl805_latest="$(echo "${output}" | ag "LATEST" | tail -n1)"
+
+echo "BOOTLOADER"
+echo "CURRENT: ${bootloader_current}"
+echo " LATEST: ${bootloader_latest}"
+
+echo ""
+
+echo "VL805"
+echo "CURRENT: ${vl805_current}"
+echo " LATEST: ${vl805_latest}"
 
 # TODO: what if latest is older than current?
 if [[ "${bootloader_current}" == "${bootloader_latest}" ]] && [[ "${vl805_current}" == "${vl805_latest}" ]]; then
@@ -31,34 +41,58 @@ if [[ "${bootloader_current}" == "${bootloader_latest}" ]] && [[ "${vl805_curren
     . /etc/default/rpi-eeprom-update
   fi
 
+  echo "Config hook: ${EEPROM_CONFIG_HOOK}"
+
   if [ -x "${EEPROM_CONFIG_HOOK}" ]; then
 
+    echo "Executable config hook found"
+
     orig_bootloader_config="$(/opt/vc/bin/vcgencmd bootloader_config)"
+
     mod_bootloader_config="$(echo "${orig_bootloader_config}" | ${EEPROM_CONFIG_HOOK})"
 
     if [[ "${mod_bootloader_config}" == "${orig_bootloader_config}" ]]; then
 
       echo "Raspberry Pi bootloader configuration is correct for current pi-top device"
+      echo "No action required..."
 
     else
 
       echo "Raspberry Pi bootloader configuration is incorrect for current pi-top device"
 
+      echo
+      echo "KEY:"
+      echo "<  Current RPi configuration"
+      echo ">  Recommended configuration"
+      echo
+      echo "DIFF:"
+      echo
+      diff -ia --suppress-common-lines <(echo "${orig_bootloader_config}") <(echo "${mod_bootloader_config}")
+
+      echo
+
+      echo "Requesting user to apply patch and reboot..."
       # TODO: create script to actually apply patch
       # NOTE: user could have newer bootloader than latest on OS
       # (see 'what if latest is older than current?')
 
-      pt-notify-send -t 0 \
+      DISPLAY=:0 pt-notify-send -t 0 \
         "--action=Apply and reboot:/bin/false" \
         "--action=Ask me next time:/bin/false" \
         "Invalid Raspberry Pi EEPROM configuration" \
         "A patch to the Raspberry Pi EEPROM is required for full functionality."
+
     fi
+
+  else
+
+    echo "No executable config hook found."
+
   fi
 
 else
 
-  echo "Firmware updates available - running rpi-eeprom-update"
+  echo "Firmware updates available - running 'rpi-eeprom-update -a'..."
   rpi-eeprom-update -a
 
 fi

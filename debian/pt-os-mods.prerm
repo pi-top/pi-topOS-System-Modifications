@@ -2,6 +2,6 @@
 
 systemctl enable rpi-eeprom-update.service
 
-sed -i '/pt-hook.sh/d' /etc/default/rpi-eeprom-update
+sed -i '/pt-eeprom-hook/d' /etc/default/rpi-eeprom-update
 
 # TODO: Uncomment out EEPROM_CONFIG_HOOK in /etc/default/rpi-eeprom-update if it exists
