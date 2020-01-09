@@ -61,14 +61,7 @@ if [[ "${bootloader_current}" == "${bootloader_latest}" ]] && [[ "${vl805_curren
       echo "Raspberry Pi bootloader configuration is incorrect for current pi-top device"
 
       echo
-      echo "KEY:"
-      echo "<  Current RPi configuration"
-      echo ">  Recommended configuration"
-      echo
-      echo "DIFF:"
-      echo
       diff --color='always' --suppress-common-lines <(echo "${orig_bootloader_config}") <(echo "${mod_bootloader_config}")
-
       echo
 
       echo "Requesting user to apply patch and reboot..."
