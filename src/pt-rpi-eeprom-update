@@ -2,7 +2,7 @@
 
 if [ "$EUID" -ne 0 ]; then
   echo "Please run as root"
-  exit
+  exit 1
 fi
 
 model="$(tr -d '\0' </proc/device-tree/model)"
@@ -10,12 +10,12 @@ echo "Model: ${model}"
 
 if [[ "${model}" != *"Raspberry Pi 4"* ]]; then
   echo "Not Raspberry Pi 4 - exiting..."
-  return 0
+  exit 0
 fi
 
 if [[ "$(/usr/bin/pt-host)" != "pi-top [4]" ]]; then
   echo "No pi-top [4] detected - exiting..."
-  return 0
+  exit 0
 fi
 
 output="$(rpi-eeprom-update)"
@@ -23,8 +23,8 @@ output="$(rpi-eeprom-update)"
 bootloader_current="$(echo "${output}" | ag "CURRENT" | head -n1 | awk '{print $NF}' | sed 's/[()]//g')"
 bootloader_latest="$(echo "${output}" | ag "LATEST" | head -n1 | awk '{print $NF}' | sed 's/[()]//g')"
 
-vl805_current="$(echo "${output}" | ag "CURRENT" | tail -n1)"
-vl805_latest="$(echo "${output}" | ag "LATEST" | tail -n1)"
+vl805_current="$(echo "${output}" | ag "CURRENT" | tail -n1 | awk '{print $NF}')"
+vl805_latest="$(echo "${output}" | ag "LATEST" | tail -n1 | awk '{print $NF}')"
 
 echo "BOOTLOADER"
 echo "CURRENT: ${bootloader_current}"
@@ -36,7 +36,32 @@ echo "VL805"
 echo "CURRENT: ${vl805_current}"
 echo " LATEST: ${vl805_latest}"
 
-verifyCurrentEEPROMConfig() {
+FORCE_EEPROM_UPDATE="/usr/lib/rpi-eeprom-update/pt-force-rpi-eeprom-install"
+NOTIFICATION_TITLE="Invalid Raspberry Pi EEPROM configuration"
+
+notifyUserInvalidLatestEEPROMConfig() {
+  echo "Sending notification to user with request to apply patch..."
+
+  # TODO: handle wording
+  DISPLAY=:0 pt-notify-send -t 0 \
+    "--action=Apply patch and reboot:${FORCE_EEPROM_UPDATE}" \
+    "${NOTIFICATION_TITLE}" \
+    "A patch to the Raspberry Pi EEPROM is required for full functionality."
+}
+
+notifyUserInvalidAheadOfLatestEEPROMConfig() {
+  echo "Sending notification to user with request to downgrade EEPROM and apply patch..."
+
+  # TODO: handle wording
+  DISPLAY=:0 pt-notify-send -t 0 \
+    "--action=Apply patch with downgrade and reboot:${FORCE_EEPROM_UPDATE}" \
+    "${NOTIFICATION_TITLE}" \
+    "A patch to the Raspberry Pi EEPROM is required for full functionality.
+EEPROM version on Raspberry Pi is not available, so downgrade is required"
+
+}
+
+currentEEPROMConfigIsValid() {
   echo "No bootloader updates available - checking for valid EEPROM config"
 
   if [ -f /etc/default/rpi-eeprom-update ]; then
@@ -59,6 +84,8 @@ verifyCurrentEEPROMConfig() {
       echo "Raspberry Pi bootloader configuration is correct for current pi-top device"
       echo "No action required..."
 
+      return 0
+
     else
 
       echo "Raspberry Pi bootloader configuration is incorrect for current pi-top device"
@@ -80,58 +107,33 @@ verifyCurrentEEPROMConfig() {
   return 0
 }
 
-runUpdate=0
-
 if [[ "${vl805_current}" == "${vl805_latest}" ]]; then
 
   if [[ "${bootloader_current}" -gt "${bootloader_latest}" ]]; then
 
     echo "Raspberry Pi version is ahead of latest on OS."
 
-    if ! verifyCurrentEEPROMConfig; then
+    if ! currentEEPROMConfigIsValid; then
 
-      echo "Notifying user of situation..."
-
-      # TODO: handle wording
-
-      DISPLAY=:0 pt-notify-send -t 0 \
-        "--action=Apply patch with downgrade and reboot:/usr/lib/rpi-eeprom-update/pt-force-rpi-eeprom-install" \
-        "Invalid Raspberry Pi EEPROM configuration" \
-        "A patch to the Raspberry Pi EEPROM is required for full functionality.
-EEPROM version on Raspberry Pi is not available, so downgrade is required"
+      notifyUserInvalidAheadOfLatestEEPROMConfig
 
     fi
+
+    exit 0
 
   elif [[ "${bootloader_current}" -eq "${bootloader_latest}" ]]; then
 
-    if ! verifyCurrentEEPROMConfig; then
+    if ! currentEEPROMConfigIsValid; then
 
-      echo "Requesting user to apply patch and reboot..."
-
-      # TODO: handle wording
-
-      DISPLAY=:0 pt-notify-send -t 0 \
-        "--action=Apply patch and reboot:/usr/lib/rpi-eeprom-update/pt-force-rpi-eeprom-install" \
-        "Invalid Raspberry Pi EEPROM configuration" \
-        "A patch to the Raspberry Pi EEPROM is required for full functionality."
+      notifyUserInvalidLatestEEPROMConfig
 
     fi
 
-  else
-
-    runUpdate=1
+    exit 0
 
   fi
 
-else
-
-  runUpdate=1
-
 fi
 
-if [[ "${runUpdate}" -eq 1 ]]; then
-
-  echo "Firmware updates available - running 'rpi-eeprom-update -a'..."
-  rpi-eeprom-update -a
-
-fi
+echo "Firmware updates available - running 'rpi-eeprom-update -a'..."
+rpi-eeprom-update -a
