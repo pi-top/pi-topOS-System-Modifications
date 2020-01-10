@@ -2,6 +2,10 @@
 
 EEPROM_CONFIG_FILE="/etc/default/rpi-eeprom-update"
 
+# Values to install to EEPROM_CONFIG_FILE
+BOOTFS="/recovery"
+EEPROM_CONFIG_HOOK="/usr/lib/rpi-eeprom-update/pt-eeprom-hook"
+
 is_first_install() {
   if [ -z "${2}" ]; then
     return 0
@@ -12,7 +16,7 @@ is_first_install() {
 
 configure_rpi_eeprom() {
   local field="${1}"
-  local value="${1}"
+  local value="${2}"
 
   # Comment out any existing values
   sed -i "/${field}=/s/^/#/" "${EEPROM_CONFIG_FILE}"
@@ -25,10 +29,10 @@ configure_rpi_eeprom() {
 if is_first_install "$@"; then
 
   # Configure boot partition for rpi-eeprom tool
-  configure_rpi_eeprom "BOOTFS" "/recovery"
+  configure_rpi_eeprom "BOOTFS" "${BOOTFS}"
 
   # Configure EEPROM config hook for rpi-eeprom tool
-  configure_rpi_eeprom "EEPROM_CONFIG_HOOK" "/usr/lib/rpi-eeprom-update/pt-eeprom-hook"
+  configure_rpi_eeprom "EEPROM_CONFIG_HOOK" "${EEPROM_CONFIG_HOOK}"
 fi
 
 systemctl disable rpi-eeprom-update.service
