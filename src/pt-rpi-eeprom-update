@@ -67,16 +67,7 @@ verifyCurrentEEPROMConfig() {
       diff --color='always' --suppress-common-lines <(echo "${orig_bootloader_config}") <(echo "${mod_bootloader_config}")
       echo
 
-      echo "Requesting user to apply patch and reboot..."
-      # TODO: create script to actually apply patch
-      # NOTE: user could have newer bootloader than latest on OS
-      # (see 'what if latest is older than current?')
-
-      DISPLAY=:0 pt-notify-send -t 0 \
-        "--action=Apply and reboot:/bin/false" \
-        "--action=Ask me next time:/bin/false" \
-        "Invalid Raspberry Pi EEPROM configuration" \
-        "A patch to the Raspberry Pi EEPROM is required for full functionality."
+      return 1
 
     fi
 
@@ -85,6 +76,8 @@ verifyCurrentEEPROMConfig() {
     echo "No executable config hook found."
 
   fi
+
+  return 0
 }
 
 runUpdate=0
@@ -93,14 +86,38 @@ if [[ "${vl805_current}" == "${vl805_latest}" ]]; then
 
   if [[ "${bootloader_current}" -gt "${bootloader_latest}" ]]; then
 
-    echo "Raspberry Pi is ahead of OS."
-    # TODO: Figure out what to do in this situation
+    echo "Raspberry Pi version is ahead of latest on OS."
+
+    if ! verifyCurrentEEPROMConfig; then
+
+      echo "Notifying user of situation..."
+
+      # TODO: handle wording
+
+      DISPLAY=:0 pt-notify-send -t 0 \
+        "--action=Apply patch with downgrade and reboot:/usr/lib/rpi-eeprom-update/pt-force-rpi-eeprom-install" \
+        "Invalid Raspberry Pi EEPROM configuration" \
+        "A patch to the Raspberry Pi EEPROM is required for full functionality.
+EEPROM version on Raspberry Pi is not available, so downgrade is required"
+
+    fi
 
     # Show different message to user? Offer a different solution
 
   elif [[ "${bootloader_current}" -eq "${bootloader_latest}" ]]; then
 
-    verifyCurrentEEPROMConfig
+    if ! verifyCurrentEEPROMConfig; then
+
+      echo "Requesting user to apply patch and reboot..."
+
+      # TODO: handle wording
+
+      DISPLAY=:0 pt-notify-send -t 0 \
+        "--action=Apply patch and reboot:/usr/lib/rpi-eeprom-update/pt-force-rpi-eeprom-install" \
+        "Invalid Raspberry Pi EEPROM configuration" \
+        "A patch to the Raspberry Pi EEPROM is required for full functionality."
+
+    fi
 
   else
 

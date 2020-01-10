@@ -28,6 +28,8 @@ configure_rpi_eeprom() {
 
 if is_first_install "$@"; then
 
+  cp "${EEPROM_CONFIG_FILE}" "${EEPROM_CONFIG_FILE}.bak"
+
   # Configure boot partition for rpi-eeprom tool
   configure_rpi_eeprom "BOOTFS" "${BOOTFS}"
 
