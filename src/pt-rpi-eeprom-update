@@ -102,8 +102,6 @@ EEPROM version on Raspberry Pi is not available, so downgrade is required"
 
     fi
 
-    # Show different message to user? Offer a different solution
-
   elif [[ "${bootloader_current}" -eq "${bootloader_latest}" ]]; then
 
     if ! verifyCurrentEEPROMConfig; then
