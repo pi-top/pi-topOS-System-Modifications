@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run as root"
+  exit
+fi
+
 model="$(tr -d '\0' </proc/device-tree/model)"
 echo "Model: ${model}"
 
@@ -31,10 +36,8 @@ echo "VL805"
 echo "CURRENT: ${vl805_current}"
 echo " LATEST: ${vl805_latest}"
 
-# TODO: what if latest is older than current?
-if [[ "${bootloader_current}" == "${bootloader_latest}" ]] && [[ "${vl805_current}" == "${vl805_latest}" ]]; then
-
-  echo "No firmware updates available - checking for valid EEPROM config"
+verifyCurrentEEPROMConfig() {
+  echo "No bootloader updates available - checking for valid EEPROM config"
 
   if [ -f /etc/default/rpi-eeprom-update ]; then
     # shellcheck disable=SC1091
@@ -82,8 +85,36 @@ if [[ "${bootloader_current}" == "${bootloader_latest}" ]] && [[ "${vl805_curren
     echo "No executable config hook found."
 
   fi
+}
+
+runUpdate=0
+
+if [[ "${vl805_current}" == "${vl805_latest}" ]]; then
+
+  if [[ "${bootloader_current}" -gt "${bootloader_latest}" ]]; then
+
+    echo "Raspberry Pi is ahead of OS."
+    # TODO: Figure out what to do in this situation
+
+    # Show different message to user? Offer a different solution
+
+  elif [[ "${bootloader_current}" -eq "${bootloader_latest}" ]]; then
+
+    verifyCurrentEEPROMConfig
+
+  else
+
+    runUpdate=1
+
+  fi
 
 else
+
+  runUpdate=1
+
+fi
+
+if [[ "${runUpdate}" -eq 1 ]]; then
 
   echo "Firmware updates available - running 'rpi-eeprom-update -a'..."
   rpi-eeprom-update -a
