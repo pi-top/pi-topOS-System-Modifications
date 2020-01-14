@@ -58,7 +58,6 @@ notifyUserInvalidAheadOfLatestEEPROMConfig() {
     "${NOTIFICATION_TITLE}" \
     "A patch to the Raspberry Pi EEPROM is required for full functionality.
 EEPROM version on Raspberry Pi is not available, so downgrade is required"
-
 }
 
 currentEEPROMConfigIsValid() {
