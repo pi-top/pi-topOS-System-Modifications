@@ -34,28 +34,27 @@ NOTIFICATION_BODY_DOWNGRADE_EEPROM="EEPROM version on Raspberry Pi is not availa
 
 NOTIFICATION_TITLE_UPDATE="Raspberry Pi Firmware Update"
 
-notification_id=-1
+waitForDBusToStart() {
+  # Dirty hack
+  sleep 5
+}
 
 notifyUserRebootToUpdate() {
-  if [[ "${notification_id}" -eq -1 ]]; then
+  echo "Sending notification for reboot to apply firmware update..."
 
-    echo "Sending notification for reboot to apply firmware update..."
+  waitForDBusToStart
 
-    notification_id=$(DISPLAY=:0 pt-notify-send -p -t 0 \
-      "--action=Reboot now:/sbin/reboot" \
-      "${NOTIFICATION_TITLE_UPDATE}" \
-      "A Raspberry Pi firmware update will be installed the next time you start your device." \
-      "Reboot now to enjoy improved device performance and/or new features.")
-
-  else
-
-    echo "Already shown a notification - doing nothing..."
-
-  fi
+  DISPLAY=:0 pt-notify-send -p -t 0 \
+    "--action=Reboot now:/sbin/reboot" \
+    "${NOTIFICATION_TITLE_UPDATE}" \
+    "A Raspberry Pi firmware update will be installed the next time you start your device." \
+    "Reboot now to enjoy improved device performance and/or new features."
 }
 
 notifyUserInvalidLatestEEPROMConfig() {
   echo "Sending notification to user with request to apply patch..."
+
+  waitForDBusToStart
 
   DISPLAY=:0 pt-notify-send -t 0 \
     "--action=Apply patch and reboot:${FORCE_EEPROM_COMMAND}" \
@@ -65,6 +64,8 @@ notifyUserInvalidLatestEEPROMConfig() {
 
 notifyUserInvalidAheadOfLatestEEPROMConfig() {
   echo "Sending notification to user with request to downgrade EEPROM and apply patch..."
+
+  waitForDBusToStart
 
   DISPLAY=:0 pt-notify-send -t 0 \
     "--action=Apply patch with downgrade and reboot:${FORCE_EEPROM_COMMAND}" \
@@ -92,13 +93,13 @@ currentEEPROMConfigIsValid() {
 
     if [[ "${mod_bootloader_config}" == "${orig_bootloader_config}" ]]; then
 
-      echo "Raspberry Pi bootloader configuration is correct for current pi-top device"
+      echo "Raspberry Pi bootloader configuration is correct for current device configuration"
 
       return 0
 
     else
 
-      echo "Raspberry Pi bootloader configuration is incorrect for current pi-top device"
+      echo "Raspberry Pi bootloader configuration is incorrect for current device configuration"
 
       echo
       diff --color='always' --suppress-common-lines <(echo "${orig_bootloader_config}") <(echo "${mod_bootloader_config}")
@@ -127,12 +128,11 @@ if [[ "$((16#${vl805_current}))" -lt "$((16#${vl805_latest}))" ]]; then
 
   notifyUserRebootToUpdate
 
-else
-
-  echo "No VL805 firmware update available"
+  exit 0
 
 fi
 
+echo "No VL805 firmware update available"
 echo
 
 echo "BOOTLOADER"
