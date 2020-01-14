@@ -118,23 +118,6 @@ currentEEPROMConfigIsValid() {
   return 0
 }
 
-echo "VL805"
-echo "CURRENT: ${vl805_current}"
-echo " LATEST: ${vl805_latest}"
-if [[ "$((16#${vl805_current}))" -lt "$((16#${vl805_latest}))" ]]; then
-
-  echo "VL805 firmware update available - running 'rpi-eeprom-update -A vl805'..."
-  rpi-eeprom-update -A vl805
-
-  notifyUserRebootToUpdate
-
-  exit 0
-
-fi
-
-echo "No VL805 firmware update available"
-echo
-
 echo "BOOTLOADER"
 echo "CURRENT: ${bootloader_current}"
 echo " LATEST: ${bootloader_latest}"
@@ -146,6 +129,7 @@ if [[ "${bootloader_current}" -lt "${bootloader_latest}" ]]; then
   if currentEEPROMConfigIsValid; then
 
     notifyUserRebootToUpdate
+    exit 0
 
   else
 
@@ -191,5 +175,26 @@ else
   fi
 
   exit 0
+
+fi
+
+echo "No bootloader firmware update available"
+echo
+
+echo "VL805"
+echo "CURRENT: ${vl805_current}"
+echo " LATEST: ${vl805_latest}"
+if [[ "$((16#${vl805_current}))" -lt "$((16#${vl805_latest}))" ]]; then
+
+  echo "VL805 firmware update available - running 'rpi-eeprom-update -A vl805'..."
+  rpi-eeprom-update -A vl805
+
+  notifyUserRebootToUpdate
+
+  exit 0
+
+else
+
+  echo "No VL805 firmware update available"
 
 fi
