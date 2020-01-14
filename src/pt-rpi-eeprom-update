@@ -28,27 +28,48 @@ vl805_latest="$(echo "${rpi_eeprom_resp}" | ag "LATEST" | tail -n1 | awk '{print
 FORCE_EEPROM_UPDATE="/usr/lib/rpi-eeprom-update/pt-force-rpi-eeprom-install-and-reboot"
 FORCE_EEPROM_COMMAND="env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A ${FORCE_EEPROM_UPDATE}"
 
-NOTIFICATION_TITLE="Invalid Raspberry Pi EEPROM configuration"
+NOTIFICATION_TITLE_INVALID_EEPROM="Invalid Raspberry Pi EEPROM configuration"
+NOTIFICATION_BODY_INVALID_EEPROM="A patch to Raspberry Pi firmware is required for full functionality."
+NOTIFICATION_BODY_DOWNGRADE_EEPROM="EEPROM version on Raspberry Pi is not available, so downgrade is required"
+
+NOTIFICATION_TITLE_UPDATE="Raspberry Pi Firmware Update"
+
+notification_id=-1
+
+notifyUserRebootToUpdate() {
+  if [[ "${notification_id}" -eq -1 ]]; then
+
+    echo "Sending notification for reboot to apply firmware update..."
+
+    notification_id=$(DISPLAY=:0 pt-notify-send -p -t 0 \
+      "--action=Reboot now:/sbin/reboot" \
+      "${NOTIFICATION_TITLE_UPDATE}" \
+      "A Raspberry Pi firmware update will be installed the next time you start your device." \
+      "Reboot now to enjoy improved device performance and/or new features.")
+
+  else
+
+    echo "Already shown a notification - doing nothing..."
+
+  fi
+}
 
 notifyUserInvalidLatestEEPROMConfig() {
   echo "Sending notification to user with request to apply patch..."
 
-  # TODO: handle wording
   DISPLAY=:0 pt-notify-send -t 0 \
     "--action=Apply patch and reboot:${FORCE_EEPROM_COMMAND}" \
-    "${NOTIFICATION_TITLE}" \
-    "A patch to the Raspberry Pi EEPROM is required for full functionality."
+    "${NOTIFICATION_TITLE_INVALID_EEPROM}" \
+    "${NOTIFICATION_BODY_INVALID_EEPROM}"
 }
 
 notifyUserInvalidAheadOfLatestEEPROMConfig() {
   echo "Sending notification to user with request to downgrade EEPROM and apply patch..."
 
-  # TODO: handle wording
   DISPLAY=:0 pt-notify-send -t 0 \
     "--action=Apply patch with downgrade and reboot:${FORCE_EEPROM_COMMAND}" \
-    "${NOTIFICATION_TITLE}" \
-    "A patch to the Raspberry Pi EEPROM is required for full functionality.
-EEPROM version on Raspberry Pi is not available, so downgrade is required"
+    "${NOTIFICATION_TITLE_INVALID_EEPROM}" \
+    "${NOTIFICATION_BODY_INVALID_EEPROM} ${NOTIFICATION_BODY_DOWNGRADE_EEPROM}"
 }
 
 currentEEPROMConfigIsValid() {
@@ -59,20 +80,19 @@ currentEEPROMConfigIsValid() {
     . /etc/default/rpi-eeprom-update
   fi
 
-  echo "Config hook: ${EEPROM_CONFIG_HOOK}"
-
   if [ -x "${EEPROM_CONFIG_HOOK}" ]; then
 
-    echo "Executable config hook found"
+    echo "Executable config hook found: '${EEPROM_CONFIG_HOOK}'"
 
     orig_bootloader_config="$(/opt/vc/bin/vcgencmd bootloader_config)"
 
     mod_bootloader_config="$(echo "${orig_bootloader_config}" | ${EEPROM_CONFIG_HOOK})"
 
+    echo
+
     if [[ "${mod_bootloader_config}" == "${orig_bootloader_config}" ]]; then
 
       echo "Raspberry Pi bootloader configuration is correct for current pi-top device"
-      echo "No action required..."
 
       return 0
 
@@ -90,7 +110,7 @@ currentEEPROMConfigIsValid() {
 
   else
 
-    echo "No executable config hook found."
+    echo "No executable config hook found: '${EEPROM_CONFIG_HOOK}'"
 
   fi
 
@@ -104,6 +124,8 @@ if [[ "$((16#${vl805_current}))" -lt "$((16#${vl805_latest}))" ]]; then
 
   echo "VL805 firmware update available - running 'rpi-eeprom-update -A vl805'..."
   rpi-eeprom-update -A vl805
+
+  notifyUserRebootToUpdate
 
 else
 
@@ -121,9 +143,15 @@ if [[ "${bootloader_current}" -lt "${bootloader_latest}" ]]; then
   echo "Bootloader firmware update available - running 'rpi-eeprom-update -A bootloader'..."
   rpi-eeprom-update -A bootloader
 
-  if ! currentEEPROMConfigIsValid; then
+  if currentEEPROMConfigIsValid; then
+
+    notifyUserRebootToUpdate
+
+  else
+
     echo "Rebooting to apply update..."
     reboot
+
   fi
 
 elif [[ "${bootloader_current}" -gt "${bootloader_latest}" ]]; then

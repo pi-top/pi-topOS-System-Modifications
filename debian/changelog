@@ -1,3 +1,10 @@
+pt-os-mods (5.0.0-1) buster; urgency=medium
+
+  * Add logic to handle Raspberry Pi firmware
+  * Ensure that pi-top [4] will always run with the correct bootloader config
+
+ -- Mike Roberts <mike@pi-top.com>  Tue, 14 Jan 2020 16:26:42 +0000
+
 pt-os-mods (4.0.5-1) buster; urgency=medium
 
   * Move autorandr to pt-ui-mods
