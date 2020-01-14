@@ -38,3 +38,4 @@ if is_first_install "$@"; then
 fi
 
 systemctl disable rpi-eeprom-update.service
+systemctl mask rpi-eeprom-update.service

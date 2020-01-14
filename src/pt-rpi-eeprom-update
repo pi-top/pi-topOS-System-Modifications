@@ -1,21 +1,20 @@
 #!/bin/bash
 
 if [ "$EUID" -ne 0 ]; then
+
   echo "Please run as root"
   exit 1
+
 fi
 
 model="$(tr -d '\0' </proc/device-tree/model)"
 echo "Model: ${model}"
 
 if [[ "${model}" != *"Raspberry Pi 4"* ]]; then
+
   echo "Not Raspberry Pi 4 - exiting..."
   exit 0
-fi
 
-if [[ "$(/usr/bin/pt-host)" != "pi-top [4]" ]]; then
-  echo "No pi-top [4] detected - exiting..."
-  exit 0
 fi
 
 output="$(rpi-eeprom-update)"
@@ -36,7 +35,8 @@ echo "VL805"
 echo "CURRENT: ${vl805_current}"
 echo " LATEST: ${vl805_latest}"
 
-FORCE_EEPROM_UPDATE="/usr/lib/rpi-eeprom-update/pt-force-rpi-eeprom-install"
+FORCE_EEPROM_UPDATE="/usr/lib/rpi-eeprom-update/pt-force-rpi-eeprom-install-and-reboot"
+FORCE_EEPROM_COMMAND="env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A ${FORCE_EEPROM_UPDATE}"
 NOTIFICATION_TITLE="Invalid Raspberry Pi EEPROM configuration"
 
 notifyUserInvalidLatestEEPROMConfig() {
@@ -44,7 +44,7 @@ notifyUserInvalidLatestEEPROMConfig() {
 
   # TODO: handle wording
   DISPLAY=:0 pt-notify-send -t 0 \
-    "--action=Apply patch and reboot:${FORCE_EEPROM_UPDATE}" \
+    "--action=Apply patch and reboot:${FORCE_EEPROM_COMMAND}" \
     "${NOTIFICATION_TITLE}" \
     "A patch to the Raspberry Pi EEPROM is required for full functionality."
 }
@@ -54,7 +54,7 @@ notifyUserInvalidAheadOfLatestEEPROMConfig() {
 
   # TODO: handle wording
   DISPLAY=:0 pt-notify-send -t 0 \
-    "--action=Apply patch with downgrade and reboot:${FORCE_EEPROM_UPDATE}" \
+    "--action=Apply patch with downgrade and reboot:${FORCE_EEPROM_COMMAND}" \
     "${NOTIFICATION_TITLE}" \
     "A patch to the Raspberry Pi EEPROM is required for full functionality.
 EEPROM version on Raspberry Pi is not available, so downgrade is required"
@@ -107,33 +107,63 @@ currentEEPROMConfigIsValid() {
   return 0
 }
 
-if [[ "${vl805_current}" == "${vl805_latest}" ]]; then
+if [[ "${vl805_current}" -lt "${vl805_latest}" ]]; then
 
-  if [[ "${bootloader_current}" -gt "${bootloader_latest}" ]]; then
+  echo "VL805 firmware update available - running 'rpi-eeprom-update -A vl805'..."
+  rpi-eeprom-update -A vl805
 
-    echo "Raspberry Pi version is ahead of latest on OS."
+else
 
-    if ! currentEEPROMConfigIsValid; then
-
-      notifyUserInvalidAheadOfLatestEEPROMConfig
-
-    fi
-
-    exit 0
-
-  elif [[ "${bootloader_current}" -eq "${bootloader_latest}" ]]; then
-
-    if ! currentEEPROMConfigIsValid; then
-
-      notifyUserInvalidLatestEEPROMConfig
-
-    fi
-
-    exit 0
-
-  fi
+  echo "No VL805 firmware update available"
 
 fi
 
-echo "Firmware updates available - running 'rpi-eeprom-update -a'..."
-rpi-eeprom-update -a
+if [[ "${bootloader_current}" -lt "${bootloader_latest}" ]]; then
+
+  echo "Bootloader firmware update available - running 'rpi-eeprom-update -A bootloader'..."
+  rpi-eeprom-update -A bootloader
+
+  if ! currentEEPROMConfigIsValid; then
+    echo "Rebooting to apply update..."
+    reboot
+  fi
+
+elif [[ "${bootloader_current}" -gt "${bootloader_latest}" ]]; then
+
+  echo "Raspberry Pi version is ahead of latest on OS."
+
+  if ! currentEEPROMConfigIsValid; then
+
+    if [[ "$(/usr/bin/pt-host)" != "pi-top [4]" ]]; then
+
+      notifyUserInvalidAheadOfLatestEEPROMConfig
+
+    else
+
+      ${FORCE_EEPROM_COMMAND}
+
+    fi
+
+  fi
+
+  exit 0
+
+else
+
+  if ! currentEEPROMConfigIsValid; then
+
+    if [[ "$(/usr/bin/pt-host)" != "pi-top [4]" ]]; then
+
+      notifyUserInvalidLatestEEPROMConfig
+
+    else
+
+      ${FORCE_EEPROM_COMMAND}
+
+    fi
+
+  fi
+
+  exit 0
+
+fi
