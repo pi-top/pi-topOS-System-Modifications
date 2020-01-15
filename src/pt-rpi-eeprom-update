@@ -22,15 +22,14 @@ rpi_eeprom_resp="$(rpi-eeprom-update)"
 bootloader_current="$(echo "${rpi_eeprom_resp}" | ag "CURRENT" | head -n1 | awk '{print $NF}' | sed 's/[()]//g')"
 bootloader_latest="$(echo "${rpi_eeprom_resp}" | ag "LATEST" | head -n1 | awk '{print $NF}' | sed 's/[()]//g')"
 
-vl805_current="$(echo "${rpi_eeprom_resp}" | ag "CURRENT" | tail -n1 | awk '{print $NF}')"
-vl805_latest="$(echo "${rpi_eeprom_resp}" | ag "LATEST" | tail -n1 | awk '{print $NF}')"
+vl805_current_hex="$(echo "${rpi_eeprom_resp}" | ag "CURRENT" | tail -n1 | awk '{print $NF}')"
+vl805_current="$((16#${vl805_current_hex}))"
+
+vl805_latest_hex="$(echo "${rpi_eeprom_resp}" | ag "LATEST" | tail -n1 | awk '{print $NF}')"
+vl805_latest="$((16#${vl805_latest_hex}))"
 
 FORCE_EEPROM_UPDATE="/usr/lib/rpi-eeprom-update/pt-force-rpi-eeprom-install-and-reboot"
 FORCE_EEPROM_COMMAND="env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A ${FORCE_EEPROM_UPDATE}"
-
-NOTIFICATION_TITLE_INVALID_EEPROM="Invalid Raspberry Pi EEPROM configuration"
-NOTIFICATION_BODY_INVALID_EEPROM="A patch to Raspberry Pi firmware is required for full functionality."
-NOTIFICATION_BODY_DOWNGRADE_EEPROM="EEPROM version on Raspberry Pi is not available, so downgrade is required"
 
 NOTIFICATION_TITLE_UPDATE="Raspberry Pi Firmware Update"
 
@@ -49,28 +48,6 @@ notifyUserRebootToUpdate() {
     "${NOTIFICATION_TITLE_UPDATE}" \
     "A Raspberry Pi firmware update will be installed the next time you start your device." \
     "Reboot now to enjoy improved device performance and/or new features."
-}
-
-notifyUserInvalidLatestEEPROMConfig() {
-  echo "Sending notification to user with request to apply patch..."
-
-  waitForDBusToStart
-
-  DISPLAY=:0 pt-notify-send -t 0 \
-    "--action=Apply patch and reboot:${FORCE_EEPROM_COMMAND}" \
-    "${NOTIFICATION_TITLE_INVALID_EEPROM}" \
-    "${NOTIFICATION_BODY_INVALID_EEPROM}"
-}
-
-notifyUserInvalidAheadOfLatestEEPROMConfig() {
-  echo "Sending notification to user with request to downgrade EEPROM and apply patch..."
-
-  waitForDBusToStart
-
-  DISPLAY=:0 pt-notify-send -t 0 \
-    "--action=Apply patch with downgrade and reboot:${FORCE_EEPROM_COMMAND}" \
-    "${NOTIFICATION_TITLE_INVALID_EEPROM}" \
-    "${NOTIFICATION_BODY_INVALID_EEPROM} ${NOTIFICATION_BODY_DOWNGRADE_EEPROM}"
 }
 
 currentEEPROMConfigIsValid() {
@@ -144,15 +121,7 @@ elif [[ "${bootloader_current}" -gt "${bootloader_latest}" ]]; then
 
   if ! currentEEPROMConfigIsValid; then
 
-    if [[ "$(/usr/bin/pt-host)" != "pi-top [4]" ]]; then
-
-      notifyUserInvalidAheadOfLatestEEPROMConfig
-
-    else
-
-      ${FORCE_EEPROM_COMMAND}
-
-    fi
+    ${FORCE_EEPROM_COMMAND}
 
   fi
 
@@ -162,15 +131,7 @@ else
 
   if ! currentEEPROMConfigIsValid; then
 
-    if [[ "$(/usr/bin/pt-host)" != "pi-top [4]" ]]; then
-
-      notifyUserInvalidLatestEEPROMConfig
-
-    else
-
-      ${FORCE_EEPROM_COMMAND}
-
-    fi
+    ${FORCE_EEPROM_COMMAND}
 
   fi
 
@@ -182,9 +143,10 @@ echo "No bootloader firmware update available"
 echo
 
 echo "VL805"
-echo "CURRENT: ${vl805_current}"
-echo " LATEST: ${vl805_latest}"
-if [[ "$((16#${vl805_current}))" -lt "$((16#${vl805_latest}))" ]]; then
+echo "CURRENT: ${vl805_current_hex}"
+echo " LATEST: ${vl805_latest_hex}"
+
+if [[ "${vl805_current}" -lt "${vl805_latest}" ]]; then
 
   echo "VL805 firmware update available - running 'rpi-eeprom-update -A vl805'..."
   rpi-eeprom-update -A vl805

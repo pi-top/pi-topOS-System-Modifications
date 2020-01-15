@@ -16,3 +16,5 @@ fi
 
 systemctl unmask rpi-eeprom-update.service
 systemctl enable rpi-eeprom-update.service
+
+#DEBHELPER#

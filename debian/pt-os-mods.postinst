@@ -44,3 +44,5 @@ fi
 
 systemctl disable rpi-eeprom-update.service
 systemctl mask rpi-eeprom-update.service
+
+#DEBHELPER#
