@@ -33,23 +33,62 @@ vl805_latest="$((16#${vl805_latest_hex}))"
 
 FORCE_EEPROM_UPDATE_AND_REBOOT_COMMAND="/usr/lib/rpi-eeprom-update/pt-force-rpi-eeprom-install-and-reboot"
 
-NOTIFICATION_TITLE_UPDATE="Raspberry Pi Firmware Update"
+NOTIFICATION_TITLE_UPDATE="Updated Raspberry Pi Firmware Ready To Install"
 
-waitForDBusToStart() {
-  # Dirty hack
-  sleep 5
+function sendNotification() {
+  # Simplified from https://stackoverflow.com/a/49533938/2268426
+
+  local display
+  local user
+
+  display=":$(find /tmp/.X11-unix/ -maxdepth 1 ! -name .X11-unix |
+    sed 's#/tmp/.X11-unix/X##' | head -n 1)"
+  echo "Display to send notification to: ${display}"
+
+  echo "Attempting to get user using display ${display}"
+  for attempt in {1..10}; do
+
+    echo "Attempt #${attempt}..."
+
+    user="$(who | grep "(${display})" | awk '{print $1}' | head -n 1)"
+
+    if [[ -n "${user}" ]]; then
+
+      echo "Success!"
+      echo "User using display: ${user}"
+      break
+
+    else
+      sleep 1
+    fi
+
+  done
+
+  # Send notification if possible
+  if [[ -n "${user}" ]]; then
+
+    echo "Sending notification to ${user} on display ${display}..."
+
+    sudo -u "${user}" \
+      "DISPLAY=:0" \
+      "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u "${user}")/bus" \
+      pt-notify-send "$@"
+
+  else
+
+    echo "No user found to be using display in time - skipping notification"
+
+  fi
 }
 
 notifyUserRebootToUpdate() {
   echo "Sending notification for reboot to apply firmware update..."
 
-  waitForDBusToStart
-
-  DISPLAY=:0 pt-notify-send -t 0 \
+  sendNotification -t 0 \
     "--action=Reboot now:/sbin/reboot" \
     "${NOTIFICATION_TITLE_UPDATE}" \
     "A Raspberry Pi firmware update will be installed the next time you start your device." \
-    "Reboot now to enjoy improved device performance and/or new features."
+    "Reboot now to enjoy improved device performance and/or new features." &
 }
 
 currentEEPROMConfigIsValid() {

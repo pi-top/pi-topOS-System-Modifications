@@ -7,4 +7,4 @@ RemainAfterExit=true
 ExecStart=/usr/bin/pt-rpi-eeprom-update
 
 [Install]
-WantedBy=graphical.target
+WantedBy=multi-user.target
