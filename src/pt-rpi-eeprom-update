@@ -31,8 +31,7 @@ vl805_current="$((16#${vl805_current_hex}))"
 vl805_latest_hex="$(echo "${rpi_eeprom_resp}" | ag "LATEST" | tail -n1 | awk '{print $NF}')"
 vl805_latest="$((16#${vl805_latest_hex}))"
 
-FORCE_EEPROM_UPDATE="/usr/lib/rpi-eeprom-update/pt-force-rpi-eeprom-install-and-reboot"
-FORCE_EEPROM_AND_REBOOT_COMMAND="env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A ${FORCE_EEPROM_UPDATE}"
+FORCE_EEPROM_UPDATE_AND_REBOOT_COMMAND="/usr/lib/rpi-eeprom-update/pt-force-rpi-eeprom-install-and-reboot"
 
 NOTIFICATION_TITLE_UPDATE="Raspberry Pi Firmware Update"
 
@@ -165,7 +164,7 @@ else
   fi
 
   if ! currentEEPROMConfigIsValid; then
-    ${FORCE_EEPROM_AND_REBOOT_COMMAND}
+    ${FORCE_EEPROM_UPDATE_AND_REBOOT_COMMAND}
   fi
 
 fi
