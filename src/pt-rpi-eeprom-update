@@ -204,6 +204,9 @@ else
 
   if ! currentEEPROMConfigIsValid; then
     ${FORCE_EEPROM_UPDATE_AND_REBOOT_COMMAND}
+
+    # If it gets here, something has gone wrong...
+    exit 1
   fi
 
 fi
