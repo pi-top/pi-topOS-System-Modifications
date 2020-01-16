@@ -85,10 +85,10 @@ notifyUserRebootToUpdate() {
   echo "Sending notification for reboot to apply firmware update..."
 
   sendNotification -t 0 \
-    "--action=Reboot now:/sbin/reboot" \
+    "--action=Reboot now:env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A /sbin/reboot" \
     "${NOTIFICATION_TITLE_UPDATE}" \
     "A Raspberry Pi firmware update will be installed the next time you start your device." \
-    "Reboot now to enjoy improved device performance and/or new features." &
+    "Reboot now to enjoy improved device performance and/or new features."
 }
 
 currentEEPROMConfigIsValid() {
