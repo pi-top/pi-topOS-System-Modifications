@@ -1,3 +1,7 @@
-src/pt-xhost-local-root.conf                /etc/lightdm/lightdm.conf.d/
-src/g_ether.conf                            /etc/modprobe.d/
-src/90-ptusb0.rules                         /etc/udev/rules.d/
+src/pt-xhost-local-root.conf                    /etc/lightdm/lightdm.conf.d/
+src/g_ether.conf                                /etc/modprobe.d/
+src/90-ptusb0.rules                             /etc/udev/rules.d/
+src/pt-rpi-eeprom-update                        /usr/bin/
+src/pt-eeprom-hook                              /usr/lib/rpi-eeprom-update/
+src/pt-force-rpi-eeprom-install-and-reboot      /usr/lib/rpi-eeprom-update/
+src/pwdptom.sh                                  /usr/lib/pt-os-mods/

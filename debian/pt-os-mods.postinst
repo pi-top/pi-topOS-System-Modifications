@@ -1,0 +1,48 @@
+#!/bin/bash
+
+EEPROM_CONFIG_FILE="/etc/default/rpi-eeprom-update"
+
+# Values to install to EEPROM_CONFIG_FILE
+BOOTFS="/recovery"
+EEPROM_CONFIG_HOOK="/usr/lib/rpi-eeprom-update/pt-eeprom-hook"
+
+is_first_install_or_upgrading_from_pre_eeprom_version() {
+  previous_version="${2}"
+
+  if [[ -z "${previous_version}" ]]; then
+    return 0
+  fi
+
+  if dpkg --compare-versions "${previous_version}" lt 5; then
+    return 0
+  fi
+
+  return 1
+}
+
+back_up_and_configure_eeprom_config_file() {
+  set_value_in_rpi_eeprom_config_file() {
+    local field="${1}"
+    local value="${2}"
+
+    # Comment out any existing values
+    sed -i "/${field}=/s/^/#/" "${EEPROM_CONFIG_FILE}"
+
+    # Add new value
+    echo "${field}=\"${value}\"" >>"${EEPROM_CONFIG_FILE}"
+  }
+
+  cp "${EEPROM_CONFIG_FILE}" "${EEPROM_CONFIG_FILE}.bak"
+
+  set_value_in_rpi_eeprom_config_file "BOOTFS" "${BOOTFS}"
+  set_value_in_rpi_eeprom_config_file "EEPROM_CONFIG_HOOK" "${EEPROM_CONFIG_HOOK}"
+}
+
+if is_first_install_or_upgrading_from_pre_eeprom_version "$@"; then
+  back_up_and_configure_eeprom_config_file
+fi
+
+systemctl disable rpi-eeprom-update.service
+systemctl mask rpi-eeprom-update.service
+
+#DEBHELPER#
