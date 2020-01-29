@@ -29,7 +29,7 @@ if [[ -n "${latest}" ]]; then
   echo "Latest: ${latest}"
   echo "Running rpi-eeprom-update -f ${latest}"
   sudo rpi-eeprom-update -f "${latest}"
-  reboot
+  exit 0
 
 else
 
