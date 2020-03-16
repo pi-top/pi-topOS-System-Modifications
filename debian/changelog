@@ -1,3 +1,9 @@
+pt-os-mods (5.1.0-1) buster; urgency=medium
+
+  * Disable powersaving for wireless network interfaces
+
+ -- Jorge Capona <jorge@pi-top.com>  Mon, 16 Mar 2020 09:10:42 +0000
+
 pt-os-mods (5.0.0-1) buster; urgency=medium
 
   * Add logic to handle Raspberry Pi firmware
