@@ -1,8 +1,14 @@
+pt-os-mods (5.1.1-1) buster; urgency=medium
+
+  * Move handling of finding display and user to pt-notify-send
+
+ -- Jorge Capona <jorge@pi-top.com>  Fri, 27 Mar 2020 16:44:59 -0300
+
 pt-os-mods (5.1.0-1) buster; urgency=medium
 
   * Disable powersaving for wireless network interfaces
 
- -- Jorge Capona <jorge@pi-top.com>  Mon, 16 Mar 2020 09:10:42 +0000
+ -- Jorge Capona <jorge@pi-top.com>  Mon, 16 Mar 2020 09:10:42 -0300
 
 pt-os-mods (5.0.0-1) buster; urgency=medium
 
