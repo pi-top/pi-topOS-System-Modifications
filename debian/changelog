@@ -1,3 +1,9 @@
+pt-os-mods (5.2.0-1) buster; urgency=medium
+
+  * Remove RPi firmware updating until we have done more testing
+
+ -- Jorge Capona <jorge@pi-top.com>  Fri, 27 Mar 2020 16:47:24 -0300
+
 pt-os-mods (5.1.1-1) buster; urgency=medium
 
   * Move handling of finding display and user to pt-notify-send
