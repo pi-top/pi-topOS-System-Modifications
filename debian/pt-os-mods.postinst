@@ -3,7 +3,7 @@
 new_pt_apt_gpg_id="68CEC6C551F815193041ACA76BDD0A34B1D9F73F"
 
 # Do nothing if new pi-top apt key is already on the system
-if ! gpg --no-default-keyring --keyring /etc/apt/trusted.gpg --list-keys | grep -q "${new_pt_apt_gpg_id}"; then
+if gpg --no-default-keyring --keyring /etc/apt/trusted.gpg --list-keys | grep -q "${new_pt_apt_gpg_id}"; then
   echo "New pi-top apt key is already on the system - doing nothing"
   exit
 fi
