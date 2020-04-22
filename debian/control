@@ -7,7 +7,7 @@ Homepage: https://pi-top.com/
 
 Package: pt-os-mods
 Architecture: armhf
-Depends: ${misc:Depends}, dpkg, libnotify-bin, ncurses-bin (>= 6.1+20181013-2)
+Depends: ${misc:Depends}, dpkg (>= 1.19.7), libnotify-bin, ncurses-bin (>= 6.1+20181013-2)
 Replaces: pt-display
 Recommends: lightdm
 Description: pi-top OS Config Management
