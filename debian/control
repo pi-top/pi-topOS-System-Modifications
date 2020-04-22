@@ -7,7 +7,7 @@ Homepage: https://pi-top.com/
 
 Package: pt-os-mods
 Architecture: armhf
-Depends: ${misc:Depends}
+Depends: ${misc:Depends}, libnotify-bin
 Replaces: pt-display
 Recommends: lightdm
 Description: pi-top OS Config Management

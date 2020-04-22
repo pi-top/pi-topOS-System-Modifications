@@ -1,0 +1,38 @@
+#!/bin/bash -e
+
+new_pt_apt_gpg_id="68CEC6C551F815193041ACA76BDD0A34B1D9F73F"
+
+# Do nothing if new pi-top apt key is already on the system
+if ! gpg --no-default-keyring --keyring /etc/apt/trusted.gpg --list-keys | grep -q "${new_pt_apt_gpg_id}"; then
+    echo "New pi-top apt key is already on the system - doing nothing"
+    return
+fi
+
+# Install apt-key
+sudo apt-key add /usr/share/keyrings/pi-top-keyring.gpg
+
+# If running on pi-topOS, send desktop notification to run update again
+if [[ -f "/etc/pt-issue" ]]; then
+    display=":$(find /tmp/.X11-unix/ -maxdepth 1 ! -name .X11-unix |
+    sed 's#/tmp/.X11-unix/X##' | head -n 1)"
+
+    if [[ -z "${display}" ]]; then
+        echo "Unable to find a display to send update notification to"
+        return
+    fi
+
+    user="$(who | grep "(${display})" | awk '{print $1}' | head -n 1)"
+
+    if [[ -z "${user}" ]]; then
+        echo "Unable to determine user to send update notification to"
+        return
+    fi
+
+    title="pi-topOS Software Updater"
+    message="More updates are available! Please re-run pi-topOS Software Updater once it has completed. You can do this in the start menu by selecting \"Check For Updates\" under \"System Tools\""
+
+    sudo -u "${user}" \
+    "DISPLAY=:${display}" \
+    "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u "${user}")/bus" \
+    /usr/bin/notify-send -t 0 -i system-software-update "${title}" "${message}"
+fi
