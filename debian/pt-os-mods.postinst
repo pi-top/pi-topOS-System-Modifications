@@ -5,7 +5,7 @@ new_pt_apt_gpg_id="68CEC6C551F815193041ACA76BDD0A34B1D9F73F"
 # Do nothing if new pi-top apt key is already on the system
 if ! gpg --no-default-keyring --keyring /etc/apt/trusted.gpg --list-keys | grep -q "${new_pt_apt_gpg_id}"; then
   echo "New pi-top apt key is already on the system - doing nothing"
-  return
+  exit
 fi
 
 # Install apt-key
@@ -18,14 +18,14 @@ if [[ -f "/etc/pt-issue" ]]; then
 
   if [[ -z "${display}" ]]; then
     echo "Unable to find a display to send update notification to"
-    return
+    exit
   fi
 
   user="$(who | grep "(${display})" | awk '{print $1}' | head -n 1)"
 
   if [[ -z "${user}" ]]; then
     echo "Unable to determine user to send update notification to"
-    return
+    exit
   fi
 
   title="pi-topOS Software Updater"
