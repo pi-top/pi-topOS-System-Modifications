@@ -1,18 +1,7 @@
 #!/bin/bash -e
 
-new_pt_apt_gpg_id="68CEC6C551F815193041ACA76BDD0A34B1D9F73F"
-
-# Do nothing if new pi-top apt key is already on the system
-if gpg --no-default-keyring --keyring /etc/apt/trusted.gpg --list-keys | grep -q "${new_pt_apt_gpg_id}"; then
-  echo "New pi-top apt key is already on the system - doing nothing"
-  exit
-fi
-
-# Install apt-key
-sudo apt-key add /usr/share/keyrings/pi-top-keyring.gpg
-
-# If running on pi-topOS, send desktop notification to run update again
-if [[ -f "/etc/pt-issue" ]]; then
+# If upgrading from pre-'5.2.1' running on pi-topOS, send desktop notification to run update again
+if [[ "$1" == "configure" ]] && dpkg --compare-versions "$2" lt "5.2.1" && [[ -f "/etc/pt-issue" ]]; then
   display=":$(find /tmp/.X11-unix/ -maxdepth 1 ! -name .X11-unix |
     sed 's#/tmp/.X11-unix/X##' | head -n 1)"
 
@@ -35,4 +24,9 @@ if [[ -f "/etc/pt-issue" ]]; then
     "DISPLAY=:${display}" \
     "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u "${user}")/bus" \
     /usr/bin/notify-send -t 0 -i system-software-update "${title}" "${message}"
+
+  # Print in bold
+  bold="$(tput bold)"
+  normal="$(tput sgr0)"
+  echo "${bold}${message}${normal}"
 fi
