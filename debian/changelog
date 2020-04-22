@@ -1,3 +1,9 @@
+pt-os-mods (6.0.0-1) buster; urgency=medium
+
+  * Add new apt key
+
+ -- Mike Roberts <mike@pi-top.com>  Wed, 22 Apr 2020 16:48:50 +0100
+
 pt-os-mods (5.2.1-1) buster; urgency=medium
 
   * Move udev rules to /lib

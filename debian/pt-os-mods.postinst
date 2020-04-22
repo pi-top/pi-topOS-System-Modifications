@@ -1,7 +1,9 @@
 #!/bin/bash -e
 
+min_version_w_apt_key="6.0.0"
+
 # If upgrading from pre-'5.2.1' running on pi-topOS, send desktop notification to run update again
-if [[ "$1" == "configure" ]] && dpkg --compare-versions "$2" lt "5.2.1" && [[ -f "/etc/pt-issue" ]]; then
+if [[ "$1" == "configure" ]] && dpkg --compare-versions "$2" lt "${min_version_w_apt_key}" && [[ -f "/etc/pt-issue" ]]; then
   display=":$(find /tmp/.X11-unix/ -maxdepth 1 ! -name .X11-unix |
     sed 's#/tmp/.X11-unix/X##' | head -n 1)"
 
