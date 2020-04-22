@@ -1,8 +1,8 @@
-pt-os-mods (5.2.0-2) buster; urgency=medium
+pt-os-mods (5.2.1-1) buster; urgency=medium
 
-  * ACTUALLY remove RPi firmware updating until we have done more testing
+  * Move udev rules to /lib
 
- -- Mike Roberts <mike@pi-top.com>  Tue, 31 Mar 2020 19:49:31 +0100
+ -- Mike Roberts <mike@pi-top.com>  Wed, 22 Apr 2020 14:49:29 +0100
 
 pt-os-mods (5.2.0-1) buster; urgency=medium
 
