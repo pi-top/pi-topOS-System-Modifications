@@ -1,4 +1,4 @@
 src/pt-xhost-local-root.conf                    /etc/lightdm/lightdm.conf.d/
 src/g_ether.conf                                /etc/modprobe.d/
-src/90-ptusb0.rules                             /etc/udev/rules.d/
-src/70-wlan-disable-powersave.rules             /etc/udev/rules.d/
+src/90-ptusb0.rules                             /lib/udev/rules.d/
+src/70-wlan-disable-powersave.rules             /lib/udev/rules.d/
