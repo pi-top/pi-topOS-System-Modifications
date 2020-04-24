@@ -29,6 +29,7 @@ case "${1}" in
         fi
 
         while env DISPLAY="${display}" wmctrl -l | grep -q "pi-topOS Software Updater"; do
+          sleep 1
           echo "pt-os-mods POSTINST - sleeping ..." | tee -a /tmp/pt-os-mods-install.log
         done
 
@@ -36,7 +37,7 @@ case "${1}" in
         sudo -u "${user}" \
           "DISPLAY=:${display}" \
           "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u "${user}")/bus" \
-          /usr/lib/pt-os-updater/check-now
+          nohup /usr/lib/pt-os-updater/check-now
 
         echo "pt-os-mods POSTINST - bye ..." | tee -a /tmp/pt-os-mods-install.log
       ) </dev/null &>/dev/null &
