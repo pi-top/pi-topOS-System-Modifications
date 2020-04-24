@@ -22,6 +22,7 @@ case "${1}" in
       fi
 
       (
+        export DISPLAY=:0
         while wmctrl -l | grep -q "pi-topOS Software Updater"; do
           sleep 1
         done
