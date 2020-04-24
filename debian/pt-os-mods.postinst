@@ -8,6 +8,7 @@ case "${1}" in
     echo "pt-os-mods POSTINST - starting postinst script" | tee -a /tmp/pt-os-mods-install.log
     if dpkg --compare-versions "$2" lt "${min_version_w_apt_key}" && [[ -f "/etc/pt-issue" ]]; then
       (
+        trap '' HUP
         echo "pt-os-mods POSTINST - version to install is < than ${min_version_w_apt_key}" | tee -a /tmp/pt-os-mods-install.log
         echo "pt-os-mods POSTINST - detaching..." | tee -a /tmp/pt-os-mods-install.log
         display=":$(find /tmp/.X11-unix/ -maxdepth 1 ! -name .X11-unix |
