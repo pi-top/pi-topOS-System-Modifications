@@ -27,7 +27,7 @@ case "${1}" in
         done
 
         /usr/lib/pt-os-updater/check-now
-      ) &
+      ) </dev/null &>/dev/null &
     fi
     ;;
 
