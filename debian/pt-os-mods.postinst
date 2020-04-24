@@ -5,11 +5,11 @@ case "${1}" in
     min_version_w_apt_key="6.0.0"
 
     # If upgrading from pre-'6.0.0' running on pi-topOS, send desktop notification to run update again
-    echo "pt-os-mods POSTINST - starting postinst script" | tee -a /tmp/pt-os-mods-install.log.log
+    echo "pt-os-mods POSTINST - starting postinst script" | tee -a /tmp/pt-os-mods-install.log
     if dpkg --compare-versions "$2" lt "${min_version_w_apt_key}" && [[ -f "/etc/pt-issue" ]]; then
       (
-        echo "pt-os-mods POSTINST - version to install is < than ${min_version_w_apt_key}" | tee -a /tmp/pt-os-mods-install.log.log
-        echo "pt-os-mods POSTINST - detaching..." | tee -a /tmp/pt-os-mods-install.log.log
+        echo "pt-os-mods POSTINST - version to install is < than ${min_version_w_apt_key}" | tee -a /tmp/pt-os-mods-install.log
+        echo "pt-os-mods POSTINST - detaching..." | tee -a /tmp/pt-os-mods-install.log
         display=":$(find /tmp/.X11-unix/ -maxdepth 1 ! -name .X11-unix |
           sed 's#/tmp/.X11-unix/X##' | head -n 1)"
 
@@ -17,10 +17,10 @@ case "${1}" in
           echo "Unable to find a display to send update notification to"
           exit
         fi
-        echo "pt-os-mods POSTINST - will use display ${display}..." | tee -a /tmp/pt-os-mods-install.log.log
+        echo "pt-os-mods POSTINST - will use display ${display}..." | tee -a /tmp/pt-os-mods-install.log
 
         user="$(who | grep "(${display})" | awk '{print $1}' | head -n 1)"
-        echo "pt-os-mods POSTINST - user is ${user}..." | tee -a /tmp/pt-os-mods-install.log.log
+        echo "pt-os-mods POSTINST - user is ${user}..." | tee -a /tmp/pt-os-mods-install.log
 
         if [[ -z "${user}" ]]; then
           echo "Unable to determine user to send update notification to"
@@ -29,18 +29,19 @@ case "${1}" in
 
         while wmctrl -l | grep -q "pi-topOS Software Updater"; do
           sleep 1
-          echo "pt-os-mods POSTINST - sleeping ..." | tee -a /tmp/pt-os-mods-install.log.log
+          echo "pt-os-mods POSTINST - sleeping ..." | tee -a /tmp/pt-os-mods-install.log
         done
 
-        echo "pt-os-mods POSTINST - starting checker ..." | tee -a /tmp/pt-os-mods-install.log.log
+        echo "pt-os-mods POSTINST - starting checker ..." | tee -a /tmp/pt-os-mods-install.log
         sudo -u "${user}" \
           "DISPLAY=:${display}" \
           "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u "${user}")/bus" \
           /usr/lib/pt-os-updater/check-now
 
-        echo "pt-os-mods POSTINST - bye ..." | tee -a /tmp/pt-os-mods-install.log.log
+        echo "pt-os-mods POSTINST - bye ..." | tee -a /tmp/pt-os-mods-install.log
       ) </dev/null &>/dev/null &
-      echo "pt-os-mods POSTINST - finished postinst script" | tee -a /tmp/pt-os-mods-install.log.log
+      disown
+      echo "pt-os-mods POSTINST - finished postinst script" | tee -a /tmp/pt-os-mods-install.log
     fi
     ;;
 
