@@ -1,3 +1,9 @@
+pt-os-mods (6.0.0-2) buster; urgency=medium
+
+  * Instead of notifying user, check for updates again after pi-topOS Software Updater has finished
+
+ -- Mike Roberts <mike@pi-top.com>  Fri, 24 Apr 2020 16:21:55 +0100
+
 pt-os-mods (6.0.0-1) buster; urgency=medium
 
   * Add new apt key

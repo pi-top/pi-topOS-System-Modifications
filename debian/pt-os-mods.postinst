@@ -21,18 +21,13 @@ case "${1}" in
         exit
       fi
 
-      title="pi-topOS Software Updater"
-      message="More updates are available! Please re-run pi-topOS Software Updater once it has completed. You can do this in the start menu by selecting \"Check For Updates\" under \"System Tools\""
+      (
+        while wmctrl -l | grep -q "pi-topOS Software Updater"; do
+          sleep 1
+        done
 
-      sudo -u "${user}" \
-        "DISPLAY=:${display}" \
-        "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u "${user}")/bus" \
-        /usr/bin/notify-send -t 0 -i system-software-update "${title}" "${message}"
-
-      # Print in bold
-      bold="$(tput bold)"
-      normal="$(tput sgr0)"
-      echo "${bold}${message}${normal}"
+        /usr/lib/pt-os-updater/check-now
+      ) &
     fi
     ;;
 
