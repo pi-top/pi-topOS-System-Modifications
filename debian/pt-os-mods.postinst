@@ -1,0 +1,49 @@
+#!/bin/bash -e
+
+case "${1}" in
+  configure)
+    min_version_w_apt_key="6.0.0"
+
+    # If upgrading from pre-'6.0.0' running on pi-topOS, send desktop notification to run update again
+    if dpkg --compare-versions "$2" lt "${min_version_w_apt_key}" && [[ -f "/etc/pt-issue" ]]; then
+      display=":$(find /tmp/.X11-unix/ -maxdepth 1 ! -name .X11-unix |
+        sed 's#/tmp/.X11-unix/X##' | head -n 1)"
+
+      if [[ -z "${display}" ]]; then
+        echo "Unable to find a display to send update notification to"
+        exit
+      fi
+
+      user="$(who | grep "(${display})" | awk '{print $1}' | head -n 1)"
+
+      if [[ -z "${user}" ]]; then
+        echo "Unable to determine user to send update notification to"
+        exit
+      fi
+
+      title="pi-topOS Software Updater"
+      message="More updates are available! Please re-run pi-topOS Software Updater once it has completed. You can do this in the start menu by selecting \"Check For Updates\" under \"System Tools\""
+
+      sudo -u "${user}" \
+        "DISPLAY=:${display}" \
+        "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u "${user}")/bus" \
+        /usr/bin/notify-send -t 0 -i system-software-update "${title}" "${message}"
+
+      # Print in bold
+      bold="$(tput bold)"
+      normal="$(tput sgr0)"
+      echo "${bold}${message}${normal}"
+    fi
+    ;;
+
+  abort-upgrade | abort-remove | abort-deconfigure) ;;
+
+  \
+    *)
+
+    echo "postinst called with unknown argument \`${1}'" >&2
+    exit 1
+    ;;
+esac
+
+#DEBHELPER#
