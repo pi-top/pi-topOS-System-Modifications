@@ -14,13 +14,12 @@ case "${1}" in
         exit 1
       fi
 
-      echo $$ | tee -a /sys/fs/cgroup/systemd/tasks
       (
         trap '' HUP EXIT INT TERM QUIT
         while systemctl is-active --quiet pt-os-updater; do
           sleep 1
         done
-
+        systemctl kill -s SIGTERM pt-os-updater
         env DISPLAY="${display}" /usr/lib/pt-os-updater/check-now
       ) &
 
