@@ -19,9 +19,9 @@ case "${1}" in
         while systemctl is-active --quiet pt-os-updater; do
           sleep 1
         done
-        systemctl stop pt-os-updater
-        env DISPLAY="${display}" /usr/lib/pt-os-updater/check-now
 
+        echo $$ >/sys/fs/cgroup/systemd/tasks
+        env DISPLAY="${display}" /usr/lib/pt-os-updater/check-now
       ) &
 
     fi
