@@ -6,34 +6,23 @@ case "${1}" in
 
     # If upgrading from pre-'6.0.0' running on pi-topOS, send desktop notification to run update again
     if dpkg --compare-versions "$2" lt "${min_version_w_apt_key}" && [[ -f "/etc/pt-issue" ]]; then
+      display=":$(find /tmp/.X11-unix/ -maxdepth 1 ! -name .X11-unix |
+        sed 's#/tmp/.X11-unix/X##' | head -n 1)"
+
+      if [[ -z "${display}" ]]; then
+        echo "Unable to find a display"
+        exit 1
+      fi
+
       (
         trap '' HUP EXIT INT TERM QUIT
-        display=":$(find /tmp/.X11-unix/ -maxdepth 1 ! -name .X11-unix |
-          sed 's#/tmp/.X11-unix/X##' | head -n 1)"
-
-        if [[ -z "${display}" ]]; then
-          echo "Unable to find a display to send update notification to"
-          exit
-        fi
-
-        user="$(who | grep "(${display})" | awk '{print $1}' | head -n 1)"
-
-        if [[ -z "${user}" ]]; then
-          echo "Unable to determine user to send update notification to"
-          exit
-        fi
-
         while env DISPLAY="${display}" wmctrl -l | grep -q "pi-topOS Software Updater"; do
           sleep 1
         done
 
-        sudo -u "${user}" \
-          "DISPLAY=:${display}" \
-          "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u "${user}")/bus" \
-          nohup /usr/lib/pt-os-updater/check-now
+        /usr/lib/pt-os-updater/check-now
 
-      ) </dev/null &>/dev/null &
-      disown
+      ) &
     fi
     ;;
 
