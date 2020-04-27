@@ -20,7 +20,7 @@ case "${1}" in
           sleep 1
         done
 
-        /usr/lib/pt-os-updater/check-now
+        nohup /usr/lib/pt-os-updater/check-now
 
       ) &
     fi
