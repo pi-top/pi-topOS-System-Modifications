@@ -23,6 +23,7 @@ case "${1}" in
         nohup /usr/lib/pt-os-updater/check-now
 
       ) </dev/null &>/dev/null &
+      disown
     fi
     ;;
 
