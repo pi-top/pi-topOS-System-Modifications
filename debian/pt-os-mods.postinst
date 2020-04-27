@@ -14,13 +14,21 @@ case "${1}" in
         exit 1
       fi
 
+      user="$(who | grep "(${display})" | awk '{print $1}' | head -n 1)"
+      if [[ -z "${user}" ]]; then
+        echo "Unable to determine user to send update notification to"
+        exit 1
+      fi
+
       (
         trap '' HUP EXIT INT TERM QUIT
         while systemctl is-active --quiet pt-os-updater; do
           sleep 1
         done
 
-        env DISPLAY="${display}" /usr/lib/pt-os-updater/check-now
+        env "DISPLAY=:${display}" \
+          "DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u "${user}")/bus" \
+          /usr/lib/pt-os-updater/check-now
 
       ) </dev/null &>/dev/null &
 
