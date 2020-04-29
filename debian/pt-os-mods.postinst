@@ -6,8 +6,7 @@ case "${1}" in
 
     # If upgrading from pre-'6.0.0' running on pi-topOS, send desktop notification to run update again
     if dpkg --compare-versions "$2" lt "${min_version_w_apt_key}" && [[ -f "/etc/pt-issue" ]]; then
-      display=":$(find /tmp/.X11-unix/ -maxdepth 1 ! -name .X11-unix |
-        sed 's#/tmp/.X11-unix/X##' | head -n 1)"
+      display="$(pgrep -a Xorg | awk '{print $3}')"
 
       if [[ -z "${display}" ]]; then
         echo "Unable to find a display"
