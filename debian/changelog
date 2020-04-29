@@ -1,14 +1,9 @@
-pt-os-mods (6.0.0-4) buster; urgency=medium
-
-  * Run postinstall script update checks in background
-
- -- Jorge Capona <jorge@pi-top.com>  Fri, 24 Apr 2020 11:59:24 -0400
-
-pt-os-mods (6.0.0-2) buster; urgency=medium
+pt-os-mods (6.0.1-1) buster; urgency=medium
 
   * Instead of notifying user, check for updates again after pi-topOS Software Updater has finished
+  * Suppress Lintian warnings by getting DISPLAY without using /tmp
 
- -- Mike Roberts <mike@pi-top.com>  Fri, 24 Apr 2020 16:21:55 +0100
+ -- Mike Roberts <mike@pi-top.com>  Wed, 29 Apr 2020 09:47:58 +0100
 
 pt-os-mods (6.0.0-1) buster; urgency=medium
 
