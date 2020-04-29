@@ -10,7 +10,7 @@ case "${1}" in
 
       if [[ -z "${display}" ]]; then
         echo "Unable to find a display"
-        exit 1
+        exit
       fi
 
       (
