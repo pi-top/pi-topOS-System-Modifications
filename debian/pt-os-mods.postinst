@@ -1,37 +1,53 @@
 #!/bin/bash -e
 
 case "${1}" in
-  configure)
-    min_version_w_apt_key="6.0.1"
+configure)
 
-    # If upgrading from pre-'6.0.1' running on pi-topOS, send desktop notification to run update again
-    if dpkg --compare-versions "$2" lt "${min_version_w_apt_key}" && [[ -f "/etc/pt-issue" ]]; then
-      display="$(pgrep -a Xorg | awk '{print $3}')"
+	dns_file="/etc/resolv.conf.head"
 
-      if [[ -z "${display}" ]]; then
-        echo "Unable to find a display"
-        exit
-      fi
+	if [[ ! -f "${dns_file}" ]]; then
+		echo "# [pi-topOS] START
+#
+# Set Cloudflare as DNS provider
+#
+nameserver 1.1.1.1
+nameserver 1.0.0.1
+nameserver 2606:4700:4700::1111
+nameserver 2606:4700:4700::1001
+#
+# [pi-topOS] END" >"${dns_file}"
+	fi
 
-      (
-        trap '' HUP EXIT INT TERM QUIT
-        while systemctl is-active --quiet pt-os-updater; do
-          sleep 1
-        done
-        env DISPLAY="${display}" /usr/lib/pt-os-updater/check-now
-      ) &
+	min_version_w_apt_key="6.0.1"
 
-    fi
-    ;;
+	# If upgrading from pre-'6.0.1' running on pi-topOS, send desktop notification to run update again
+	if dpkg --compare-versions "$2" lt "${min_version_w_apt_key}" && [[ -f "/etc/pt-issue" ]]; then
+		display="$(pgrep -a Xorg | awk '{print $3}')"
 
-  abort-upgrade | abort-remove | abort-deconfigure) ;;
+		if [[ -z "${display}" ]]; then
+			echo "Unable to find a display"
+			exit
+		fi
 
-  \
-    *)
+		(
+			trap '' HUP EXIT INT TERM QUIT
+			while systemctl is-active --quiet pt-os-updater; do
+				sleep 1
+			done
+			env DISPLAY="${display}" /usr/lib/pt-os-updater/check-now
+		) &
 
-    echo "postinst called with unknown argument \`${1}'" >&2
-    exit 1
-    ;;
+	fi
+	;;
+
+abort-upgrade | abort-remove | abort-deconfigure) ;;
+
+\
+	*)
+
+	echo "postinst called with unknown argument \`${1}'" >&2
+	exit 1
+	;;
 esac
 
 #DEBHELPER#
