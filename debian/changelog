@@ -1,3 +1,9 @@
+pt-os-mods (6.1.0-1) buster; urgency=medium
+
+  * Configure Cloudflare as default DNS provider
+
+ -- Mike Roberts <mike@pi-top.com>  Mon, 06 Jul 2020 09:56:40 +0100
+
 pt-os-mods (6.0.1-1) buster; urgency=medium
 
   * Instead of notifying user, check for updates again after pi-topOS Software Updater has finished
