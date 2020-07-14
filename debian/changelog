@@ -1,3 +1,9 @@
+pt-os-mods (6.2.0-1) buster; urgency=medium
+
+  * Save wifi state to file on install
+
+ -- Jorge Capona <jorge@pi-top.com>  Tue, 14 Jul 2020 11:11:28 -0400
+
 pt-os-mods (6.1.0-1) buster; urgency=medium
 
   * Configure Cloudflare as default DNS provider
