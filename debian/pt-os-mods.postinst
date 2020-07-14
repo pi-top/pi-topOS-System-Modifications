@@ -43,7 +43,6 @@ nameserver 2606:4700:4700::1001
 		) &
 
 	fi
-
 	;;
 
 abort-upgrade | abort-remove | abort-deconfigure) ;;
