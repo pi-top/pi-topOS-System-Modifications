@@ -38,6 +38,12 @@ nameserver 2606:4700:4700::1001
 		) &
 
 	fi
+
+	# Update wpa_supplicant.conf with network credentials
+	wireless_interface=$(raspi-config nonint list_wlan_interfaces | head -n 1)
+	wpa_cli -i "${wireless_interface}" save_config >/dev/null 2>&1
+	wpa_cli -i "${wireless_interface}" reconfigure >/dev/null 2>&1
+
 	;;
 
 abort-upgrade | abort-remove | abort-deconfigure) ;;
