@@ -4,10 +4,13 @@ case "${1}" in
 configure)
 
 	# Update wpa_supplicant.conf with network credentials
-	wireless_interface=$(raspi-config nonint list_wlan_interfaces | head -n 1)
-	if [[ -n $wireless_interface ]]; then
-		wpa_cli -i "${wireless_interface}" save_config >/dev/null 2>&1
-		wpa_cli -i "${wireless_interface}" reconfigure >/dev/null 2>&1
+	if [[ $(grep "Build Number" /etc/pt-issue | awk '{print $NF}') == "C748" ]]; then
+		wireless_interface=$(raspi-config nonint list_wlan_interfaces | head -n 1)
+		if [[ -n $wireless_interface ]]; then
+			echo "Storing wireless interface configuration"
+			wpa_cli -i "${wireless_interface}" save_config >/dev/null 2>&1
+			wpa_cli -i "${wireless_interface}" reconfigure >/dev/null 2>&1
+		fi
 	fi
 
 	dns_file="/etc/resolv.conf.head"

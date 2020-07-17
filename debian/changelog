@@ -1,3 +1,9 @@
+pt-os-mods (6.2.3-1) buster; urgency=medium
+
+  * Add extra verification on postinstall to save wifi state
+
+ -- Jorge Capona <jorge@pi-top.com>  Fri, 17 Jul 2020 08:52:35 -0400
+
 pt-os-mods (6.2.2-1) buster; urgency=medium
 
   * Fix postinstall script
