@@ -1,3 +1,9 @@
+pt-os-mods (6.2.4-1) buster; urgency=medium
+
+  * Add ALSA configuration file
+
+ -- Jorge Capona <jorge@pi-top.com>  Wed, 22 Jul 2020 14:55:21 -0400
+
 pt-os-mods (6.2.3-1) buster; urgency=medium
 
   * Add extra verification on postinstall to save wifi state
