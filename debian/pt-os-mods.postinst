@@ -1,22 +1,52 @@
 #!/bin/bash -e
 
-case "${1}" in
-configure)
+apply_audio_fix() {
+	# Ensure 'dtparam=audio=on' is in /boot/config.txt
+	raspi-config nonint set_config_var dtparam=audio on /boot/config.txt
 
-	# Update wpa_supplicant.conf with network credentials
-	if [[ $(grep "Build Number" /etc/pt-issue | awk '{print $NF}') == "C748" ]]; then
-		wireless_interface=$(raspi-config nonint list_wlan_interfaces | head -n 1)
-		if [[ -n $wireless_interface ]]; then
-			echo "Storing wireless interface configuration"
-			wpa_cli -i "${wireless_interface}" save_config >/dev/null 2>&1
-			wpa_cli -i "${wireless_interface}" reconfigure >/dev/null 2>&1
-		fi
-	fi
+	# TODO: find '~' for each user on the system - might not be `/home/<>`
+	for home_dir in /home/*; do
+		asoundrc_file="${home_dir}/.asoundrc"
+		# if it exists and doesnt match the default ('card -1'):/
+		# TODO: check default card number
+		#    if [[ -f "${asoundrc_file}" ]] && [[  ]]; then
+		#      # back up to /home/<user>/.asoundrc.bak
+		#      mv "${asoundrc_file}" "${asoundrc_file}.bak"
+		#    fi
+		# set audio card to "headphones" (by name, not card number)
+		echo "pcm.!default {
+  type asym
+  playback.pcm {
+    type plug
+    slave.pcm \"output\"
+  }
+  capture.pcm {
+    type plug
+    slave.pcm \"input\"
+  }
+}
 
-	dns_file="/etc/resolv.conf.head"
+pcm.output {
+  type hw
+  card \"Headphones\"
+}
 
-	if [[ ! -f "${dns_file}" ]]; then
-		echo "# [pi-topOS] START
+ctl.!default {
+  type hw
+  card \"Headphones\"
+}" >"${asoundrc_file}"
+	done
+
+	# notify user that a restart is required
+	pt-notify-send \
+		--expire-time=0 \
+		--icon=dialog-warning \
+		"Audio configuration updated" \
+		"Please restart to apply changes"
+}
+
+apply_cloudflare_dns() {
+	echo "# [pi-topOS] START
 #
 # Set Cloudflare as DNS provider
 #
@@ -25,28 +55,52 @@ nameserver 1.0.0.1
 nameserver 2606:4700:4700::1111
 nameserver 2606:4700:4700::1001
 #
-# [pi-topOS] END" >"${dns_file}"
+# [pi-topOS] END" >"/etc/resolv.conf.head"
+}
+
+check_for_updates() {
+	display="$(pgrep -a Xorg | awk '{print $3}')"
+
+	if [[ -z "${display}" ]]; then
+		echo "Unable to find a display"
+		exit
 	fi
 
-	min_version_w_apt_key="6.0.1"
+	(
+		trap '' HUP EXIT INT TERM QUIT
+		while systemctl is-active --quiet pt-os-updater; do
+			sleep 1
+		done
+		env DISPLAY="${display}" /usr/lib/pt-os-updater/check-now
+	) &
+}
 
-	# If upgrading from pre-'6.0.1' running on pi-topOS, send desktop notification to run update again
-	if dpkg --compare-versions "$2" lt "${min_version_w_apt_key}" && [[ -f "/etc/pt-issue" ]]; then
-		display="$(pgrep -a Xorg | awk '{print $3}')"
+previous_version_requires_patch() {
+	local version_to_check_against="${1}"
+	# Is pi-topOS
+	[[ -f "/etc/pt-issue" ]] || return 1
+	# Is new install or version is earlier than upgrade check
+	[[ -z "${previous_version}" ]] || return 0
+	dpkg --compare-versions "${previous_version}" lt "${version_to_check_against}" || return 0
+}
 
-		if [[ -z "${display}" ]]; then
-			echo "Unable to find a display"
-			exit
-		fi
+case "${1}" in
+configure)
+	previous_version="${2}"
 
-		(
-			trap '' HUP EXIT INT TERM QUIT
-			while systemctl is-active --quiet pt-os-updater; do
-				sleep 1
-			done
-			env DISPLAY="${display}" /usr/lib/pt-os-updater/check-now
-		) &
+	# Apply audio fix and notify user
+	if previous_version_requires_patch "6.3.0"; then
+		apply_audio_fix
+	fi
 
+	# Apply Cloudflare DNS
+	if previous_version_requires_patch "6.1.0"; then
+		apply_cloudflare_dns
+	fi
+
+	# Check for updates again (with new apt key)
+	if previous_version_requires_patch "6.0.1"; then
+		check_for_updates
 	fi
 	;;
 
