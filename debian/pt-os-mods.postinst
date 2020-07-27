@@ -2,18 +2,17 @@
 
 apply_audio_fix() {
 	# Ensure 'dtparam=audio=on' is in /boot/config.txt
-	raspi-config nonint set_config_var dtparam=audio on /boot/config.txt
+	raspi-config nonint set_config_var "dtparam=audio" "on" "/boot/config.txt"
 
-	# TODO: find '~' for each user on the system - might not be `/home/<>`
-	for home_dir in /home/*; do
+	# For each user's home directory
+	for home_dir in $(getent passwd | grep -wFf /etc/shells | awk -F':' '{print $(NF-1)}'); do
 		asoundrc_file="${home_dir}/.asoundrc"
-		# if it exists and doesnt match the default ('card -1'):/
-		# TODO: check default card number
-		#    if [[ -f "${asoundrc_file}" ]] && [[  ]]; then
-		#      # back up to /home/<user>/.asoundrc.bak
-		#      mv "${asoundrc_file}" "${asoundrc_file}.bak"
-		#    fi
-		# set audio card to "headphones" (by name, not card number)
+		if [[ -f "${asoundrc_file}" ]]; then
+			# Back it up
+			mv "${asoundrc_file}" "${asoundrc_file}.bak"
+		fi
+
+		# Set audio card to "headphones" (by name, not card number)
 		echo "pcm.!default {
   type asym
   playback.pcm {
