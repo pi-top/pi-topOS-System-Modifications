@@ -1,11 +1,15 @@
 #!/bin/bash -e
 
+find_home_directories() {
+	getent passwd | grep -wFf /etc/shells | awk -F':' '{print $(NF-1)}'
+}
+
 apply_audio_fix() {
 	# Ensure 'dtparam=audio=on' is in /boot/config.txt
 	raspi-config nonint set_config_var "dtparam=audio" "on" "/boot/config.txt"
 
 	# For each user's home directory
-	for home_dir in $(getent passwd | grep -wFf /etc/shells | awk -F':' '{print $(NF-1)}'); do
+	for home_dir in $(find_home_directories); do
 		asoundrc_file="${home_dir}/.asoundrc"
 		if [[ -f "${asoundrc_file}" ]]; then
 			# Back it up
@@ -33,7 +37,7 @@ pcm.output {
 ctl.!default {
   type hw
   card \"Headphones\"
-}" >"${asoundrc_file}"
+}}" >"${asoundrc_file}"
 	done
 
 	# notify user that a restart is required
@@ -44,6 +48,7 @@ ctl.!default {
 		"Please restart to apply changes"
 }
 
+RESOLV_CONF_HEAD_FILE="/etc/resolv.conf.head"
 apply_cloudflare_dns() {
 	echo "# [pi-topOS] START
 #
@@ -54,7 +59,7 @@ nameserver 1.0.0.1
 nameserver 2606:4700:4700::1111
 nameserver 2606:4700:4700::1001
 #
-# [pi-topOS] END" >"/etc/resolv.conf.head"
+# [pi-topOS] END" >"${RESOLV_CONF_HEAD_FILE}"
 }
 
 check_for_updates() {

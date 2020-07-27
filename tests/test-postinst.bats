@@ -28,55 +28,103 @@ raspi-config() {
 }
 export -f raspi-config
 
-
 pt-notify-send() {
   [ $# -ge 2 ] || return
+  echo "pt-notify-send $@"
 }
 export -f pt-notify-send
 
-pgrep() {
-  [ $1 = "-a" ] || return
-  [ $2 = "Xorg" ] || return
-  echo "834 /usr/lib/xorg/Xorg :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 -novtswitch"
-}
-export -f pgrep
 
 #########
 # TESTS #
 #########
-# Apply audio fix and notify user
-# Apply Cloudflare DNS
-# Check for updates again (with new apt key)
 
-@test "apply_audio_fix finds the correct display number" {
-  source "${FILE_TO_TEST}"
+@test "apply_audio_fix backs up existing configuration" {
+  source "${FILE_TO_TEST}" configure
+  find_home_directories() { echo "/tmp"; }
+  export -f find_home_directories
+  export -f raspi-config
+
+  touch "$(find_home_directories)/.asoundrc"
   run apply_audio_fix
-  [ "$status" -eq 1 ]
-  [ "$output" = "foo: no such file 'nonexistent_filename'" ]
-  # assert_equal "$(get_display)" ":0"
+  assert_success
+
+  assert [ -f "$(find_home_directories)/.asoundrc" ]
+  rm "$(find_home_directories)/.asoundrc"
+  assert [ -f "$(find_home_directories)/.asoundrc.bak" ]
+  rm "$(find_home_directories)/.asoundrc.bak"
 }
 
-@test "get_user_using_display finds user when display exists" {
-  source "${FILE_TO_TEST}"
-  local display=$(get_display)
-  assert_equal "$(get_user_using_display "${display}")" "pi"
+@test "apply_audio_fix creates configuration if one doesn't exist" {
+  source "${FILE_TO_TEST}" configure
+  find_home_directories() { echo "/tmp"; }
+  export -f find_home_directories
+
+  assert [ ! -f "$(find_home_directories)/.asoundrc" ]
+  run apply_audio_fix
+  assert_success
+
+  assert [ ! -f "$(find_home_directories)/.asoundrc.bak" ]
+  assert [ -f "$(find_home_directories)/.asoundrc" ]
+  rm "$(find_home_directories)/.asoundrc"
 }
 
-@test "get_user_using_display returns empty is display is not found" {
-  source "${FILE_TO_TEST}"
-  assert_equal "$(get_user_using_display ::1)" ""
+@test "apply_audio_fix creates a properly formatted configuration file" {
+  source "${FILE_TO_TEST}" configure
+  find_home_directories() { echo "/tmp"; }
+  export -f find_home_directories
+
+  run apply_audio_fix
+  assert_success
+
+  assert [ -f "$(find_home_directories)/.asoundrc" ]
+  expected_asoundrc="${GIT_ROOT}/tests/expected_asoundrc.conf"
+  assert diff -q "${expected_asoundrc}" "$(find_home_directories)/.asoundrc"
+  rm "$(find_home_directories)/.asoundrc"
 }
 
-@test "send_notification receives arguments correctly" {
-  source "${FILE_TO_TEST}"
+@test "apply_audio_fix notifies the user" {
+  source "${FILE_TO_TEST}" configure
+  find_home_directories() { echo "/tmp"; }
+  export -f find_home_directories
 
-  function send_notification() {
-    [ $1 = "pi" ] || echo "1st argument not 'pi'"
-    [ $2 = ":0" ] || echo "2nd argument not ':0'"
-    [ $3 = "message" ] || echo "3rd argument not 'message'"
-    echo "Message sent"
+  run apply_audio_fix
+  assert_success
+
+  assert_output "pt-notify-send --expire-time=0 --icon=dialog-warning Audio configuration updated Please restart to apply changes"
+  rm "$(find_home_directories)/.asoundrc"
+}
+
+@test "apply_cloudflare_dns writes the DNS configuration to a file" {
+  source "${FILE_TO_TEST}" configure
+  RESOLV_CONF_HEAD_FILE="/tmp/resolv.conf.head.test"
+  export RESOLV_CONF_HEAD_FILE
+
+  run apply_cloudflare_dns
+  assert_success
+
+  expected_dns_config="${GIT_ROOT}/tests/expected_cloudfare_dns_config.conf"
+  assert diff -q "${expected_dns_config}" "${RESOLV_CONF_HEAD_FILE}"
+  rm "${RESOLV_CONF_HEAD_FILE}"
+}
+
+@test "check_for_updates fails if no display is detected" {
+  source "${FILE_TO_TEST}" configure
+  pgrep() { echo ""; }
+  export -f pgrep
+
+  run check_for_updates
+  assert_output "Unable to find a display"
+}
+
+@test "check_for_updates checks for updates on success" {
+  source "${FILE_TO_TEST}" configure
+  env() {
+    [ $1 = "DISPLAY=:0" ] || return
+    [ $2 = "/usr/lib/pt-os-updater/check-now" ] || return
   }
-  export -f send_notification
+  export -f env
 
-  assert_equal "$(run_main message)" "Message sent"
+  run check_for_updates
+  assert_success
 }
