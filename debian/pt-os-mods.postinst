@@ -1,6 +1,6 @@
-#!/bin/bash -e
+#!/bin/bash
 
-find_home_directories() {
+get_user_home_directories() {
 	getent passwd | grep -wFf /etc/shells | awk -F':' '{print $(NF-1)}'
 }
 
@@ -9,7 +9,7 @@ apply_audio_fix() {
 	raspi-config nonint set_config_var "dtparam=audio" "on" "/boot/config.txt"
 
 	# For each user's home directory
-	for home_dir in $(find_home_directories); do
+	for home_dir in $(get_user_home_directories); do
 		asoundrc_file="${home_dir}/.asoundrc"
 		if [[ -f "${asoundrc_file}" ]]; then
 			# Back it up
@@ -62,23 +62,17 @@ nameserver 2606:4700:4700::1001
 # [pi-topOS] END" >"${RESOLV_CONF_HEAD_FILE}"
 }
 
-os_updater_is_running() {
-	if systemctl is-active --quiet pt-os-updater; then
-		return 0
-	else
-		return 1
-	fi
-}
-
-check_for_updates_now() {
+do_update_check() {
+	local display="${1}"
 	trap '' HUP EXIT INT TERM QUIT
-	while os_updater_is_running; do
+	while systemctl is-active --quiet pt-os-updater; do
 		sleep 1
 	done
 	env DISPLAY="${display}" /usr/lib/pt-os-updater/check-now
 }
 
-check_for_updates() {
+attempt_check_for_updates() {
+	local display
 	display="$(pgrep -a Xorg | awk '{print $3}')"
 
 	if [[ -z "${display}" ]]; then
@@ -86,36 +80,48 @@ check_for_updates() {
 		exit
 	fi
 
-	check_for_updates_now &
+	(do_check_for_updates "${display}") &
 }
 
 previous_version_requires_patch() {
 	local version_to_check_against="${1}"
-	# Is pi-topOS
-	[[ -f "/etc/pt-issue" ]] || return 1
 	# Is new install or version is earlier than upgrade check
 	[[ -z "${previous_version}" ]] || return 0
 	dpkg --compare-versions "${previous_version}" lt "${version_to_check_against}" || return 0
 }
 
+is_pi_top_os() {
+	if [[ -f "/etc/pt-issue" ]]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+main() {
+	if is_pi_top_os; then
+		previous_version="${2}"
+
+		# Apply audio fix and notify user
+		if previous_version_requires_patch "6.3.0"; then
+			apply_audio_fix
+		fi
+
+		# Apply Cloudflare DNS
+		if previous_version_requires_patch "6.1.0"; then
+			apply_cloudflare_dns
+		fi
+
+		# Check for updates again (with new apt key)
+		if previous_version_requires_patch "6.0.1"; then
+			attempt_check_for_updates
+		fi
+	fi
+}
+
 case "${1}" in
 configure)
-	previous_version="${2}"
-
-	# Apply audio fix and notify user
-	if previous_version_requires_patch "6.3.0"; then
-		apply_audio_fix
-	fi
-
-	# Apply Cloudflare DNS
-	if previous_version_requires_patch "6.1.0"; then
-		apply_cloudflare_dns
-	fi
-
-	# Check for updates again (with new apt key)
-	if previous_version_requires_patch "6.0.1"; then
-		check_for_updates
-	fi
+	main "${@}"
 	;;
 
 abort-upgrade | abort-remove | abort-deconfigure) ;;
