@@ -80,7 +80,7 @@ attempt_check_for_updates() {
 		exit
 	fi
 
-	(do_check_for_updates "${display}") &
+	(do_update_check "${display}") &
 }
 
 previous_version_requires_patch() {
