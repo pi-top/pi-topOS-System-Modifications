@@ -23,7 +23,7 @@ apply_audio_fix() {
 		fi
 
 		# Set audio card
-		raspi-config nonint do_audio ${card_number}
+		raspi-config nonint do_audio "${card_number}"
 	done
 
 	# notify user that a restart is required
