@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 get_user_home_directories() {
 	getent passwd | grep -wFf /etc/shells | awk -F':' '{print $(NF-1)}'
