@@ -131,9 +131,9 @@ teardown() {
   run main
 
   # Verify
-  assert_output "Audio
-DNS
-Updates"
+  assert_line --index 0 "Audio"
+  assert_line --index 1 "DNS"
+  assert_line --index 2 "Updates"
 }
 
 #--------
