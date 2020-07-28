@@ -37,7 +37,7 @@ pcm.output {
 ctl.!default {
   type hw
   card \"Headphones\"
-}}" >"${asoundrc_file}"
+}" >"${asoundrc_file}"
 	done
 
 	# notify user that a restart is required
