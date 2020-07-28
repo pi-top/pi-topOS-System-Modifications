@@ -16,28 +16,14 @@ apply_audio_fix() {
 			mv "${asoundrc_file}" "${asoundrc_file}.bak"
 		fi
 
-		# Set audio card to "headphones" (by name, not card number)
-		echo "pcm.!default {
-  type asym
-  playback.pcm {
-    type plug
-    slave.pcm \"output\"
-  }
-  capture.pcm {
-    type plug
-    slave.pcm \"input\"
-  }
-}
+		# Find card number corresponding to headphones
+		card_number=$(aplay -l | grep Headphones | grep -o "card\\s[0-9]" | cut -d ' ' -f 2)
+		if [ -z "${card_number}" ]; then
+			card_number=1
+		fi
 
-pcm.output {
-  type hw
-  card \"Headphones\"
-}
-
-ctl.!default {
-  type hw
-  card \"Headphones\"
-}" >"${asoundrc_file}"
+		# Set audio card
+		raspi-config nonint do_audio ${card_number}
 	done
 
 	# notify user that a restart is required

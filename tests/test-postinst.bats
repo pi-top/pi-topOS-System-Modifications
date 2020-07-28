@@ -14,7 +14,6 @@ load 'Bash-Automated-Testing-System/bats-assert/load'
 FILE_TO_TEST="${GIT_ROOT}/debian/pt-os-mods.postinst"
 
 # Mocks
-expected_asoundrc="${GIT_ROOT}/tests/mocks/expected_asoundrc.conf"
 expected_dns_config="${GIT_ROOT}/tests/mocks/expected_cloudfare_dns_config.conf"
 spoofed_home_dir="/tmp"
 
@@ -54,15 +53,40 @@ setup() {
   export -f pt-notify-send
 
   raspi-config() {
-    [ "${#}" = 5 ] || return 1
-    [ "${1}" = "nonint" ] || return 1
-    [ "${2}" = "set_config_var" ] || return 1
-    [ "${3}" = "dtparam=audio" ] || return 1
-    [ "${4}" = "on" ] || return 1
-    [ "${5}" = "/boot/config.txt" ] || return 1
-    return 0
+    if [[ "${#}" = 5 ]]; then
+        [ "${1}" = "nonint" ] || return 1
+        [ "${2}" = "set_config_var" ] || return 1
+        [ "${3}" = "dtparam=audio" ] || return 1
+        [ "${4}" = "on" ] || return 1
+        [ "${5}" = "/boot/config.txt" ] || return 1
+        return 0
+    elif [[ "${#}" = 3 ]]; then
+        [ "${1}" = "nonint" ] || return 1
+        [ "${2}" = "do_audio" ] || return 1
+        [ "${3}" = "9" ] || return 1
+        return 0
+    fi
+    return 1
   }
   export -f raspi-config
+
+  aplay() {
+      echo "**** List of PLAYBACK Hardware Devices ****
+card 0: b1 [bcm2835 HDMI 1], device 0: bcm2835 HDMI 1 [bcm2835 HDMI 1]
+  Subdevices: 4/4
+  Subdevice \#0: subdevice \#0
+  Subdevice \#1: subdevice \#1
+  Subdevice \#2: subdevice \#2
+  Subdevice \#3: subdevice \#3
+card 9: Headphones [bcm2835 Headphones], device 0: bcm2835 Headphones [bcm2835 Headphones]
+  Subdevices: 4/4
+  Subdevice \#0: subdevice \#0
+  Subdevice \#1: subdevice \#1
+  Subdevice \#2: subdevice \#2
+  Subdevice \#3: subdevice \#3
+"
+  }
+  export -f aplay
 
   RESOLV_CONF_HEAD_FILE="/tmp/resolv.conf.head.test"
   export RESOLV_CONF_HEAD_FILE
@@ -148,7 +172,6 @@ teardown() {
 
   # Verify
   assert_success
-  assert [ -f "$(get_user_home_directories)/.asoundrc" ]
   assert [ -f "$(get_user_home_directories)/.asoundrc.bak" ]
 }
 
@@ -158,15 +181,12 @@ teardown() {
   # Verify
   assert_success
   assert [ ! -f "$(get_user_home_directories)/.asoundrc.bak" ]
-  assert [ -f "$(get_user_home_directories)/.asoundrc" ]
 }
 
 @test "Audio Fix: creates a properly formatted configuration file" {  # Run
   run apply_audio_fix
   # Verify
   assert_success
-  assert [ -f "$(get_user_home_directories)/.asoundrc" ]
-  assert diff -q "${expected_asoundrc}" "$(get_user_home_directories)/.asoundrc"
 }
 
 @test "Audio Fix: notifies the user" {  # Run
@@ -174,6 +194,36 @@ teardown() {
   # Verify
   assert_success
   assert_output "OK"
+}
+
+@test "Audio Fix: sets default card number to 1 if Headphones isn't present in aplay" {
+  # Set Up
+  raspi-config() {
+    if [[ "${#}" = 5 ]]; then
+        [ "${1}" = "nonint" ] || return 1
+        [ "${2}" = "set_config_var" ] || return 1
+        [ "${3}" = "dtparam=audio" ] || return 1
+        [ "${4}" = "on" ] || return 1
+        [ "${5}" = "/boot/config.txt" ] || return 1
+        return 0
+    elif [[ "${#}" = 3 ]]; then
+        [ "${1}" = "nonint" ] || return 1
+        [ "${2}" = "do_audio" ] || return 1
+        [ "${3}" = "1" ] || return 1
+        return 0
+    fi
+    return 1
+  }
+  export -f raspi-config
+
+  aplay() { return; }
+  export -f aplay
+
+  # Run
+  run apply_audio_fix
+
+  # Verify
+  assert_success
 }
 
 @test "Audio Fix: calls raspi-config successfully with correct parameters" {  # Run
@@ -196,6 +246,9 @@ teardown() {
   assert_failure
 
   run raspi-config wrong config parameters here
+  assert_failure
+
+  run raspi-config nonint do_audio 0
   assert_failure
 }
 
