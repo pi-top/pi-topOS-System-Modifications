@@ -32,7 +32,7 @@ apply_audio_fix() {
 		env SUDO_USER="${user}" raspi-config nonint do_audio "$(get_headphones_alsa_card_number)"
 	done
 
-	# notify user that a restart is required
+	# Notify user that a restart is required
 	pt-notify-send \
 		--expire-time=0 \
 		--icon=dialog-warning \
@@ -63,9 +63,20 @@ do_update_check() {
 	env DISPLAY="${display}" /usr/lib/pt-os-updater/check-now
 }
 
-attempt_check_for_updates() {
+get_display() {
 	local display
 	display="$(pgrep -a Xorg | awk '{print $3}')"
+
+	if [[ -z "${display}" ]]; then
+		return
+	else
+		echo "${display}"
+	fi
+}
+
+attempt_check_for_updates() {
+	local display
+	display="$(get_display)"
 
 	if [[ -z "${display}" ]]; then
 		echo "Unable to find a display"

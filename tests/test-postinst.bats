@@ -8,21 +8,10 @@ GIT_ROOT="$(git rev-parse --show-toplevel)"
 load 'Bash-Automated-Testing-System/bats-support/load'
 load 'Bash-Automated-Testing-System/bats-assert/load'
 
-##############
-# SETUP CODE #
-##############
+############################
+# PRE- AND POST-TEST HOOKS #
+############################
 FILE_TO_TEST="${GIT_ROOT}/debian/pt-os-mods.postinst"
-
-# Mocks
-expected_dns_config="${GIT_ROOT}/tests/mocks/expected_cloudfare_dns_config.conf"
-spoofed_home_dirs="/tmp/test/root
-/tmp/test/home/pi"
-spoofed_users="root
-pi"
-
-
-# Breadcrumbs
-valid_systemctl_breadcrumb="/tmp/valid_systemctl"
 
 remove_artefacts() {
   for spoofed_home_dir in ${spoofed_home_dirs}; do
@@ -33,105 +22,23 @@ remove_artefacts() {
   rm "${valid_systemctl_breadcrumb}" || true
 }
 
-setup() {
+setup_file() {
+  # Set up test directories for files
   for spoofed_home_dir in ${spoofed_home_dirs}; do
     mkdir -p "${spoofed_home_dir}"
   done
 
-  # Include functions
-  source "${FILE_TO_TEST}" configure
-
-  # Spoof functions globally
-  is_pi_top_os() {
-    return 0
-  }
-
-  get_user_home_directories() {
-    echo "${spoofed_home_dir}";
-  }
-  export -f get_user_home_directories
-
-  get_users() {
-    echo "${spoofed_users}";
-  }
-  export -f get_users
-
-  pt-notify-send() {
-    [ "${#}" = 4 ] || return 1
-    [ "${1}" = "--expire-time=0" ] || return 1
-    [ "${2}" = "--icon=dialog-warning" ] || return 1
-    [ "${3}" = "Audio configuration updated" ] || return 1
-    [ "${4}" = "Please restart to apply changes" ] || return 1
-    echo "pt-notify-send: OK"
-  }
-  export -f pt-notify-send
-
-  systemctl() {
-    # systemctl will return zero exit code if args are correct
-    if [ "${#}" = 3 ] && \
-      [ "${1}" = "is-active" ] && \
-      [ "${2}" = "--quiet" ] && \
-      [ "${3}" = "pt-os-updater" ]; then
-      touch "${valid_systemctl_breadcrumb}"
-    fi
-    # Do not sleep
-    return 1
-  }
-  export -f systemctl
-
-  env() {
-    if [[ "${#}" = 2 ]]; then
-      [ "${1}" = "DISPLAY=${display}" ] || return 1
-      [ "${2}" = "/usr/lib/pt-os-updater/check-now" ] || return 1
-      echo "env update check - OK"
-      return 0
-    elif [[ "${#}" = 5 ]]; then
-      [ "${1}" = "SUDO_USER=root" ] || [ "${1}" = "SUDO_USER=pi" ] || return 1
-      [ "${2}" = "raspi-config" ] || return 1
-      [ "${3}" = "nonint" ] || return 1
-      [ "${4}" = "do_audio" ] || return 1
-      [ "${5}" = "$(get_headphones_alsa_card_number)" ] || return 1
-      echo "env do_audio - $1: OK"
-      return 0
-    else
-      return 1
-    fi
-  }
-
-  raspi-config() {
-    [ "${#}" = 5 ] || return 1
-    [ "${1}" = "nonint" ] || return 1
-    [ "${2}" = "set_config_var" ] || return 1
-    [ "${3}" = "dtparam=audio" ] || return 1
-    [ "${4}" = "on" ] || return 1
-    [ "${5}" = "/boot/config.txt" ] || return 1
-    return 0
-  }
-  export -f raspi-config
-
-  aplay() {
-      echo "**** List of PLAYBACK Hardware Devices ****
-card 0: b1 [bcm2835 HDMI 1], device 0: bcm2835 HDMI 1 [bcm2835 HDMI 1]
-  Subdevices: 4/4
-  Subdevice \#0: subdevice \#0
-  Subdevice \#1: subdevice \#1
-  Subdevice \#2: subdevice \#2
-  Subdevice \#3: subdevice \#3
-card 9: Headphones [bcm2835 Headphones], device 0: bcm2835 Headphones [bcm2835 Headphones]
-  Subdevices: 4/4
-  Subdevice \#0: subdevice \#0
-  Subdevice \#1: subdevice \#1
-  Subdevice \#2: subdevice \#2
-  Subdevice \#3: subdevice \#3
-"
-  }
-  export -f aplay
-
-  RESOLV_CONF_HEAD_FILE="/tmp/resolv.conf.head.test"
-  export RESOLV_CONF_HEAD_FILE
-
   # Clean up
   remove_artefacts
+}
+
+setup() {
+  # Source test file
+  source "${FILE_TO_TEST}" configure
+
+  # Source global mocks
+  load "mocks/mock_functions.bash"
+  load "mocks/mock_variables.bash"
 }
 
 teardown() {
@@ -311,8 +218,8 @@ teardown() {
 #--------
 @test "Update Check: fails if no display is detected" {
   # Set Up
-  pgrep() { return; }
-  export -f pgrep
+  get_display() { return; }
+  export -f get_display
 
   # Run
   run attempt_check_for_updates
@@ -330,8 +237,8 @@ teardown() {
 
 @test "Update Check: correctly checks for updates (calls env with correct arguments)" {
   # Run
-  run do_update_check
+  run do_update_check $(get_display)
 
   # Verify
-  assert_output "env update check - OK"
+  assert_output "env update check - DISPLAY=$(get_display): OK"
 }
