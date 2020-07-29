@@ -4,6 +4,16 @@ get_user_home_directories() {
 	getent passwd | grep -wFf /etc/shells | awk -F':' '{print $(NF-1)}'
 }
 
+get_users() {
+	getent passwd | grep -wFf /etc/shells | awk -F':' '{print $1}'
+}
+
+get_headphones_alsa_card_number() {
+	# Find card number corresponding to headphones; default to -1
+	card_number=$(aplay -l | grep bcm2835 | grep Headphones | grep -o "card\\s[0-9]" | cut -d ' ' -f 2)
+	echo "${card_number:--1}"
+}
+
 apply_audio_fix() {
 	# Ensure 'dtparam=audio=on' is in /boot/config.txt
 	raspi-config nonint set_config_var "dtparam=audio" "on" "/boot/config.txt"
@@ -15,15 +25,11 @@ apply_audio_fix() {
 			# Back it up
 			mv "${asoundrc_file}" "${asoundrc_file}.bak"
 		fi
+	done
 
-		# Find card number corresponding to headphones
-		card_number=$(aplay -l | grep Headphones | grep -o "card\\s[0-9]" | cut -d ' ' -f 2)
-		if [ -z "${card_number}" ]; then
-			card_number=1
-		fi
-
-		# Set audio card
-		raspi-config nonint do_audio "${card_number}"
+	# Set audio card to headphones for each user
+	for user in $(get_users); do
+		env SUDO_USER="${user}" raspi-config nonint do_audio "$(get_headphones_alsa_card_number)"
 	done
 
 	# notify user that a restart is required
