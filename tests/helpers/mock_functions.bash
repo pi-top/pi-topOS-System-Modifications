@@ -1,23 +1,20 @@
-# Mocks
-spoofed_home_dirs="/tmp/test/root
-/tmp/test/home/pi"
-spoofed_users="root
-pi"
-
-# Breadcrumbs
-valid_systemctl_breadcrumb="/tmp/valid_systemctl"
+# shellcheck disable=SC1091
+source "helpers/global_variables.bash"
 
 is_pi_top_os() {
 	return 0
 }
 
 get_user_home_directories() {
-	echo "${spoofed_home_dirs}"
+	# Fail if not set
+	echo "${spoofed_home_dirs:?}"
+
 }
 export -f get_user_home_directories
 
 get_users() {
-	echo "${spoofed_users}"
+	# Fail if not set
+	echo "${spoofed_users:?}"
 }
 export -f get_users
 
@@ -37,7 +34,7 @@ systemctl() {
 		[ "${1}" = "is-active" ] &&
 		[ "${2}" = "--quiet" ] &&
 		[ "${3}" = "pt-os-updater" ]; then
-		touch "${valid_systemctl_breadcrumb}"
+		touch "${valid_systemctl_breadcrumb:?}"
 	fi
 	# Do not sleep
 	return 1
