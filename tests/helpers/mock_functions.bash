@@ -1,5 +1,5 @@
 # shellcheck disable=SC1091
-source "helpers/global_variables.bash"
+source "tests/helpers/global_variables.bash"
 
 is_pi_top_os() {
 	return 0

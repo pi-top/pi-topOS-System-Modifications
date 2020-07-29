@@ -1,5 +1,5 @@
 # shellcheck disable=SC1091
-source "helpers/global_variables.bash"
+source "tests/helpers/global_variables.bash"
 
 _remove_artefacts() {
 	for spoofed_home_dir in ${spoofed_home_dirs:?}; do
