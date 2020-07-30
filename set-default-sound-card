@@ -60,17 +60,19 @@ apply_audio_fix() {
 		"Please restart to apply changes"
 }
 
+FIX_SOUND_BREADCRUMB="/etc/pi-top/.defaultAudioSet"
 main() {
 	# Run fix only if breadcrumb doesn't exist
-	BREADCRUMB_FILE="/etc/pi-top/.defaultAudioSet"
-	if [[ ! -f "${BREADCRUMB_FILE}" ]]; then
+	if [[ ! -f "${FIX_SOUND_BREADCRUMB}" ]]; then
 		apply_audio_fix
-		touch "${BREADCRUMB_FILE}"
-	fi
 
-	# Disable and mask service to avoid running again
-	systemctl disable pt-default-audio-selection
-	systemctl mask pt-default-audio-selection
+		# Disable and mask service to avoid running again
+		systemctl disable pt-default-audio-selection
+		systemctl mask pt-default-audio-selection
+
+		# Create breadcrumb
+		touch "${FIX_SOUND_BREADCRUMB}"
+	fi
 }
 
 if is_pi_top_os; then

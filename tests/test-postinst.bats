@@ -82,25 +82,25 @@ load "helpers/postinst-hooks.bash"
 #--------
 # Audio Fix
 #--------
-@test "Audio Fix: enables pt-default-audio-selection systemd service" {
-  # Set Up
-  systemctl() {
-	if [ "${#}" = 2 ] &&
-		[ "${1}" = "enable" ] &&
-		[ "${2}" = "pt-default-audio-selection" ]; then
-		touch "${valid_systemctl_breadcrumb:?}"
-        return 0
-	fi
-	return 1
-  }
-  export -f systemctl
-
+@test "Audio Fix: enables pt-default-audio-selection systemd service if breadcrumb doesn't exist" {
   # Run
   run apply_audio_fix
 
   # Verify
   assert_success
   assert [ -f "${valid_systemctl_breadcrumb}" ]
+}
+
+@test "Audio Fix: doesn't enable pt-default-audio-selection systemd service if breadcrumb exists" {
+  # Set Up
+  touch ${FIX_SOUND_BREADCRUMB}
+
+  # Run
+  run apply_audio_fix
+
+  # Verify
+  assert_success
+  assert [ ! -f "${valid_systemctl_breadcrumb}" ]
 }
 
 #--------

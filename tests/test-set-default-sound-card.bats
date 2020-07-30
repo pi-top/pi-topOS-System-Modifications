@@ -153,3 +153,54 @@ load "helpers/set-default-sound-card-hooks.bash"
   run get_alsa_card_number_by_name $(get_default_audio_card_for_device)
   assert_output 9
 }
+
+@test "Set Default Sound Card:      main runs apply audio fix if breadcrumb doesnt exist" {
+  # Set Up
+  apply_audio_fix() {
+    echo "Applied audio fix"
+  }
+  export -f apply_audio_fix
+
+  run main
+  assert_line --index 0 "Applied audio fix"
+}
+
+@test "Set Default Sound Card:      main disables & masks service if breadcrumb doesnt exist" {
+  # Set Up
+  apply_audio_fix() { return ; }
+  export -f apply_audio_fix
+
+  systemctl() {
+	if [[ "${#}" = 2 ]]; then
+		[ "${1}" = "disable" ]  || [ "${1}" = "mask" ] || return 1
+		[ "${2}" = "pt-default-audio-selection" ] || return 1
+		echo "${@}"
+        return 0
+	fi
+    return 1
+  }
+  export -f systemctl
+
+  run main
+  assert_line --index 0 "disable pt-default-audio-selection"
+  assert_line --index 1 "mask pt-default-audio-selection"
+}
+
+@test "Set Default Sound Card:      main creates a breadcrumb if it doesn't exist" {
+  # Set Up
+  apply_audio_fix() { return ; }
+  export -f apply_audio_fix
+  systemctl() { return ; }
+  export -f systemctl
+
+  run main
+  assert [ -f "${FIX_SOUND_BREADCRUMB}" ]
+}
+
+@test "Set Default Sound Card:      main does nothing if breadcrumb exists" {
+  # Set Up
+  touch "${FIX_SOUND_BREADCRUMB}"
+
+  run main
+  assert_output ""
+}

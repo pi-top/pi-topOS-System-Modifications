@@ -40,6 +40,11 @@ systemctl() {
 		[ "${2}" = "--quiet" ] &&
 		[ "${3}" = "pt-os-updater" ]; then
 		touch "${valid_systemctl_breadcrumb:?}"
+	elif [ "${#}" = 2 ] &&
+		[ "${1}" = "enable" ] &&
+		[ "${2}" = "pt-default-audio-selection" ]; then
+		touch "${valid_systemctl_breadcrumb}"
+		return 0
 	fi
 	# Do not sleep
 	return 1

@@ -61,8 +61,11 @@ is_pi_top_os() {
 	fi
 }
 
+FIX_SOUND_BREADCRUMB="/etc/pi-top/.defaultAudioSet"
 apply_audio_fix() {
-	systemctl enable pt-default-audio-selection
+	if [[ ! -f "${FIX_SOUND_BREADCRUMB}" ]]; then
+		systemctl enable pt-default-audio-selection
+	fi
 }
 
 main() {

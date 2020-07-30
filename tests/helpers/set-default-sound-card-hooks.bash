@@ -10,6 +10,7 @@ _remove_artefacts() {
 		rm "${spoofed_home_dir}/.asoundrc.bak" || true
 	done
 	rm "${valid_systemctl_breadcrumb:?}" || true
+	rm "${FIX_SOUND_BREADCRUMB}" || true
 }
 
 setup_file() {
