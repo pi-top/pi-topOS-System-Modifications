@@ -3,4 +3,4 @@ src/g_ether.conf                                /etc/modprobe.d/
 src/90-ptusb0.rules                             /lib/udev/rules.d/
 src/70-wlan-disable-powersave.rules             /lib/udev/rules.d/
 src/pi-top-keyring.asc                          /etc/apt/trusted.gpg.d/
-pt-default-audio-selection                      /usr/lib/pt-default-audio-selection
+set-default-sound-card                          /usr/lib/pt-default-audio-selection
