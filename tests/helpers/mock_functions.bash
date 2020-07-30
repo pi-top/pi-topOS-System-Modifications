@@ -4,13 +4,18 @@ source "tests/helpers/global_variables.bash"
 is_pi_top_os() {
 	return 0
 }
+export -f is_pi_top_os
 
-get_user_home_directories() {
+chown() { return; }
+export -f chown
+
+get_home_directory_for_user() {
+	local user="${1}"
 	# Fail if not set
-	echo "${spoofed_home_dirs:?}"
+	echo "${spoofed_home_dirs:?}" | grep "${user}"
 
 }
-export -f get_user_home_directories
+export -f get_home_directory_for_user
 
 get_users() {
 	# Fail if not set

@@ -84,7 +84,8 @@ load "helpers/postinst-hooks.bash"
 #--------
 @test "Audio Fix:      backs up existing configuration" {
   # Set Up
-  for home_dir in $(get_user_home_directories); do
+  for user in $(get_users); do
+    home_dir="$(get_home_directory_for_user "${user}")"
     touch "${home_dir}/.asoundrc"
   done
 
@@ -93,9 +94,11 @@ load "helpers/postinst-hooks.bash"
 
   # Verify
   assert_success
-  for home_dir in $(get_user_home_directories); do
+  for user in $(get_users); do
+    home_dir="$(get_home_directory_for_user "${user}")"
     assert [ -f "${home_dir}/.asoundrc.bak" ]
   done
+
 }
 
 @test "Audio Fix:      creates configuration if one doesn't exist" {
@@ -104,7 +107,8 @@ load "helpers/postinst-hooks.bash"
 
   # Verify
   assert_success
-  for home_dir in $(get_user_home_directories); do
+  for user in $(get_users); do
+    home_dir="$(get_home_directory_for_user "${user}")"
     assert [ ! -f "${home_dir}/.asoundrc.bak" ]
   done
 }
