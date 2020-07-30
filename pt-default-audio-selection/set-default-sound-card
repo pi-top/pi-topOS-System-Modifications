@@ -1,5 +1,13 @@
 #!/bin/bash -e
 
+is_pi_top_os() {
+	if [[ -f "/etc/pt-issue" ]]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
 get_users() {
 	getent passwd | grep -wFf /etc/shells | awk -F':' '{print $1}'
 }
@@ -23,9 +31,12 @@ get_default_audio_card_for_device() {
     echo "${default_card}"
 }
 
+get_default_card_number() {
+    get_alsa_card_number_by_name $(get_default_audio_card_for_device)
+}
+
 apply_audio_fix() {
     # Find default card number for device
-    default_card_number=$(get_alsa_card_number_by_name $(get_default_audio_card_for_device))
 
 	# Ensure 'dtparam=audio=on' is in /boot/config.txt
 	raspi-config nonint set_config_var "dtparam=audio" "on" "/boot/config.txt"
@@ -38,7 +49,7 @@ apply_audio_fix() {
 		[[ -f "${asoundrc_file}" ]] && mv "${asoundrc_file}" "${asoundrc_file}.bak"
 
 		# Set audio card to headphones
-        env SUDO_USER="${user}" raspi-config nonint do_audio "${default_card_number}"
+        env SUDO_USER="${user}" raspi-config nonint do_audio "$(get_default_card_number)"
 
 		# Fix file permissions
 		chown "${user}:${user}" "${asoundrc_file}"
@@ -52,13 +63,19 @@ apply_audio_fix() {
 		"Please restart to apply changes"
 }
 
-# Run fix only if breadcrumb doesn't exist
-BREADCRUMB_FILE="/etc/pi-top/.defaultAudioSet"
-if [[ ! -f "${BREADCRUMB_FILE}" ]]; then
-    apply_audio_fix
-    touch "${BREADCRUMB_FILE}"
-fi
+main() {
+    # Run fix only if breadcrumb doesn't exist
+    BREADCRUMB_FILE="/etc/pi-top/.defaultAudioSet"
+    if [[ ! -f "${BREADCRUMB_FILE}" ]]; then
+        apply_audio_fix
+        touch "${BREADCRUMB_FILE}"
+    fi
 
-# Disable and mask service to avoid running again
-systemctl disable pt-default-audio-selection
-systemctl mask pt-default-audio-selection
+    # Disable and mask service to avoid running again
+    systemctl disable pt-default-audio-selection
+    systemctl mask pt-default-audio-selection
+}
+
+if is_pi_top_os; then
+    main
+fi

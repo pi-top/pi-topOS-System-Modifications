@@ -1,6 +1,3 @@
-FILE_TO_TEST="${GIT_ROOT}/debian/pt-os-mods.postinst"
-export FILE_TO_TEST
-
 expected_dns_config="${GIT_ROOT}/tests/helpers/expected_cloudfare_dns_config.conf"
 export expected_dns_config
 

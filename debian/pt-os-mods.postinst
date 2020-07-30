@@ -61,13 +61,17 @@ is_pi_top_os() {
 	fi
 }
 
+apply_audio_fix() {
+	systemctl enable pt-default-audio-selection
+}
+
 main() {
 	if is_pi_top_os; then
 		previous_version="${2}"
 
 		# Enable service to fix audio issues
 		if previous_version_requires_patch "6.3.0"; then
-			systemctl enable pt-default-audio-selection
+			apply_audio_fix
 		fi
 
 		# Apply Cloudflare DNS

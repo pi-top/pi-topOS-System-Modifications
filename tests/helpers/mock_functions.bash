@@ -63,8 +63,9 @@ env() {
 		[ "${2}" = "raspi-config" ] || return 1
 		[ "${3}" = "nonint" ] || return 1
 		[ "${4}" = "do_audio" ] || return 1
-		[ "${5}" = "$(get_headphones_alsa_card_number)" ] || return 1
+		[ "${5}" = "$(get_default_card_number)" ] || return 1
 		echo "env do_audio - $1: OK"
+
 		return 0
 	else
 		return 1
@@ -99,3 +100,6 @@ card 9: Headphones [bcm2835 Headphones], device 0: bcm2835 Headphones [bcm2835 H
 "
 }
 export -f aplay
+
+pt-host() { echo "pi-top [4]"; }
+export -f pt-host

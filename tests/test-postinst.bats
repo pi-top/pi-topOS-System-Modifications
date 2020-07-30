@@ -82,96 +82,25 @@ load "helpers/postinst-hooks.bash"
 #--------
 # Audio Fix
 #--------
-@test "Audio Fix:      backs up existing configuration" {
+@test "Audio Fix: enables pt-default-audio-selection systemd service" {
   # Set Up
-  for user in $(get_users); do
-    home_dir="$(get_home_directory_for_user "${user}")"
-    touch "${home_dir}/.asoundrc"
-  done
+  systemctl() {
+	if [ "${#}" = 2 ] &&
+		[ "${1}" = "enable" ] &&
+		[ "${2}" = "pt-default-audio-selection" ]; then
+		touch "${valid_systemctl_breadcrumb:?}"
+        return 0
+	fi
+	return 1
+  }
+  export -f systemctl
 
   # Run
   run apply_audio_fix
 
   # Verify
   assert_success
-  for user in $(get_users); do
-    home_dir="$(get_home_directory_for_user "${user}")"
-    assert [ -f "${home_dir}/.asoundrc.bak" ]
-  done
-
-}
-
-@test "Audio Fix:      creates configuration if one doesn't exist" {
-  # Run
-  run apply_audio_fix
-
-  # Verify
-  assert_success
-  for user in $(get_users); do
-    home_dir="$(get_home_directory_for_user "${user}")"
-    assert [ ! -f "${home_dir}/.asoundrc.bak" ]
-  done
-}
-
-@test "Audio Fix:      creates a properly formatted configuration file" {
-  # Run
-  run apply_audio_fix
-  # Verify
-  assert_success
-}
-
-@test "Audio Fix:      notifies the user" {
-  # Run
-  run apply_audio_fix
-
-  # Verify
-  assert_success
-  assert_line --index 0 "env do_audio - SUDO_USER=root: OK"
-  assert_line --index 1 "env do_audio - SUDO_USER=pi: OK"
-  assert_line --index 2 "pt-notify-send: OK"
-}
-
-@test "Audio Fix:      default card number to -1 if Headphones isn't present in aplay" {
-  # Set Up
-  aplay() { return; }
-  export -f aplay
-
-  # Run
-  run get_headphones_alsa_card_number
-
-  # Verify
-  assert_output "-1"
-}
-
-@test "Audio Fix:      raspi-config runs with correct parameters" {
-  # Run and verify success conditions
-  run raspi-config nonint set_config_var "dtparam=audio" "on" "/boot/config.txt"
-  assert_success
-
-  run apply_audio_fix
-  assert_line --index 0 "env do_audio - SUDO_USER=root: OK"
-  assert_line --index 1 "env do_audio - SUDO_USER=pi: OK"
-}
-
-@test "Audio Fix:      raspi-config test function fails when run with incorrect parameters" {
-  # Run and verify fail conditions
-  run raspi-config
-  assert_failure
-
-  run raspi-config wrong
-  assert_failure
-
-  run raspi-config wrong config
-  assert_failure
-
-  run raspi-config wrong config parameters
-  assert_failure
-
-  run raspi-config wrong config parameters here
-  assert_failure
-
-  run raspi-config nonint do_audio 0
-  assert_failure
+  assert [ -f "${valid_systemctl_breadcrumb}" ]
 }
 
 #--------
