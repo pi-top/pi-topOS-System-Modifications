@@ -138,18 +138,18 @@ load "helpers/set-default-sound-card-hooks.bash"
   pt-host() { echo "pi-top [4]"; }
   export -f pt-host
 
-  run get_default_card_number
+  run get_alsa_card_number_by_name $(get_default_audio_card_for_device)
   assert_output 9
 
   pt-host() { echo "pi-top [3]"; }
   export -f pt-host
 
-  run get_default_card_number
+  run get_alsa_card_number_by_name $(get_default_audio_card_for_device)
   assert_output 0
 
   pt-host() { echo "any"; }
   export -f pt-host
 
-  run get_default_card_number
+  run get_alsa_card_number_by_name $(get_default_audio_card_for_device)
   assert_output 9
 }

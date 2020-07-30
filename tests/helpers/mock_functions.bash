@@ -63,7 +63,7 @@ env() {
 		[ "${2}" = "raspi-config" ] || return 1
 		[ "${3}" = "nonint" ] || return 1
 		[ "${4}" = "do_audio" ] || return 1
-		[ "${5}" = "$(get_default_card_number)" ] || return 1
+		[ "${5}" = "1" ] || [ "${5}" = "9" ] || return 1
 		echo "env do_audio - $1: OK"
 
 		return 0
