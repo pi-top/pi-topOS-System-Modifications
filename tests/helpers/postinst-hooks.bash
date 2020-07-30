@@ -1,4 +1,4 @@
-# shellcheck disable=SC1091
+# shellcheck source=tests/helpers/global_variables.bash
 source "tests/helpers/global_variables.bash"
 
 _remove_artefacts() {
@@ -16,21 +16,17 @@ setup_file() {
 		mkdir -p "${spoofed_home_dir}"
 	done
 
-	# Clean up
 	_remove_artefacts
 }
 
 setup() {
-	# Source test file
-	# shellcheck disable=SC1090
+	# shellcheck source=debian/pt-os-mods.postinst
 	source "${FILE_TO_TEST}" configure
 
-	# Source globals
 	load "helpers/mock_functions.bash"
 	load "helpers/mock_variables.bash"
 }
 
 teardown() {
-	# Clean up
 	_remove_artefacts
 }
