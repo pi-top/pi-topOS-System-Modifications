@@ -1,47 +1,5 @@
 #!/bin/bash -e
 
-get_users() {
-	getent passwd | grep -wFf /etc/shells | awk -F':' '{print $1}'
-}
-
-get_home_directory_for_user() {
-	local user="${1}"
-	[[ -z "${user}" ]] && return
-	getent passwd | grep -wFf /etc/shells | grep "${user}" | awk -F':' '{print $(NF-1)}'
-}
-
-get_headphones_alsa_card_number() {
-	# Find card number corresponding to headphones; default to -1
-	card_number=$(aplay -l | grep bcm2835 | grep Headphones | grep -o "card\\s[0-9]" | cut -d ' ' -f 2)
-	echo "${card_number:--1}"
-}
-
-apply_audio_fix() {
-	# Ensure 'dtparam=audio=on' is in /boot/config.txt
-	raspi-config nonint set_config_var "dtparam=audio" "on" "/boot/config.txt"
-
-	# For each user
-	for user in $(get_users); do
-		home_dir="$(get_home_directory_for_user "${user}")"
-		asoundrc_file="${home_dir}/.asoundrc"
-		# Back up existing asound configuration
-		[[ -f "${asoundrc_file}" ]] && mv "${asoundrc_file}" "${asoundrc_file}.bak"
-
-		# Set audio card to headphones
-		env SUDO_USER="${user}" raspi-config nonint do_audio "$(get_headphones_alsa_card_number)"
-
-		# Fix file permissions
-		chown "${user}:${user}" "${asoundrc_file}"
-	done
-
-	# Notify user using display that a restart is required
-	pt-notify-send \
-		--expire-time=0 \
-		--icon=dialog-warning \
-		"Audio configuration updated" \
-		"Please restart to apply changes"
-}
-
 RESOLV_CONF_HEAD_FILE="/etc/resolv.conf.head"
 apply_cloudflare_dns() {
 	echo "# [pi-topOS] START
@@ -107,9 +65,9 @@ main() {
 	if is_pi_top_os; then
 		previous_version="${2}"
 
-		# Apply audio fix and notify user
+		# Enable service to fix audio issues
 		if previous_version_requires_patch "6.3.0"; then
-			apply_audio_fix
+			systemctl enable pt-default-audio-selection
 		fi
 
 		# Apply Cloudflare DNS

@@ -1,0 +1,10 @@
+[Unit]
+Description=pi-top default audio card selection service
+Documentation=https://knowledgebase.pi-top.com/knowledge
+
+[Service]
+Type=simple
+ExecStart=/usr/lib/pt-default-audio-selection/set-default-sound-card
+
+[Install]
+WantedBy=multi-user.target

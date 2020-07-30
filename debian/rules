@@ -1,3 +1,12 @@
 #!/usr/bin/make -f
 %:
-	dh $@
+	dh $@ --with systemd
+
+override_dh_installinit:
+	dh_installinit --noscripts
+
+override_dh_systemd_enable:
+	dh_systemd_enable --no-enable --name=pt-default-audio-selection
+
+override_dh_systemd_start:
+	dh_systemd_start --no-start pt-default-audio-selection
