@@ -72,7 +72,7 @@ system_using_new_alsa_config() {
 	fi
 }
 
-FIX_SOUND_BREADCRUMB="/etc/pi-top/.defaultAudioSet"
+FIX_SOUND_BREADCRUMB="/etc/pi-top/.configuredDefaultAlsaOutput"
 main() {
 	# Run fix only once
 	[[ -f "${FIX_SOUND_BREADCRUMB}" ]] &&
