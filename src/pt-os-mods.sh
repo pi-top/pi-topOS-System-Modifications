@@ -63,15 +63,13 @@ You may experience sound issues until you do." \
 		--action=Restart:'env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A /sbin/reboot'
 }
 
-notify_user_to_apply_audio_fix() {
-	# Notify user using display that a restart is required
-	pt-notify-send \
-		--expire-time=0 \
-		--icon=dialog-warning \
-		"Sound configuration needs to be updated" \
-		"Please restart to begin applying sound configuration changes.
-You may experience sound issues until you do." \
-		--action=Restart:'env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A /sbin/reboot'
+system_using_new_alsa_config() {
+	if aplay -l | grep -q "bcm2835 ALSA"; then
+		# Old implementation
+		return 1
+	else
+		return 0
+	fi
 }
 
 FIX_SOUND_BREADCRUMB="/etc/pi-top/.defaultAudioSet"
@@ -81,9 +79,8 @@ main() {
 		echo "Fix already applied - doing nothing..." &&
 		return
 
-	# Notify user to reboot to use latest kernel
-	if dpkg --compare-versions "$(uname -r)" lt 5; then
-		notify_user_to_apply_audio_fix
+	if ! system_using_new_alsa_config; then
+		echo "System not using new ALSA config - doing nothing..."
 		return
 	fi
 

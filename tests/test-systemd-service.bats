@@ -74,7 +74,6 @@ load "helpers/systemd-service-hooks.bash"
 @test "Set Default Sound Card:      default card number to -1 if Headphones isn't present in aplay" {
   # Set Up
   aplay() { return; }
-  export -f aplay
 
   # Run
   run get_alsa_card_number_by_name "Headphones"
@@ -116,19 +115,16 @@ load "helpers/systemd-service-hooks.bash"
 
 @test "Set Default Sound Card:      gets the correct default sound card per pi-top device" {
   pt-host() { echo "pi-top [4]"; }
-  export -f pt-host
 
   run get_default_audio_card_for_device
   assert_output "Headphones"
 
   pt-host() { echo "pi-top [3]"; }
-  export -f pt-host
 
   run get_default_audio_card_for_device
   assert_output "HDMI"
 
   pt-host() { echo "any"; }
-  export -f pt-host
 
   run get_default_audio_card_for_device
   assert_output "Headphones"
@@ -136,19 +132,16 @@ load "helpers/systemd-service-hooks.bash"
 
 @test "Set Default Sound Card:      gets the correct default sound card number per pi-top device" {
   pt-host() { echo "pi-top [4]"; }
-  export -f pt-host
 
   run get_alsa_card_number_by_name $(get_default_audio_card_for_device)
   assert_output 9
 
   pt-host() { echo "pi-top [3]"; }
-  export -f pt-host
 
   run get_alsa_card_number_by_name $(get_default_audio_card_for_device)
   assert_output 0
 
   pt-host() { echo "any"; }
-  export -f pt-host
 
   run get_alsa_card_number_by_name $(get_default_audio_card_for_device)
   assert_output 9
@@ -156,33 +149,21 @@ load "helpers/systemd-service-hooks.bash"
 
 @test "Set Default Sound Card:      kernel version is checked correctly" {
   # Set Up
-  dpkg() {
+  system_using_new_alsa_config() {
     # Kernel is too early
-    [ "${#}" = 4 ] || return 1
-    [ "${1}" = "--compare-versions" ] || return 1
-    [ "${2}" = "$(uname -r)" ] || return 1
-    [ "${3}" = "lt" ] || return 1
-    [ "${4}" = "5" ] || return 1
-    return 0
-  }
-  export -f dpkg
-
-  notify_user_to_apply_audio_fix() {
-    echo "kernel was too early"
+    return 1
   }
 
   run main
-  assert_line --index 0 "kernel was too early"
+  assert_line --index 0 "System not using new ALSA config - doing nothing..."
 
-  dpkg() {
+  system_using_new_alsa_config() {
     # Kernel is up to date
-    return 1
+    return 0
   }
-  export -f dpkg
   apply_audio_fix() {
     echo "applied audio fix"
   }
-  export -f apply_audio_fix
 
   run main
   assert_line --index 0 "applied audio fix"
@@ -193,12 +174,10 @@ load "helpers/systemd-service-hooks.bash"
   apply_audio_fix() {
     echo "Applied audio fix"
   }
-  export -f apply_audio_fix
   dpkg() {
     # Kernel is up to date
     return 1
   }
-  export -f dpkg
 
   run main
   assert_line --index 0 "Applied audio fix"
@@ -207,9 +186,7 @@ load "helpers/systemd-service-hooks.bash"
 @test "Set Default Sound Card:      main creates a breadcrumb if it doesn't exist" {
   # Set Up
   apply_audio_fix() { return ; }
-  export -f apply_audio_fix
   systemctl() { return ; }
-  export -f systemctl
 
   run main
   assert [ -f "${FIX_SOUND_BREADCRUMB}" ]
