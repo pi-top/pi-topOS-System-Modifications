@@ -55,8 +55,8 @@ load "helpers/postinst-hooks.bash"
   export -f attempt_check_for_updates
 
   previous_version_requires_patch() {
-    [ "${1}" = "6.1.0" ] && echo "DNS"
-    [ "${1}" = "6.0.1" ] && echo "Updates"
+    [[ "${1}" == "6.1.0" ]] && echo "DNS"
+    [[ "${1}" == "6.0.1" ]] && echo "Updates"
   }
   export -f previous_version_requires_patch
 

@@ -27,7 +27,7 @@ get_alsa_card_number_by_name() {
 
 get_default_audio_card_for_device() {
 	default_card="Headphones"
-	[[ $(pt-host) = "pi-top [3]" ]] && default_card="HDMI"
+	[[ $(pt-host) == "pi-top [3]" ]] && default_card="HDMI"
 	echo "${default_card}"
 }
 

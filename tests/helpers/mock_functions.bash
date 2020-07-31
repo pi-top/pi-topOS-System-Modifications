@@ -24,21 +24,21 @@ get_users() {
 export -f get_users
 
 pt-notify-send() {
-	[ "${#}" = 5 ] || (echo "pt-notify-send err: wrong # of args - ${#} != 5" && return 1)
+	[[ "${#}" == 5 ]] || (echo "pt-notify-send err: wrong # of args - ${#} != 5" && return 1)
 
-	[ "${1}" = "--expire-time=0" ] || (echo "pt-notify-send err: wrong arg: #1 - '${1}'" && return 1)
+	[[ "${1}" == "--expire-time=0" ]] || (echo "pt-notify-send err: wrong arg: #1 - '${1}'" && return 1)
 
-	[ "${2}" = "--icon=dialog-warning" ] || (echo "pt-notify-send err: wrong arg: #2 - '${2}'" && return 1)
+	[[ "${2}" == "--icon=dialog-warning" ]] || (echo "pt-notify-send err: wrong arg: #2 - '${2}'" && return 1)
 
-	[ "${3}" = "Sound configuration updated" ] ||
-		[ "${3}" = "Sound configuration needs to be updated" ] || (echo "pt-notify-send err: wrong arg: #3 - '${3}'" && return 1)
+	[[ "${3}" == "Sound configuration updated" ]] ||
+		[[ "${3}" == "Sound configuration needs to be updated" ]] || (echo "pt-notify-send err: wrong arg: #3 - '${3}'" && return 1)
 
-	[ "${4}" = "Please restart to apply changes.
-You may experience sound issues until you do." ] ||
-		[ "${4}" = "Please restart to begin applying sound configuration changes.
-You may experience sound issues until you do." ] || (echo "pt-notify-send err: wrong arg: #4 - '${4}'" && return 1)
+	[[ "${4}" == "Please restart to apply changes.
+You may experience sound issues until you do." ]] ||
+		[[ "${4}" == "Please restart to begin applying sound configuration changes.
+You may experience sound issues until you do." ]] || (echo "pt-notify-send err: wrong arg: #4 - '${4}'" && return 1)
 
-	[ "${5}" = "--action=Restart:env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A /sbin/reboot" ] || (echo "pt-notify-send err: wrong arg: #5 - '${5}'" && return 1)
+	[[ "${5}" == "--action=Restart:env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A /sbin/reboot" ]] || (echo "pt-notify-send err: wrong arg: #5 - '${5}'" && return 1)
 
 	echo "pt-notify-send: OK"
 }
@@ -46,14 +46,14 @@ export -f pt-notify-send
 
 systemctl() {
 	# systemctl will return zero exit code if args are correct
-	if [ "${#}" = 3 ] &&
-		[ "${1}" = "is-active" ] &&
-		[ "${2}" = "--quiet" ] &&
-		[ "${3}" = "pt-os-updater" ]; then
+	if [[ "${#}" == 3 ]] &&
+		[[ "${1}" == "is-active" ]] &&
+		[[ "${2}" == "--quiet" ]] &&
+		[[ "${3}" == "pt-os-updater" ]]; then
 		touch "${valid_systemctl_breadcrumb:?}"
-	elif [ "${#}" = 2 ] &&
-		[ "${1}" = "enable" ] &&
-		[ "${2}" = "pt-default-audio-selection" ]; then
+	elif [[ "${#}" == 2 ]] &&
+		[[ "${1}" == "enable" ]] &&
+		[[ "${2}" == "pt-default-audio-selection" ]]; then
 		touch "${valid_systemctl_breadcrumb}"
 		return 0
 	fi
@@ -68,18 +68,18 @@ get_display() {
 export -f get_display
 
 env() {
-	if [[ "${#}" = 2 ]]; then
-		[ "${1}" = "DISPLAY=$(get_display)" ] || return 1
-		[ "${2}" = "/usr/lib/pt-os-updater/check-now" ] || return 1
+	if [[ "${#}" == 2 ]]; then
+		[[ "${1}" == "DISPLAY=$(get_display)" ]] || return 1
+		[[ "${2}" == "/usr/lib/pt-os-updater/check-now" ]] || return 1
 		echo "env update check - $1: OK"
 
 		return 0
-	elif [[ "${#}" = 5 ]]; then
-		[ "${1}" = "SUDO_USER=root" ] || [ "${1}" = "SUDO_USER=pi" ] || return 1
-		[ "${2}" = "raspi-config" ] || return 1
-		[ "${3}" = "nonint" ] || return 1
-		[ "${4}" = "do_audio" ] || return 1
-		[ "${5}" = "1" ] || [ "${5}" = "9" ] || return 1
+	elif [[ "${#}" == 5 ]]; then
+		[[ "${1}" == "SUDO_USER=root" ]] || [[ "${1}" == "SUDO_USER=pi" ]] || return 1
+		[[ "${2}" == "raspi-config" ]] || return 1
+		[[ "${3}" == "nonint" ]] || return 1
+		[[ "${4}" == "do_audio" ]] || return 1
+		[[ "${5}" == "1" ]] || [[ "${5}" == "9" ]] || return 1
 		echo "env do_audio - $1: OK"
 
 		return 0
@@ -89,12 +89,12 @@ env() {
 }
 
 raspi-config() {
-	[ "${#}" = 5 ] || return 1
-	[ "${1}" = "nonint" ] || return 1
-	[ "${2}" = "set_config_var" ] || return 1
-	[ "${3}" = "dtparam=audio" ] || return 1
-	[ "${4}" = "on" ] || return 1
-	[ "${5}" = "/boot/config.txt" ] || return 1
+	[[ "${#}" == 5 ]] || return 1
+	[[ "${1}" == "nonint" ]] || return 1
+	[[ "${2}" == "set_config_var" ]] || return 1
+	[[ "${3}" == "dtparam=audio" ]] || return 1
+	[[ "${4}" == "on" ]] || return 1
+	[[ "${5}" == "/boot/config.txt" ]] || return 1
 	return 0
 }
 export -f raspi-config
