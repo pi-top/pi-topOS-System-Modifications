@@ -147,20 +147,8 @@ load "helpers/systemd-service-hooks.bash"
   assert_output 9
 }
 
-@test "Set Default Sound Card:      kernel version is checked correctly" {
+@test "Set Default Sound Card:      audio fix is applied if aplay output shows new version" {
   # Set Up
-  system_using_new_alsa_config() {
-    # Kernel is too early
-    return 1
-  }
-
-  run main
-  assert_line --index 0 "System not using new ALSA config - doing nothing..."
-
-  system_using_new_alsa_config() {
-    # Kernel is up to date
-    return 0
-  }
   apply_audio_fix() {
     echo "applied audio fix"
   }
@@ -169,14 +157,20 @@ load "helpers/systemd-service-hooks.bash"
   assert_line --index 0 "applied audio fix"
 }
 
+@test "Set Default Sound Card:      audio fix is not applied if aplay output shows old version" {
+  system_using_new_alsa_config() {
+    # System's alsa config is old
+    return 1
+  }
+
+  run main
+  assert_line --index 0 "System not using new ALSA config - doing nothing..."
+}
+
 @test "Set Default Sound Card:      main runs apply audio fix if breadcrumb doesnt exist" {
   # Set Up
   apply_audio_fix() {
     echo "Applied audio fix"
-  }
-  dpkg() {
-    # Kernel is up to date
-    return 1
   }
 
   run main
