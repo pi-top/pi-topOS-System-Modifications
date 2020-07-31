@@ -150,11 +150,11 @@ load "helpers/systemd-service-hooks.bash"
 @test "Set Default Sound Card:      audio fix is applied if aplay output shows new version" {
   # Set Up
   apply_audio_fix() {
-    echo "applied audio fix"
+    echo "Applied audio fix"
   }
 
   run main
-  assert_line --index 0 "applied audio fix"
+  assert_line --index 0 "Applied audio fix"
 }
 
 @test "Set Default Sound Card:      audio fix is not applied if aplay output shows old version" {
