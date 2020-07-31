@@ -23,11 +23,6 @@ load "helpers/postinst-hooks.bash"
 #--------
 @test "Version Check:  applies all patches if new installation" {
   # Set Up
-  apply_audio_fix() {
-    echo "Applied audio fix"
-  }
-  export -f apply_audio_fix
-
   apply_cloudflare_dns() {
     echo "Applied Cloudflare DNS"
   }
@@ -47,16 +42,12 @@ load "helpers/postinst-hooks.bash"
   run main
 
   # Verify
-  assert_line --index 0 "Applied audio fix"
-  assert_line --index 1 "Applied Cloudflare DNS"
-  assert_line --index 2 "Attempted to check for updates"
+  assert_line --index 0 "Applied Cloudflare DNS"
+  assert_line --index 1 "Attempted to check for updates"
 }
 
 @test "Version Check:  patches are associated with correct versions" {
   # Set Up
-  apply_audio_fix() { return; }
-  export -f apply_audio_fix
-
   apply_cloudflare_dns() { return; }
   export -f apply_cloudflare_dns
 
@@ -64,7 +55,6 @@ load "helpers/postinst-hooks.bash"
   export -f attempt_check_for_updates
 
   previous_version_requires_patch() {
-    [ "${1}" = "6.3.0" ] && echo "Audio"
     [ "${1}" = "6.1.0" ] && echo "DNS"
     [ "${1}" = "6.0.1" ] && echo "Updates"
   }
@@ -74,33 +64,8 @@ load "helpers/postinst-hooks.bash"
   run main
 
   # Verify
-  assert_line --index 0 "Audio"
-  assert_line --index 1 "DNS"
-  assert_line --index 2 "Updates"
-}
-
-#--------
-# Audio Fix
-#--------
-@test "Audio Fix: enables pt-default-audio-selection systemd service if breadcrumb doesn't exist" {
-  # Run
-  run apply_audio_fix
-
-  # Verify
-  assert_success
-  assert [ -f "${valid_systemctl_breadcrumb}" ]
-}
-
-@test "Audio Fix: doesn't enable pt-default-audio-selection systemd service if breadcrumb exists" {
-  # Set Up
-  touch ${FIX_SOUND_BREADCRUMB}
-
-  # Run
-  run apply_audio_fix
-
-  # Verify
-  assert_success
-  assert [ ! -f "${valid_systemctl_breadcrumb}" ]
+  assert_line --index 0 "DNS"
+  assert_line --index 1 "Updates"
 }
 
 #--------

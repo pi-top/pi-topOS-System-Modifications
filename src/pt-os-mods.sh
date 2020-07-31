@@ -19,7 +19,7 @@ get_home_directory_for_user() {
 }
 
 get_alsa_card_number_by_name() {
-	card_to_lookup="${1}"
+	local card_to_lookup="${1}"
 	# Find card number corresponding to headphones; default to -1
 	card_number=$(aplay -l | grep bcm2835 | grep "${card_to_lookup}" | grep -o "card\\s[0-9]" | cut -d ' ' -f 2)
 	echo "${card_number:--1}"
@@ -32,16 +32,17 @@ get_default_audio_card_for_device() {
 }
 
 apply_audio_fix() {
-	# Find default card number for device
-
 	# Ensure 'dtparam=audio=on' is in /boot/config.txt
 	raspi-config nonint set_config_var "dtparam=audio" "on" "/boot/config.txt"
 
+	# Find default card number for device
 	card_number=$(get_alsa_card_number_by_name "$(get_default_audio_card_for_device)")
+
 	# For each user
 	for user in $(get_users); do
 		home_dir="$(get_home_directory_for_user "${user}")"
 		asoundrc_file="${home_dir}/.asoundrc"
+
 		# Back up existing asound configuration
 		[[ -f "${asoundrc_file}" ]] && mv "${asoundrc_file}" "${asoundrc_file}.bak"
 
@@ -56,23 +57,38 @@ apply_audio_fix() {
 	pt-notify-send \
 		--expire-time=0 \
 		--icon=dialog-warning \
-		"Audio configuration updated" \
-		"Please restart to apply changes"
+		"Sound configuration updated" \
+		"Please restart to apply changes.
+You may experience sound issues until you do." \
+		--action=Restart:'env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A /sbin/reboot'
+}
+
+notify_user_to_apply_audio_fix() {
+	# Notify user using display that a restart is required
+	pt-notify-send \
+		--expire-time=0 \
+		--icon=dialog-warning \
+		"Sound configuration needs to be updated" \
+		"Please restart to begin applying sound configuration changes.
+You may experience sound issues until you do." \
+		--action=Restart:'env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A /sbin/reboot'
 }
 
 FIX_SOUND_BREADCRUMB="/etc/pi-top/.defaultAudioSet"
 main() {
-	# Run fix only if breadcrumb doesn't exist
-	if [[ ! -f "${FIX_SOUND_BREADCRUMB}" ]]; then
-		apply_audio_fix
+	# Run fix only once
+	[[ -f "${FIX_SOUND_BREADCRUMB}" ]] &&
+		echo "Fix already applied - doing nothing..." &&
+		return
 
-		# Disable and mask service to avoid running again
-		systemctl disable pt-default-audio-selection
-		systemctl mask pt-default-audio-selection
-
-		# Create breadcrumb
-		touch "${FIX_SOUND_BREADCRUMB}"
+	# Notify user to reboot to use latest kernel
+	if dpkg --compare-versions "$(uname -r)" lt 5; then
+		notify_user_to_apply_audio_fix
+		return
 	fi
+
+	apply_audio_fix
+	touch "${FIX_SOUND_BREADCRUMB}"
 }
 
 if is_pi_top_os; then

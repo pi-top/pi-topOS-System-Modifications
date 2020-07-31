@@ -24,11 +24,22 @@ get_users() {
 export -f get_users
 
 pt-notify-send() {
-	[ "${#}" = 4 ] || return 1
-	[ "${1}" = "--expire-time=0" ] || return 1
-	[ "${2}" = "--icon=dialog-warning" ] || return 1
-	[ "${3}" = "Audio configuration updated" ] || return 1
-	[ "${4}" = "Please restart to apply changes" ] || return 1
+	[ "${#}" = 5 ] || (echo "pt-notify-send err: wrong # of args - ${#} != 5" && return 1)
+
+	[ "${1}" = "--expire-time=0" ] || (echo "pt-notify-send err: wrong arg: #1 - '${1}'" && return 1)
+
+	[ "${2}" = "--icon=dialog-warning" ] || (echo "pt-notify-send err: wrong arg: #2 - '${2}'" && return 1)
+
+	[ "${3}" = "Sound configuration updated" ] ||
+		[ "${3}" = "Sound configuration needs to be updated" ] || (echo "pt-notify-send err: wrong arg: #3 - '${3}'" && return 1)
+
+	[ "${4}" = "Please restart to apply changes.
+You may experience sound issues until you do." ] ||
+		[ "${4}" = "Please restart to begin applying sound configuration changes.
+You may experience sound issues until you do." ] || (echo "pt-notify-send err: wrong arg: #4 - '${4}'" && return 1)
+
+	[ "${5}" = "--action=Restart:env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A /sbin/reboot" ] || (echo "pt-notify-send err: wrong arg: #5 - '${5}'" && return 1)
+
 	echo "pt-notify-send: OK"
 }
 export -f pt-notify-send
@@ -108,3 +119,6 @@ export -f aplay
 
 pt-host() { echo "pi-top [4]"; }
 export -f pt-host
+
+uname() { echo "5.4.51-v7l+"; }
+export -f uname

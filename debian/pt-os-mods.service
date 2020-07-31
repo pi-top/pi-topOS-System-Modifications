@@ -1,10 +1,10 @@
 [Unit]
-Description=pi-top default audio card selection service
+Description=pi-topOS system modifications service
 Documentation=https://knowledgebase.pi-top.com/knowledge
 
 [Service]
 Type=simple
-ExecStart=/usr/lib/pt-default-audio-selection/set-default-sound-card
+ExecStart=/usr/lib/pt-os-mods/pt-os-mods.sh
 
 [Install]
 WantedBy=multi-user.target

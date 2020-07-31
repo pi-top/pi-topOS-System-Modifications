@@ -1,7 +1,7 @@
 # shellcheck source=tests/helpers/global_variables.bash
 source "tests/helpers/global_variables.bash"
 
-FILE_TO_TEST="${GIT_ROOT}/set-default-sound-card"
+FILE_TO_TEST="${GIT_ROOT}/src/pt-os-mods.sh"
 export FILE_TO_TEST
 
 _remove_artefacts() {

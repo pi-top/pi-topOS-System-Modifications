@@ -12,7 +12,7 @@ load "Bash-Automated-Testing-System/bats-assert/load"
 # SETUP/HOOKS #
 ###############
 load "helpers/global_variables.bash"
-load "helpers/set-default-sound-card-hooks.bash"
+load "helpers/systemd-service-hooks.bash"
 
 #########
 # TESTS #
@@ -154,36 +154,54 @@ load "helpers/set-default-sound-card-hooks.bash"
   assert_output 9
 }
 
+@test "Set Default Sound Card:      kernel version is checked correctly" {
+  # Set Up
+  dpkg() {
+    # Kernel is too early
+    [ "${#}" = 4 ] || return 1
+    [ "${1}" = "--compare-versions" ] || return 1
+    [ "${2}" = "$(uname -r)" ] || return 1
+    [ "${3}" = "lt" ] || return 1
+    [ "${4}" = "5" ] || return 1
+    return 0
+  }
+  export -f dpkg
+
+  notify_user_to_apply_audio_fix() {
+    echo "kernel was too early"
+  }
+
+  run main
+  assert_line --index 0 "kernel was too early"
+
+  dpkg() {
+    # Kernel is up to date
+    return 1
+  }
+  export -f dpkg
+  apply_audio_fix() {
+    echo "applied audio fix"
+  }
+  export -f apply_audio_fix
+
+  run main
+  assert_line --index 0 "applied audio fix"
+}
+
 @test "Set Default Sound Card:      main runs apply audio fix if breadcrumb doesnt exist" {
   # Set Up
   apply_audio_fix() {
     echo "Applied audio fix"
   }
   export -f apply_audio_fix
+  dpkg() {
+    # Kernel is up to date
+    return 1
+  }
+  export -f dpkg
 
   run main
   assert_line --index 0 "Applied audio fix"
-}
-
-@test "Set Default Sound Card:      main disables & masks service if breadcrumb doesnt exist" {
-  # Set Up
-  apply_audio_fix() { return ; }
-  export -f apply_audio_fix
-
-  systemctl() {
-	if [[ "${#}" = 2 ]]; then
-		[ "${1}" = "disable" ]  || [ "${1}" = "mask" ] || return 1
-		[ "${2}" = "pt-default-audio-selection" ] || return 1
-		echo "${@}"
-        return 0
-	fi
-    return 1
-  }
-  export -f systemctl
-
-  run main
-  assert_line --index 0 "disable pt-default-audio-selection"
-  assert_line --index 1 "mask pt-default-audio-selection"
 }
 
 @test "Set Default Sound Card:      main creates a breadcrumb if it doesn't exist" {
@@ -202,5 +220,5 @@ load "helpers/set-default-sound-card-hooks.bash"
   touch "${FIX_SOUND_BREADCRUMB}"
 
   run main
-  assert_output ""
+  assert_output "Fix already applied - doing nothing..."
 }
