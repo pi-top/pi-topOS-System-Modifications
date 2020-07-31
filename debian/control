@@ -8,7 +8,10 @@ Homepage: https://pi-top.com/
 
 Package: pt-os-mods
 Architecture: armhf
-Depends: ${misc:Depends}, dpkg (>= 1.19.7), wmctrl (>= 1.07)
+Depends: ${misc:Depends},
+ dpkg (>= 1.19.7),
+ wmctrl (>= 1.07),
+ raspi-config (>= 20200601)
 Replaces: pt-display
 Recommends: lightdm
 Description: pi-top OS Config Management

@@ -1,3 +1,12 @@
 #!/usr/bin/make -f
 %:
-	dh $@
+	dh $@ --with systemd
+
+override_dh_installinit:
+	dh_installinit --noscripts
+
+override_dh_systemd_enable:
+	dh_systemd_enable --name=pt-os-mods
+
+override_dh_systemd_start:
+	dh_systemd_start pt-os-mods

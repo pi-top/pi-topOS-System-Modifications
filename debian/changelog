@@ -1,3 +1,10 @@
+pt-os-mods (6.3.0-1) buster; urgency=medium
+
+  * Remove extra verification on postinstall to save wifi state
+  * Add ~/.asoundrc for all users to fix audio with new Alsa config
+
+ -- Mike Roberts <mike@pi-top.com>  Thu, 30 Jul 2020 15:49:51 +0100
+
 pt-os-mods (6.2.3-1) buster; urgency=medium
 
   * Add extra verification on postinstall to save wifi state
