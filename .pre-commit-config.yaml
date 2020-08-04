@@ -24,6 +24,6 @@ repos:
         - '--external-sources'
 
 -   repo: https://github.com/pre-commit/mirrors-autopep8
-    rev: v1.5.3
+    rev: v1.5.4
     hooks:
     -   id: autopep8
