@@ -27,10 +27,13 @@ get_alsa_card_number_by_name() {
 
 get_default_audio_card_for_device() {
 	if aplay -l | grep -q snd_rpi_hifiberry_dac; then
+		# Hifiberry found in list; use that
 		echo "snd_rpi_hifiberry_dac"
 	elif [[ $(pt-host) == "pi-top [3]" ]]; then
+		# Support speaker over HDMI
 		echo "bcm2835 HDMI 1"
 	else
+		# Audio jack, unless peripheral is detected by device manager
 		echo "bcm2835 Headphones"
 	fi
 }

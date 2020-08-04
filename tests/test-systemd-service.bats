@@ -76,7 +76,7 @@ load "helpers/systemd-service-hooks.bash"
   aplay() { return; }
 
   # Run
-  run get_alsa_card_number_by_name "Headphones"
+  run get_alsa_card_number_by_name "bcm2835 Headphones"
 
   # Verify
   assert_output "-1"
@@ -117,33 +117,38 @@ load "helpers/systemd-service-hooks.bash"
   pt-host() { echo "pi-top [4]"; }
 
   run get_default_audio_card_for_device
-  assert_output "Headphones"
+  assert_output "bcm2835 Headphones"
 
   pt-host() { echo "pi-top [3]"; }
 
   run get_default_audio_card_for_device
-  assert_output "HDMI"
+  assert_output "bcm2835 HDMI 1"
 
   pt-host() { echo "any"; }
 
   run get_default_audio_card_for_device
-  assert_output "Headphones"
+  assert_output "bcm2835 Headphones"
+
+  aplay() { echo "snd_rpi_hifiberry_dac"; }
+
+  run get_default_audio_card_for_device
+  assert_output "snd_rpi_hifiberry_dac"
 }
 
 @test "Set Default Sound Card:      gets the correct default sound card number per pi-top device" {
   pt-host() { echo "pi-top [4]"; }
 
-  run get_alsa_card_number_by_name $(get_default_audio_card_for_device)
+  run get_alsa_card_number_by_name "$(get_default_audio_card_for_device)"
   assert_output 9
 
   pt-host() { echo "pi-top [3]"; }
 
-  run get_alsa_card_number_by_name $(get_default_audio_card_for_device)
+  run get_alsa_card_number_by_name "$(get_default_audio_card_for_device)"
   assert_output 0
 
   pt-host() { echo "any"; }
 
-  run get_alsa_card_number_by_name $(get_default_audio_card_for_device)
+  run get_alsa_card_number_by_name "$(get_default_audio_card_for_device)"
   assert_output 9
 }
 
