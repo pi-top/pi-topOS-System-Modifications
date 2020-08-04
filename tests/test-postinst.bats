@@ -68,6 +68,28 @@ load "helpers/postinst-hooks.bash"
   assert_line --index 1 "Updates"
 }
 
+@test "Version Check:  checks versions to apply patches properly" {
+  previous_version=""
+  export previous_version
+  run previous_version_requires_patch "1.0.0"
+  assert_success
+
+  previous_version="1.0.0"
+  export previous_version
+  run previous_version_requires_patch "2.0.0"
+  assert_success
+
+  previous_version="4.0.0"
+  export previous_version
+  run previous_version_requires_patch "3.0.0"
+  assert_failure
+
+  previous_version="4.0.0"
+  export previous_version
+  run previous_version_requires_patch "4.0.0"
+  assert_failure
+}
+
 #--------
 # Cloudflare DNS
 #--------

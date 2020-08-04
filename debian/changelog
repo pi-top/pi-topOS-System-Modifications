@@ -1,3 +1,9 @@
+pt-os-mods (6.3.1-1) buster; urgency=medium
+
+  * Fix version check to apply patches
+
+ -- Jorge Capona <jorge@pi-top.com>  Tue, 04 Aug 2020 16:36:59 -0400
+
 pt-os-mods (6.3.0-1) buster; urgency=medium
 
   * Remove extra verification on postinstall to save wifi state
