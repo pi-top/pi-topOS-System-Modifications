@@ -20,20 +20,26 @@ get_home_directory_for_user() {
 
 get_alsa_card_number_by_name() {
 	local card_to_lookup="${1}"
-	# Find card number corresponding to headphones; default to -1
-	card_number=$(aplay -l | grep bcm2835 | grep "${card_to_lookup}" | grep -o "card\\s[0-9]" | cut -d ' ' -f 2)
+	# Find card number corresponding to card name; default to -1
+	card_number=$(aplay -l | grep "${card_to_lookup}" | grep -o "card\\s[0-9]" | cut -d ' ' -f 2)
 	echo "${card_number:--1}"
 }
 
 get_default_audio_card_for_device() {
-	default_card="Headphones"
-	[[ $(pt-host) == "pi-top [3]" ]] && default_card="HDMI"
-	echo "${default_card}"
+	if aplay -l | grep -q snd_rpi_hifiberry_dac; then
+		echo "snd_rpi_hifiberry_dac"
+	elif [[ $(pt-host) == "pi-top [3]" ]]; then
+		echo "bcm2835 HDMI 1"
+	else
+		echo "bcm2835 Headphones"
+	fi
 }
 
 apply_audio_fix() {
-	# Ensure 'dtparam=audio=on' is in /boot/config.txt
-	raspi-config nonint set_config_var "dtparam=audio" "on" "/boot/config.txt"
+	if ! aplay -l | grep -q snd_rpi_hifiberry_dac; then
+		# Ensure 'dtparam=audio=on' is in /boot/config.txt
+		raspi-config nonint set_config_var "dtparam=audio" "on" "/boot/config.txt"
+	fi
 
 	# Find default card number for device
 	card_number=$(get_alsa_card_number_by_name "$(get_default_audio_card_for_device)")
