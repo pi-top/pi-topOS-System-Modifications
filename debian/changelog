@@ -1,3 +1,9 @@
+pt-os-mods (6.3.2-1) buster; urgency=medium
+
+  * Increase verbosity on postinstall
+
+ -- Jorge Capona <jorge@pi-top.com>  Thu, 06 Aug 2020 15:47:48 -0400
+
 pt-os-mods (6.3.1-1) buster; urgency=medium
 
   * Fix version check to apply patches
