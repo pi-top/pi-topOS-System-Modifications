@@ -1,3 +1,9 @@
+pt-os-mods (6.3.4-1) buster; urgency=medium
+
+  * Don't run update checks when building OS image
+
+ -- Jorge Capona <jorge@pi-top.com>  Thu, 06 Aug 2020 19:44:04 -0400
+
 pt-os-mods (6.3.3-1) buster; urgency=medium
 
   * Apply postinst when building OS image

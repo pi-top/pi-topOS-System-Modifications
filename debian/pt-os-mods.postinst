@@ -33,6 +33,10 @@ get_display() {
 
 attempt_check_for_updates() {
 	echo "Attempting to check for updates"
+	if ischroot; then
+		echo "On a chroot, skipping..."
+		return
+	fi
 	local display
 	display="$(get_display)"
 
