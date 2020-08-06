@@ -1,3 +1,9 @@
+pt-os-mods (6.3.3-1) buster; urgency=medium
+
+  * Apply postinst when building OS image
+
+ -- Jorge Capona <jorge@pi-top.com>  Thu, 06 Aug 2020 18:10:56 -0400
+
 pt-os-mods (6.3.2-1) buster; urgency=medium
 
   * Increase verbosity on postinstall
