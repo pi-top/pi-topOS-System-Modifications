@@ -112,7 +112,8 @@ load "helpers/postinst-hooks.bash"
   # Run
   run attempt_check_for_updates
   # Verify
-  assert_output "Unable to find a display"
+  assert_line --index 0 "Attempting to check for updates"
+  assert_line --index 1 "Unable to find a display"
 }
 
 @test "Update Check:   checks for active OS updater correctly" {
@@ -128,5 +129,6 @@ load "helpers/postinst-hooks.bash"
   run do_update_check $(get_display)
 
   # Verify
-  assert_output "env update check - DISPLAY=$(get_display): OK"
+  assert_line --index 0 "Checking updates"
+  assert_line --index 1 "env update check - DISPLAY=$(get_display): OK"
 }

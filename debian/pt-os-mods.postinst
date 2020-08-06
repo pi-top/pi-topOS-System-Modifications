@@ -2,6 +2,7 @@
 
 RESOLV_CONF_HEAD_FILE="/etc/resolv.conf.head"
 apply_cloudflare_dns() {
+	echo "Setting DNS in ${RESOLV_CONF_HEAD_FILE}"
 	echo "# [pi-topOS] START
 #
 # Set Cloudflare as DNS provider
@@ -15,6 +16,7 @@ nameserver 2606:4700:4700::1001
 }
 
 do_update_check() {
+	echo "Checking updates"
 	local display="${1}"
 	trap '' HUP EXIT INT TERM QUIT
 	while systemctl is-active --quiet pt-os-updater; do
@@ -30,6 +32,7 @@ get_display() {
 }
 
 attempt_check_for_updates() {
+	echo "Attempting to check for updates"
 	local display
 	display="$(get_display)"
 
