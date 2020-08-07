@@ -1,3 +1,9 @@
+pt-os-mods (6.3.5-1) buster; urgency=medium
+
+  * Start pt-os-mods service after pt-device-manager
+
+ -- Jorge Capona <jorge@pi-top.com>  Fri, 07 Aug 2020 09:44:06 -0400
+
 pt-os-mods (6.3.4-1) buster; urgency=medium
 
   * Don't run update checks when building OS image
