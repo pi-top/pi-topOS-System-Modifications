@@ -10,10 +10,10 @@ Package: pt-os-mods
 Architecture: armhf
 Depends: ${misc:Depends},
  dpkg (>= 1.19.7),
- wmctrl (>= 1.07),
+# Used for 'ischroot' command
+ debianutils (>= 4.8.6.1),
  raspi-config (>= 20200601)
 Replaces: pt-display
-Recommends: lightdm
 Description: pi-top OS Config Management
  Manages pi-top modifications to the base operating system
  configuration
