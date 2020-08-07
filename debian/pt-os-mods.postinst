@@ -33,10 +33,12 @@ get_display() {
 
 attempt_check_for_updates() {
 	echo "Attempting to check for updates"
+
 	if ischroot; then
-		echo "On a chroot, skipping..."
+		echo "In a chroot environment - skipping..."
 		return
 	fi
+
 	local display
 	display="$(get_display)"
 
@@ -57,7 +59,7 @@ previous_version_requires_patch() {
 }
 
 is_pi_top_os() {
-	if [[ -f "/etc/pt-issue" ]] || ischroot; then
+	if [[ -f "/etc/pt-issue" ]]; then
 		return 0
 	else
 		return 1
