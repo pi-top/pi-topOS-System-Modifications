@@ -11,18 +11,11 @@ update_resolution() {
 	xrandr --output "${display}" --mode 1920x1080
 }
 
-do_nothing() {
-	local display="${1}"
-	echo "Doing nothing with ${display}"
-}
-
 main() {
 	for disp in 'HDMI-1' 'HDMI-2'; do
 		if xrandr --query | grep "${disp} connected" &>/dev/null; then
 			update_resolution "${disp}"
 			unblank_display
-		else
-			do_nothing "${disp}"
 		fi
 	done
 }
