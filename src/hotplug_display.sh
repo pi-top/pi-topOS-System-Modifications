@@ -7,6 +7,11 @@ set -euo pipefail
 IFS=$'\n\t'
 ###############################################################
 
+# Touchscreen only compatible with pi-top [4]
+# Therefore, only compatible with Raspberry Pi 4
+# Therefore, only need to look at possible display names
+displays=('HDMI-1' 'HDMI-2')
+
 unblank_display() {
 	xset dpms force on
 }
@@ -17,7 +22,7 @@ update_resolution() {
 }
 
 main() {
-	for disp in 'HDMI-1' 'HDMI-2'; do
+	for disp in "${displays[@]}"; do
 		if xrandr --query | grep "${disp} connected" &>/dev/null; then
 			update_resolution "${disp}"
 			unblank_display
@@ -25,7 +30,7 @@ main() {
 	done
 }
 
-# start it forked so the monitor is active
-# this is needed because udev activates the monitor
-# AFTER this script returns
+# This script requires monitor to be active
+# However, udev activates monitor AFTER this script returns
+# Therefore, we fork it
 main &
