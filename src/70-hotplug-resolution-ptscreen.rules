@@ -1,7 +1,7 @@
-ACTION=="add" \
-, ATTR{idVendor}=="222a" \
-, ATTR{idProduct}=="0001" \
-, ENV{DISPLAY}=":0" \
-, RUN+="/usr/bin/xrandr -q"
-, RUN+="/usr/bin/xrandr --output HDMI-1 --mode 1920x1080"
+ACTION=="add"                                             \
+, ATTR{idVendor}=="222a"                                  \
+, ATTR{idProduct}=="0001"                                 \
+, ENV{DISPLAY}=":0"                                       \
+, RUN+="/usr/bin/xrandr -q"                               \
+, RUN+="/usr/bin/xrandr --output HDMI-1 --mode 1920x1080" \
 , RUN+="/usr/bin/xset dpms force on"
