@@ -4,5 +4,6 @@ src/90-ptusb0.rules                             /lib/udev/rules.d/
 src/70-hotplug-resolution-ptscreen.rules        /lib/udev/rules.d/
 src/70-wlan-disable-powersave.rules             /lib/udev/rules.d/
 src/pi-top-keyring.asc                          /etc/apt/trusted.gpg.d/
+src/hotplug_display.sh                          /usr/lib/pt-os-mods/
 src/pt-os-mods.sh                               /usr/lib/pt-os-mods/
 pkg/pwdptom.sh                                  /usr/lib/pt-os-mods/
