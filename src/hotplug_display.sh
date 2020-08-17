@@ -9,8 +9,11 @@ IFS=$'\n\t'
 
 # Touchscreen only compatible with pi-top [4]
 # Therefore, only compatible with Raspberry Pi 4
-# Therefore, only need to look at possible display names
-displays=('HDMI-1' 'HDMI-2')
+#   pi-topOS default: 'vc4-fkms-v3d' driver
+#   pi-topOS default: 'hdmi_force_hotplug:1=1'
+#     ensured that HDMI1 (secondary) is 'first'
+#     for pi-top display cable - used for touchscreen!
+displays=('HDMI-1')
 
 unblank_display() {
 	xset dpms force on
@@ -23,9 +26,10 @@ update_resolution() {
 
 main() {
 	for disp in "${displays[@]}"; do
-		if xrandr --query | grep "${disp} connected" &>/dev/null; then
+		if xrandr --query | grep -q "${disp} connected"; then
 			update_resolution "${disp}"
 			unblank_display
+			break
 		fi
 	done
 }

@@ -69,6 +69,10 @@ load "helpers/postinst-hooks.bash"
 }
 
 @test "Version Check:  checks versions to apply patches properly" {
+  if ! command -v dpkg; then
+    skip "dpkg not installed"
+  fi
+
   previous_version=""
   export previous_version
   run previous_version_requires_patch "1.0.0"
