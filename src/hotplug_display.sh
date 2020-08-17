@@ -1,6 +1,11 @@
 #!/bin/bash
+###############################################################
+#                Unofficial 'Bash strict mode'                #
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/  #
+###############################################################
 set -euo pipefail
 IFS=$'\n\t'
+###############################################################
 
 unblank_display() {
 	xset dpms force on
