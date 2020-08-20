@@ -12,7 +12,9 @@ Depends: ${misc:Depends},
  dpkg (>= 1.19.7),
 # Used for 'ischroot' command
  debianutils (>= 4.8.6.1),
- raspi-config (>= 20200601)
+ raspi-config (>= 20200601),
+# Used for 'xset' and 'xrandr' commands
+ x11-xserver-utils,
 Replaces: pt-display
 Description: pi-top OS Config Management
  Manages pi-top modifications to the base operating system
