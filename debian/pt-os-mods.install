@@ -8,5 +8,5 @@ src/hotplug_display.sh                          /usr/lib/pt-os-mods/
 src/pt-os-mods.sh                               /usr/lib/pt-os-mods/
 src/pt-rpi-eeprom-update                        /usr/bin/
 src/pt-eeprom-hook                              /usr/lib/rpi-eeprom-update/
-src/pt-force-rpi-eeprom-install-and-reboot      /usr/lib/rpi-eeprom-update/
+src/pt-force-rpi-eeprom-install                 /usr/lib/rpi-eeprom-update/
 src/pwdptom.sh                                  /usr/lib/pt-os-mods/
