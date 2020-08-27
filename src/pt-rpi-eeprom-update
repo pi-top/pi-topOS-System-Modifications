@@ -1,0 +1,174 @@
+#!/bin/bash -e
+
+if [ "$EUID" -ne 0 ]; then
+	echo "Please run as root"
+	exit 1
+fi
+
+model="$(tr -d '\0' </proc/device-tree/model)"
+echo "Model: ${model}"
+
+if [[ "${model}" != *"Raspberry Pi 4"* ]]; then
+	echo "Not Raspberry Pi 4 - exiting..."
+	exit 0
+fi
+
+if [ -f /etc/default/rpi-eeprom-update ]; then
+	# shellcheck disable=SC1091
+	. /etc/default/rpi-eeprom-update
+fi
+
+echo "Executable config hook found: '${EEPROM_CONFIG_HOOK}'"
+
+rpi_eeprom_resp="$(rpi-eeprom-update || true)"
+
+bootloader_current="$(echo "${rpi_eeprom_resp}" | ag "CURRENT" | head -n1 | awk '{print $NF}' | sed 's/[()]//g')"
+bootloader_latest="$(echo "${rpi_eeprom_resp}" | ag "LATEST" | head -n1 | awk '{print $NF}' | sed 's/[()]//g')"
+
+vl805_current_hex="$(echo "${rpi_eeprom_resp}" | ag "CURRENT" | tail -n1 | awk '{print $NF}')"
+vl805_current="$((16#${vl805_current_hex}))"
+
+vl805_latest_hex="$(echo "${rpi_eeprom_resp}" | ag "LATEST" | tail -n1 | awk '{print $NF}')"
+vl805_latest="$((16#${vl805_latest_hex}))"
+
+FORCE_EEPROM_UPDATE_AND_REBOOT_COMMAND="/usr/lib/rpi-eeprom-update/pt-force-rpi-eeprom-install-and-reboot"
+
+NOTIFICATION_TITLE_UPDATE="Updated Raspberry Pi Firmware Ready To Install"
+
+notifyUserRebootToUpdate() {
+	echo "Sending notification for reboot to apply firmware update..."
+
+	pt-notify-send -t 0 \
+		"--action=Reboot now:env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A /sbin/reboot" \
+		"${NOTIFICATION_TITLE_UPDATE}" \
+		"A Raspberry Pi firmware update will be installed the next time you start your device." \
+		"Reboot now to enjoy improved device performance and/or new features."
+}
+
+currentEEPROMConfigIsValid() {
+	if [ -x "${EEPROM_CONFIG_HOOK}" ]; then
+
+		orig_bootloader_config="$(/opt/vc/bin/vcgencmd bootloader_config)"
+
+		mod_bootloader_config="$(echo "${orig_bootloader_config}" | ${EEPROM_CONFIG_HOOK})"
+
+		echo
+
+		if [[ "${mod_bootloader_config}" == "${orig_bootloader_config}" ]]; then
+
+			echo "Raspberry Pi bootloader configuration is correct for current device configuration"
+			return 0
+
+		else
+
+			echo "Raspberry Pi bootloader configuration is incorrect for current device configuration"
+
+			echo
+			diff --color='always' --suppress-common-lines <(echo "${orig_bootloader_config}") <(echo "${mod_bootloader_config}")
+			echo
+
+			return 1
+
+		fi
+
+	else
+		echo "No executable config hook found: '${EEPROM_CONFIG_HOOK}'"
+	fi
+
+	return 0
+}
+
+notifyReboot="false"
+
+echo "Cleaning up leftover EEPROM files from ${BOOTFS}..."
+rpi-eeprom-update -r &>/dev/null
+
+echo
+
+echo "VL805"
+echo "CURRENT: ${vl805_current_hex}"
+echo " LATEST: ${vl805_latest_hex}"
+
+if [[ "${vl805_current}" -lt "${vl805_latest}" ]]; then
+
+	echo "VL805 firmware update available - running 'rpi-eeprom-update -A vl805'..."
+	rpi-eeprom-update -A vl805 &>/dev/null
+	notifyReboot="true"
+
+else
+	echo "No VL805 firmware update available"
+fi
+
+echo
+
+echo "BOOTLOADER"
+echo "CURRENT: ${bootloader_current}"
+echo " LATEST: ${bootloader_latest}"
+if [[ "${bootloader_current}" -lt "${bootloader_latest}" ]]; then
+
+	echo "Bootloader firmware update available"
+
+	tmp_dir="$(mktemp -d)"
+
+	if [ "${notifyReboot}" = "true" ]; then
+		echo "Moving files into temporary directory before applying bootloader update"
+
+		files=("recovery.bin"
+			"vl805.bin"
+			"vl805.sig")
+
+		for file in "${files[@]}"; do
+
+			file_path="${BOOTFS}/${file}"
+
+			if [[ -f "${file_path}" ]]; then
+				echo -e "\tMoving ${file} from ${BOOTFS} to ${tmp_dir}..."
+				mv "${file_path}" "${tmp_dir}"
+			fi
+
+		done
+
+	fi
+
+	echo "Running 'rpi-eeprom-update -A bootloader'..."
+	rpi-eeprom-update -A bootloader &>/dev/null
+
+	if [ "${notifyReboot}" = "true" ]; then
+		echo "Moving VL805 files back and cleaning up..."
+
+		mv "${tmp_dir}/"* "${BOOTFS}/"
+
+		rm -rf "${tmp_dir}"
+	fi
+
+	notifyReboot="true"
+
+	echo "Checking if current EEPROM config requires reboot..."
+	if ! currentEEPROMConfigIsValid; then
+		echo "Rebooting to apply update..."
+		reboot
+	fi
+
+else
+
+	if [[ "${bootloader_current}" -gt "${bootloader_latest}" ]]; then
+		echo "WARNING: Raspberry Pi version is ahead of latest on OS."
+		echo "Downgrade required for EEPROM configuration compatibility"
+	fi
+
+	if ! currentEEPROMConfigIsValid; then
+		${FORCE_EEPROM_UPDATE_AND_REBOOT_COMMAND}
+
+		# If it gets here, something has gone wrong...
+		exit 1
+	fi
+
+fi
+
+echo
+
+if [ "${notifyReboot}" = true ]; then
+	notifyUserRebootToUpdate
+fi
+
+exit 0
