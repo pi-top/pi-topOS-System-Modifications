@@ -31,7 +31,7 @@ vl805_current="$((16#${vl805_current_hex}))"
 vl805_latest_hex="$(echo "${rpi_eeprom_resp}" | ag "LATEST" | tail -n1 | awk '{print $NF}')"
 vl805_latest="$((16#${vl805_latest_hex}))"
 
-FORCE_EEPROM_UPDATE_COMMAND="/usr/lib/rpi-eeprom-update/pt-force-rpi-eeprom-install"
+FORCE_EEPROM_UPDATE_AND_REBOOT_COMMAND="/usr/lib/rpi-eeprom-update/pt-force-rpi-eeprom-install-and-reboot"
 
 NOTIFICATION_TITLE_UPDATE="Updated Raspberry Pi Firmware Ready To Install"
 
@@ -157,24 +157,10 @@ else
 	fi
 
 	if ! currentEEPROMConfigIsValid; then
-		${FORCE_EEPROM_UPDATE_COMMAND}
-		exit_code="${?}"
+		${FORCE_EEPROM_UPDATE_AND_REBOOT_COMMAND}
 
-		if [[ "${exit_code}" -eq 0 ]]; then
-
-			if [[ -f "/etc/pi-top/.licenceAgreed" ]]; then
-				echo "Onboarding has been completed - rebooting..."
-				reboot
-			else
-				echo "Onboarding has not been completed - skipping reboot..."
-			fi
-
-		else
-
-			exit "${exit_code}"
-
-		fi
-
+		# If it gets here, something has gone wrong...
+		exit 1
 	fi
 
 fi

@@ -15,10 +15,6 @@ Depends: ${misc:Depends},
  raspi-config (>= 20200601),
 # Used for 'xset' and 'xrandr' commands
  x11-xserver-utils,
-# Used for pt-rpi-eeprom-updater
- libraspberrypi-bin,
- rpi-eeprom,
- rpi-eeprom-images,
 # Not sure why we need this
  pt-device-manager,
 # Gesture support for pi-top [4] touchscreen
