@@ -6,7 +6,4 @@ src/70-wlan-disable-powersave.rules             /lib/udev/rules.d/
 src/pi-top-keyring.asc                          /etc/apt/trusted.gpg.d/
 src/hotplug_display.sh                          /usr/lib/pt-os-mods/
 src/pt-os-mods.sh                               /usr/lib/pt-os-mods/
-src/pt-rpi-eeprom-update                        /usr/bin/
-src/pt-eeprom-hook                              /usr/lib/rpi-eeprom-update/
-src/pt-force-rpi-eeprom-install-and-reboot      /usr/lib/rpi-eeprom-update/
-src/pwdptom.sh                                  /usr/lib/pt-os-mods/
+pkg/pwdptom.sh                                  /usr/lib/pt-os-mods/
