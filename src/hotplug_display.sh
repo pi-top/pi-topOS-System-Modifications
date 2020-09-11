@@ -15,6 +15,12 @@ IFS=$'\n\t'
 #     for pi-top display cable - used for touchscreen!
 displays=('HDMI-1')
 
+start_gesture_support() {
+	if ! pgrep touchegg; then
+		touchegg &
+	fi
+}
+
 unblank_display() {
 	xset dpms force on
 }
@@ -27,6 +33,7 @@ update_resolution() {
 main() {
 	for disp in "${displays[@]}"; do
 		if xrandr --query | grep -q "${disp} connected"; then
+			start_gesture_support
 			update_resolution "${disp}"
 			unblank_display
 			break

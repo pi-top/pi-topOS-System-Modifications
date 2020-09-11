@@ -1,3 +1,9 @@
+pt-os-mods (7.0.0-1) buster; urgency=medium
+
+  * Start gesture support when pi-top touchscreen is detected
+
+ -- Mike Roberts <mike@pi-top.com>  Fri, 11 Sep 2020 11:20:05 +0100
+
 pt-os-mods (6.4.0-1) buster; urgency=medium
 
   * Add pi-top [4] touchscreen hotplugging

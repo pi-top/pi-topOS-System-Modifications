@@ -62,3 +62,30 @@ load "helpers/hotplug-display-hooks.bash"
   assert_line --index 0 "update_resolution - HDMI-1: OK"
   assert_line --index 1 "unblank_display: OK"
 }
+
+@test "Hotplug:        touchegg is started if it isn't already running" {
+  # Set Up
+  pgrep() {
+    return 1
+  }
+
+  # Run
+  run start_gesture_support
+
+  # Verify
+  assert_output "touchegg: OK"
+}
+
+@test "Hotplug:        touchegg is not started if it is already running" {
+  # Set Up
+  pgrep() {
+    echo "1234"  # spoofed PID
+    return 0
+  }
+
+  # Run
+  run start_gesture_support
+
+  # Verify
+  refute_output "touchegg: OK"
+}

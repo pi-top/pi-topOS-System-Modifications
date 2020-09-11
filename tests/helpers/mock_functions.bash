@@ -160,3 +160,8 @@ HDMI-1 connected primary 1920x1080+0+0 (normal left inverted right x axis y axis
 	return 1
 }
 export -f xrandr
+
+touchegg() {
+	echo "touchegg: OK"
+	return 0
+}
