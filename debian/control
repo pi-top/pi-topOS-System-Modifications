@@ -15,6 +15,8 @@ Depends: ${misc:Depends},
  raspi-config (>= 20200601),
 # Used for 'xset' and 'xrandr' commands
  x11-xserver-utils,
+# Not sure why we need this
+ pt-device-manager,
 # Gesture support for pi-top [4] touchscreen
  touchegg
 Replaces: pt-display
