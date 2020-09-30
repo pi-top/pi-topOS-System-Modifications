@@ -15,8 +15,16 @@ IFS=$'\n\t'
 #     for pi-top display cable - used for touchscreen!
 displays=('HDMI-1')
 
+is_installed() {
+	if [ "$(dpkg -l "$1" 2>/dev/null | tail -n 1 | cut -d ' ' -f 1)" != "ii" ]; then
+		return 1
+	else
+		return 0
+	fi
+}
+
 start_gesture_support() {
-	if ! pgrep touchegg; then
+	if is_installed touchegg && ! pgrep touchegg; then
 		touchegg &
 	fi
 }
