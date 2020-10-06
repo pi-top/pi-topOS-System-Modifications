@@ -24,8 +24,12 @@ is_installed() {
 }
 
 start_gesture_support() {
-	if is_installed touchegg && ! pgrep touchegg; then
-		touchegg &
+	if is_installed touchegg; then
+		if ! systemctl is-active --quiet touchegg; then
+			systemctl start touchegg
+		else
+			systemctl restart touchegg
+		fi
 	fi
 }
 
