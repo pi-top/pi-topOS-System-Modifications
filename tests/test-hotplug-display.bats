@@ -63,7 +63,7 @@ load "helpers/hotplug-display-hooks.bash"
   assert_line --index 1 "unblank_display: OK"
 }
 
-@test "Hotplug:        touchegg is not started if it is not installed" {
+@test "Hotplug:        touchegg service is not started if it is not installed" {
   # Set Up
   is_installed() {
     return 1
@@ -77,27 +77,25 @@ load "helpers/hotplug-display-hooks.bash"
 }
 
 
-@test "Hotplug:        touchegg is started if it is installed and isn't already running" {
+@test "Hotplug:        touchegg service is handled correctly if it is installed" {
   # Set Up
-  pgrep() {
-    return 1
-  }
-
   is_installed() {
     return 0
   }
 
-  # Run
-  run start_gesture_support
+  systemctl() {
+    if [[ "${#}" == 3 ]] &&
+      [[ "${1}" == "is-active" ]] &&
+      [[ "${2}" == "--quiet" ]] &&
+      [[ "${3}" == "touchegg" ]]; then
+        # Not running
+        return 1
+    elif [[ "${#}" == 2 ]] &&
+      [[ "${1}" == "restart" ]] &&
+      [[ "${2}" == "touchegg" ]]; then
+      echo "systemctl: ${1} ${2} OK"
+    fi
 
-  # Verify
-  assert_output "touchegg: OK"
-}
-
-@test "Hotplug:        touchegg is not started if it is already running" {
-  # Set Up
-  pgrep() {
-    echo "1234"  # spoofed PID
     return 0
   }
 
@@ -105,5 +103,5 @@ load "helpers/hotplug-display-hooks.bash"
   run start_gesture_support
 
   # Verify
-  refute_output "touchegg: OK"
+  assert_output "systemctl: restart touchegg OK"
 }

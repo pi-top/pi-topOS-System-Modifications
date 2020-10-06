@@ -54,13 +54,13 @@ systemctl() {
 	if [[ "${#}" == 3 ]] &&
 		[[ "${1}" == "is-active" ]] &&
 		[[ "${2}" == "--quiet" ]] &&
-		[[ "${3}" == "pt-os-updater" ]]; then
+		[[ "${3}" == "pt-os-updater" ]] || [[ "${3}" == "touchegg" ]]; then
 		touch "${valid_systemctl_breadcrumb:?}"
-	elif [[ "${#}" == 2 ]] &&
-		[[ "${1}" == "enable" ]] &&
-		[[ "${2}" == "pt-default-audio-selection" ]]; then
-		touch "${valid_systemctl_breadcrumb}"
 		return 0
+	elif [[ "${#}" == 2 ]] &&
+		[[ "${1}" == "start" ]] || [[ "${1}" == "restart" ]] &&
+		[[ "${2}" == "touchegg" ]]; then
+		echo "systemctl: ${1} ${2} OK"
 	fi
 	# Do not sleep
 	return 1
@@ -160,8 +160,3 @@ HDMI-1 connected primary 1920x1080+0+0 (normal left inverted right x axis y axis
 	return 1
 }
 export -f xrandr
-
-touchegg() {
-	echo "touchegg: OK"
-	return 0
-}
