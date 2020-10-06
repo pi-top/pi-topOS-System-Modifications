@@ -54,16 +54,13 @@ systemctl() {
 	if [[ "${#}" == 3 ]] &&
 		[[ "${1}" == "is-active" ]] &&
 		[[ "${2}" == "--quiet" ]] &&
-		[[ "${3}" == "pt-os-updater" ]] || [[ "${3}" == "touchegg" ]]; then
+		[[ "${3}" == "pt-os-updater" ]]; then
 		touch "${valid_systemctl_breadcrumb:?}"
-		return 0
-	elif [[ "${#}" == 2 ]] &&
-		[[ "${1}" == "start" ]] || [[ "${1}" == "restart" ]] &&
-		[[ "${2}" == "touchegg" ]]; then
-		echo "systemctl: ${1} ${2} OK"
+		return 1
+	else
+		# Avoid sleeping in do_update_check - check for breadcrumb
+		return 1
 	fi
-	# Do not sleep
-	return 1
 }
 export -f systemctl
 
