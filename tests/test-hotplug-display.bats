@@ -55,6 +55,10 @@ load "helpers/hotplug-display-hooks.bash"
     echo "unblank_display: OK"
   }
 
+  runlevel_is_x11() {
+    return 0
+  }
+
   # Run
   run main
 
@@ -63,45 +67,61 @@ load "helpers/hotplug-display-hooks.bash"
   assert_line --index 1 "unblank_display: OK"
 }
 
-@test "Hotplug:        touchegg service is not started if it is not installed" {
+@test "Hotplug:        touchegg notification is shown if it is installed and not enabled" {
   # Set Up
   is_installed() {
+    return 0
+  }
+
+  gesture_support_is_enabled_on_startup() {
     return 1
   }
 
+  ask_user_to_start_gesture_support() {
+    echo "touchegg: OK"
+  }
+
   # Run
-  run start_gesture_support
+  run handle_gesture_support
+
+  # Verify
+  assert_output "touchegg: OK"
+}
+
+@test "Hotplug:        touchegg notification is not shown if it is installed and enabled" {
+  # Set Up
+  is_installed() {
+    return 0
+  }
+
+  gesture_support_is_enabled_on_startup() {
+    return 0
+  }
+
+  ask_user_to_start_gesture_support() {
+    echo "touchegg: OK"
+  }
+
+  # Run
+  run handle_gesture_support
 
   # Verify
   refute_output "touchegg: OK"
 }
 
-
-@test "Hotplug:        touchegg service is handled correctly if it is installed" {
+@test "Hotplug:        touchegg notification is not shown if it is not installed" {
   # Set Up
   is_installed() {
-    return 0
+    return 1
   }
 
-  systemctl() {
-    if [[ "${#}" == 3 ]] &&
-      [[ "${1}" == "is-active" ]] &&
-      [[ "${2}" == "--quiet" ]] &&
-      [[ "${3}" == "touchegg" ]]; then
-        # Not running
-        return 1
-    elif [[ "${#}" == 2 ]] &&
-      [[ "${1}" == "restart" ]] &&
-      [[ "${2}" == "touchegg" ]]; then
-      echo "systemctl: ${1} ${2} OK"
-    fi
-
-    return 0
+  ask_user_to_start_gesture_support() {
+    echo "touchegg: OK"
   }
 
   # Run
-  run start_gesture_support
+  run handle_gesture_support
 
   # Verify
-  assert_output "systemctl: restart touchegg OK"
+  refute_output "touchegg: OK"
 }

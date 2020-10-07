@@ -8,14 +8,6 @@
 #     for pi-top display cable - used for touchscreen!
 displays=('HDMI-1')
 
-is_installed() {
-	if [ "$(dpkg -l "$1" 2>/dev/null | tail -n 1 | cut -d ' ' -f 1)" == "ii" ]; then
-		return 0
-	else
-		return 1
-	fi
-}
-
 runlevel_is_x11() {
 	if [[ $(runlevel | awk '{print $NF}') -eq 5 ]]; then
 		return 0
@@ -24,16 +16,39 @@ runlevel_is_x11() {
 	fi
 }
 
-enable_gesture_support() {
+handle_gesture_support() {
 	if is_installed touchegg; then
-		systemctl enable touchegg
+		if ! gesture_support_is_enabled_on_startup; then
+			ask_user_to_start_gesture_support
+		fi
 	fi
 }
 
-start_gesture_support() {
-	if is_installed touchegg; then
-		systemctl restart touchegg
+is_installed() {
+	if [ "$(dpkg -l "$1" 2>/dev/null | tail -n 1 | cut -d ' ' -f 1)" == "ii" ]; then
+		return 0
+	else
+		return 1
 	fi
+}
+
+gesture_support_is_enabled_on_startup() {
+	if [[ -f "/etc/xdg/autostart/touchegg.desktop" ]]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+ask_user_to_start_gesture_support() {
+	systemctl restart touchegg
+	pt-notify-send \
+		-i libinput-gestures \
+		-t 0 \
+		"pi-top Touchscreen Detected" \
+		"Would you like to start gesture support?" \
+		--action="Start Now:touchegg" \
+		--action="Always Run:env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A cp /usr/share/applications/touchegg.desktop /etc/xdg/autostart/; touchegg"
 }
 
 unblank_display() {
@@ -46,20 +61,12 @@ update_resolution() {
 }
 
 main() {
-	# Touchscreen interface triggered this udev rule
-	# So we want to enable the service for the future
-	enable_gesture_support
+	# Wait for graphical target runlevel
+	while ! runlevel_is_x11; do
+		sleep 1
+	done
 
-	# Start the service now if possible, otherwise wait for systemd to start it
-	if runlevel_is_x11; then
-		# Start it now
-		start_gesture_support
-	else
-		# Wait for graphical target runlevel
-		while ! runlevel_is_x11; do
-			sleep 1
-		done
-	fi
+	handle_gesture_support
 
 	# Update display state - may not be connected!
 	for disp in "${displays[@]}"; do
