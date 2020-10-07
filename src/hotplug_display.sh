@@ -41,14 +41,18 @@ gesture_support_is_enabled_on_startup() {
 }
 
 ask_user_to_start_gesture_support() {
-	systemctl restart touchegg
+	if is_installed pt-ui-mods; then
+		command="pt-touchegg"
+	else
+		command="touchegg"
+	fi
 	pt-notify-send \
 		-i libinput-gestures \
 		-t 0 \
 		"pi-top Touchscreen Detected" \
 		"Would you like to start gesture support?" \
-		--action="Start Now:touchegg" \
-		--action="Always Run:env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A cp /usr/share/applications/touchegg.desktop /etc/xdg/autostart/; touchegg"
+		--action="Start Now:${command}" \
+		--action="Always Run:env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A cp /usr/share/applications/touchegg.desktop /etc/xdg/autostart/; ${command}"
 }
 
 unblank_display() {

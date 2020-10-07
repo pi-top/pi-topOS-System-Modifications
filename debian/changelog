@@ -1,3 +1,9 @@
+pt-os-mods (7.3.0-1) buster; urgency=medium
+
+  * Call 'pt-touchegg' if found
+
+ -- Mike Roberts <mike@pi-top.com>  Wed, 07 Oct 2020 17:10:54 +0100
+
 pt-os-mods (7.2.0-1) buster; urgency=medium
 
   * Add option to always start touchegg; check before asking
