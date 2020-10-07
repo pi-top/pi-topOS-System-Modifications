@@ -1,11 +1,4 @@
 #!/bin/bash
-###############################################################
-#                Unofficial 'Bash strict mode'                #
-# http://redsymbol.net/articles/unofficial-bash-strict-mode/  #
-###############################################################
-set -euo pipefail
-IFS=$'\n\t'
-###############################################################
 
 # Touchscreen only compatible with pi-top [4]
 # Therefore, only compatible with Raspberry Pi 4
@@ -16,10 +9,24 @@ IFS=$'\n\t'
 displays=('HDMI-1')
 
 is_installed() {
-	if [ "$(dpkg -l "$1" 2>/dev/null | tail -n 1 | cut -d ' ' -f 1)" != "ii" ]; then
-		return 1
-	else
+	if [ "$(dpkg -l "$1" 2>/dev/null | tail -n 1 | cut -d ' ' -f 1)" == "ii" ]; then
 		return 0
+	else
+		return 1
+	fi
+}
+
+runlevel_is_x11() {
+	if [[ $(runlevel | awk '{print $NF}') -eq 5 ]]; then
+		return 0
+	else
+		return 1
+	fi
+}
+
+enable_gesture_support() {
+	if is_installed touchegg; then
+		systemctl enable touchegg
 	fi
 }
 
@@ -39,9 +46,24 @@ update_resolution() {
 }
 
 main() {
+	# Touchscreen interface triggered this udev rule
+	# So we want to enable the service for the future
+	enable_gesture_support
+
+	# Start the service now if possible, otherwise wait for systemd to start it
+	if runlevel_is_x11; then
+		# Start it now
+		start_gesture_support
+	else
+		# Wait for graphical target runlevel
+		while ! runlevel_is_x11; do
+			sleep 1
+		done
+	fi
+
+	# Update display state - may not be connected!
 	for disp in "${displays[@]}"; do
 		if xrandr --query | grep -q "${disp} connected"; then
-			start_gesture_support
 			update_resolution "${disp}"
 			unblank_display
 			break
