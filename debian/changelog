@@ -1,6 +1,12 @@
+pt-os-mods (7.2.0-1) buster; urgency=medium
+
+  * Add option to always start touchegg; check before asking
+
+ -- Mike Roberts <mike@pi-top.com>  Wed, 07 Oct 2020 17:01:17 +0100
+
 pt-os-mods (7.1.0-1) buster; urgency=medium
 
-  * Use touchegg's systemd service in udev rule
+  * Touchscreen hotplug udev rule: Wait for X11 to start before trying to use
 
  -- Mike Roberts <mike@pi-top.com>  Tue, 06 Oct 2020 15:03:50 +0100
 
