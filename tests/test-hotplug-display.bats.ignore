@@ -18,9 +18,6 @@ load "helpers/hotplug-display-hooks.bash"
 # TESTS #
 #########
 
-# xrandr --output "${display}" --mode 1920x1080
-# xrandr --query | grep "${disp} connected"
-
 @test "Hotplug:        unblanking calls xset correctly" {
   # Run
   run unblank_display
