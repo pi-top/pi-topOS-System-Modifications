@@ -42,17 +42,9 @@ gesture_support_is_enabled_on_startup() {
 	fi
 }
 
-system_has_notification_daemon() {
-	dbus-send \
-		--print-reply \
-		--dest=org.freedesktop.DBus \
-		/org/freedesktop/DBus org.freedesktop.DBus.ListNames |
-		grep -q org.freedesktop.Notifications
-}
-
 ask_user_to_start_gesture_support() {
-	if ! system_has_notification_daemon; then
-		echo "No notification daemon - cannot ask user to start gesture support"
+	if ! is_installed libnotify-bin; then
+		echo "No binary which sends notifications to notification daemon found - cannot ask user to start gesture support"
 		return 1
 	fi
 

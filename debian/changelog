@@ -1,3 +1,9 @@
+pt-os-mods (7.3.2-1) buster; urgency=medium
+
+  * Check for libnotify-bin instead of presence of notification-daemon
+
+ -- Mike Roberts <mike@pi-top.com>  Thu, 08 Oct 2020 15:05:06 +0100
+
 pt-os-mods (7.3.1-1) buster; urgency=medium
 
   * Check for pt-notifications

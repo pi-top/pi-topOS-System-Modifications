@@ -9,12 +9,10 @@ Homepage: https://pi-top.com/
 Package: pt-os-mods
 Architecture: all
 Depends: ${misc:Depends},
-# Used to check for notification service
- dbus,
  dpkg (>= 1.19.7),
 # Used for 'ischroot' command
  debianutils (>= 4.8.6.1),
- grep,
+ grep (>= 3.3-1),
  raspi-config (>= 20200601),
 # Used for 'xset' and 'xrandr' commands
  x11-xserver-utils,
@@ -22,8 +20,8 @@ Depends: ${misc:Depends},
  pt-device-manager,
 Replaces: pt-display
 # Gesture support for pi-top [4] touchscreen
-Recommends: touchegg
-Suggests: pt-notifications
+Recommends: touchegg, libnotify-bin
+Suggests: pt-ui-mods, pt-notifications
 Description: pi-top OS Config Management
  Manages pi-top modifications to the base operating system
  configuration

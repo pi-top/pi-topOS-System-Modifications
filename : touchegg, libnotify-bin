@@ -1,0 +1,53 @@
+[1mdiff --git a/debian/control b/debian/control[m
+[1mindex ec69e42..6536f1e 100644[m
+[1m--- a/debian/control[m
+[1m+++ b/debian/control[m
+[36m@@ -9,12 +9,10 @@[m [mHomepage: https://pi-top.com/[m
+ Package: pt-os-mods[m
+ Architecture: all[m
+ Depends: ${misc:Depends},[m
+[31m-# Used to check for notification service[m
+[31m- dbus,[m
+  dpkg (>= 1.19.7),[m
+ # Used for 'ischroot' command[m
+  debianutils (>= 4.8.6.1),[m
+[31m- grep,[m
+[32m+[m[32m grep (>= 3.3-1),[m
+  raspi-config (>= 20200601),[m
+ # Used for 'xset' and 'xrandr' commands[m
+  x11-xserver-utils,[m
+[36m@@ -22,8 +20,8 @@[m [mDepends: ${misc:Depends},[m
+  pt-device-manager,[m
+ Replaces: pt-display[m
+ # Gesture support for pi-top [4] touchscreen[m
+[31m-Recommends: touchegg[m
+[31m-Suggests: pt-notifications[m
+[32m+[m[32mRecommends: touchegg, libnotify-bin[m
+[32m+[m[32mSuggests: pt-ui-mods, pt-notifications[m
+ Description: pi-top OS Config Management[m
+  Manages pi-top modifications to the base operating system[m
+  configuration[m
+[1mdiff --git a/src/hotplug_display.sh b/src/hotplug_display.sh[m
+[1mindex b5b84ae..c7388c9 100755[m
+[1m--- a/src/hotplug_display.sh[m
+[1m+++ b/src/hotplug_display.sh[m
+[36m@@ -42,17 +42,9 @@[m [mgesture_support_is_enabled_on_startup() {[m
+ 	fi[m
+ }[m
+ [m
+[31m-system_has_notification_daemon() {[m
+[31m-	dbus-send \[m
+[31m-		--print-reply \[m
+[31m-		--dest=org.freedesktop.DBus \[m
+[31m-		/org/freedesktop/DBus org.freedesktop.DBus.ListNames |[m
+[31m-		grep -q org.freedesktop.Notifications[m
+[31m-}[m
+[31m-[m
+ ask_user_to_start_gesture_support() {[m
+[31m-	if ! system_has_notification_daemon; then[m
+[31m-		echo "No notification daemon - cannot ask user to start gesture support"[m
+[32m+[m	[32mif ! is_installed libnotify-bin; then[m
+[32m+[m		[32mecho "No binary which sends notifications to notification daemon found - cannot ask user to start gesture support"[m
+ 		return 1[m
+ 	fi[m
+ [m
