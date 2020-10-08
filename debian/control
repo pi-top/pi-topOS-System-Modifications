@@ -20,6 +20,7 @@ Depends: ${misc:Depends},
 Replaces: pt-display
 # Gesture support for pi-top [4] touchscreen
 Recommends: touchegg
+Suggests: pt-notifications
 Description: pi-top OS Config Management
  Manages pi-top modifications to the base operating system
  configuration
