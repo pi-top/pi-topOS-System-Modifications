@@ -1,5 +1,7 @@
 #!/bin/bash
 
+IFS=$'\n\t'
+
 # Touchscreen only compatible with pi-top [4]
 # Therefore, only compatible with Raspberry Pi 4
 #   pi-topOS default: 'vc4-fkms-v3d' driver
@@ -40,21 +42,46 @@ gesture_support_is_enabled_on_startup() {
 	fi
 }
 
+system_has_notification_daemon() {
+	dbus-send \
+		--print-reply \
+		--dest=org.freedesktop.DBus \
+		/org/freedesktop/DBus org.freedesktop.DBus.ListNames |
+		grep -q org.freedesktop.Notifications
+}
+
 ask_user_to_start_gesture_support() {
-	if is_installed pt-notifications; then
-		if is_installed pt-ui-mods; then
-			command="pt-touchegg"
-		else
-			command="touchegg"
-		fi
-		pt-notify-send \
-			-i libinput-gestures \
-			-t 0 \
-			"pi-top Touchscreen Detected" \
-			"Would you like to start gesture support?" \
-			--action="Start Now:${command}" \
-			--action="Always Run:env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A cp /usr/share/applications/touchegg.desktop /etc/xdg/autostart/; ${command}"
+	if ! system_has_notification_daemon; then
+		echo "No notification daemon - cannot ask user to start gesture support"
+		return 1
 	fi
+
+	if is_installed pt-ui-mods; then
+		touchegg_command="pt-touchegg"
+	else
+		touchegg_command="touchegg"
+	fi
+	if is_installed pt-notifications; then
+		notify_send_command="pt-notify-send"
+		timeout=0
+		body="Would you like to start gesture support?"
+
+		now_action="--action=\"Start Now:${touchegg_command}\""
+		always_action="--action=\"Always Run:env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A cp /usr/share/applications/touchegg.desktop /etc/xdg/autostart/; ${touchegg_command}\""
+	else
+		notify_send_command="notify-send"
+		timeout=10000
+		body="Run Touchégg from the start menu to start gesture support"
+	fi
+	title="pi-top Touchscreen Detected"
+	command="${notify_send_command} -i libinput-gestures -t ${timeout}"
+	if [[ -n "${now_action}" ]]; then
+		command="${command} ${now_action}"
+	fi
+	if [[ -n "${always_action}" ]]; then
+		command="${command} ${always_action}"
+	fi
+	eval "${command} \"${title}\" \"${body}\""
 }
 
 unblank_display() {
