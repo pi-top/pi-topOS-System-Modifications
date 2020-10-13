@@ -7,18 +7,14 @@ set -euo pipefail
 IFS=$'\n\t'
 ###############################################################
 
-# Touchscreen only compatible with pi-top [4]
-# Therefore, only compatible with Raspberry Pi 4
-#   pi-topOS default: 'vc4-fkms-v3d' driver
-#   pi-topOS default: 'hdmi_force_hotplug:1=1'
-#     ensured that HDMI1 (secondary) is 'first'
-#     for pi-top display cable - used for touchscreen!
-displays=('HDMI-1')
-
 udev_breadcrumb="/tmp/pt-hotplug-display.breadcrumb"
 
 wait_for_file_to_exist() {
 	local path="${1}"
+
+	# If file already exists, continue immediately
+	[[ -f ${path} ]] && return
+
 	local dir
 	dir="$(dirname "${path}")"
 	local file
@@ -44,6 +40,8 @@ get_touchegg_start_command() {
 }
 
 get_user_using_display() {
+	# TODO: rename pt-display; move to low-level tools package
+	# TODO: add `-u` flag to get user only and avoid grepping
 	pt-display | grep "User currently using display" | cut -d$'\t' -f2
 }
 
@@ -75,6 +73,7 @@ ask_user_to_start_gesture_support() {
 		timeout=0
 		body="Would you like to start multi-touch gesture support? This will enable functionality such as using 2 fingers to right-click in most applications."
 
+		# TODO: "Always Run" --> "Always Start When Touchscreen Is Connected"; leave and check breadcrumb in home dir
 		now_action="--action=\"Start Now:${touchegg_start_command}\""
 		always_action="--action=\"Always Run:${touchegg_enable_command}; ${touchegg_start_command}\""
 	else
@@ -100,6 +99,11 @@ start_gesture_support() {
 }
 
 handle_gesture_support() {
+	if ! package_is_installed touchegg; then
+		echo "Package 'touchegg' is not installed - unable to handle gesture support"
+		return 1
+	fi
+
 	local user
 	user=$(get_user_using_display)
 	if [[ -z "${user}" ]]; then
@@ -107,14 +111,12 @@ handle_gesture_support() {
 		return 1
 	fi
 
-	if package_is_installed touchegg; then
-		if ! gesture_support_is_enabled_on_startup "${user}"; then
-			if package_is_installed libnotify-bin; then
-				ask_user_to_start_gesture_support
-			else
-				echo "No binary which sends notifications to notification daemon found - cannot ask user to start gesture support"
-				start_gesture_support "${user}"
-			fi
+	if ! gesture_support_is_enabled_on_startup "${user}"; then
+		if package_is_installed libnotify-bin; then
+			ask_user_to_start_gesture_support
+		else
+			echo "No binary which sends notifications to notification daemon found - cannot ask user to start gesture support"
+			start_gesture_support "${user}"
 		fi
 	fi
 }
@@ -129,6 +131,14 @@ unblank_display() {
 }
 
 handle_display_state() {
+	# Touchscreen only compatible with pi-top [4]
+	# Therefore, only compatible with Raspberry Pi 4
+	#   pi-topOS default: 'vc4-fkms-v3d' driver
+	#   pi-topOS default: 'hdmi_force_hotplug:1=1'
+	#     ensured that HDMI1 (secondary) is 'first'
+	#     for pi-top display cable - used for touchscreen!
+	displays=('HDMI-1')
+
 	# Update display state - may not be connected!
 	for disp in "${displays[@]}"; do
 		if xrandr --query | grep -q "${disp} connected"; then
