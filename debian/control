@@ -19,6 +19,8 @@ Depends: ${misc:Depends},
  x11-xserver-utils,
 # Used for 'pt-host' call
  pt-device-manager,
+# Necessary to migrate from expired APT key
+ pt-os-archive-keyring
 Replaces: pt-display
 # Gesture support for pi-top [4] touchscreen
 Recommends: touchegg, libnotify-bin
