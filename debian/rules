@@ -3,5 +3,5 @@
 	dh $@
 
 override_dh_installsystemd:
-	dh_installsystemd -v --name=pt-os-mods
-	dh_installsystemd -v --name=pt-hotplug-display
+	dh_installsystemd --name=pt-os-mods
+	dh_installsystemd --name=pt-hotplug-display
