@@ -13,6 +13,7 @@ Depends: ${misc:Depends},
 # Used for 'ischroot' command
  debianutils (>= 4.8.6.1),
  grep (>= 3.3-1),
+ inotify-tools,
  raspi-config (>= 20200601),
 # Used for 'xset' and 'xrandr' commands
  x11-xserver-utils,

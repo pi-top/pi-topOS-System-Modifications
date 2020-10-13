@@ -1,6 +1,11 @@
 #!/bin/bash
-
+###############################################################
+#                Unofficial 'Bash strict mode'                #
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/  #
+###############################################################
+set -euo pipefail
 IFS=$'\n\t'
+###############################################################
 
 # Touchscreen only compatible with pi-top [4]
 # Therefore, only compatible with Raspberry Pi 4
