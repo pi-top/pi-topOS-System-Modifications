@@ -1,6 +1,7 @@
 pt-os-mods (8.0.0) buster; urgency=medium
 
   * Migrate to native package
+  * Move APT key to pt-os-archive-keyring package
 
  -- Mike Roberts <mike@pi-top.com>  Tue, 13 Oct 2020 16:07:02 +0100
 
