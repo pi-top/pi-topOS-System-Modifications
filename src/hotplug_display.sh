@@ -10,7 +10,19 @@ IFS=$'\n\t'
 #     for pi-top display cable - used for touchscreen!
 displays=('HDMI-1')
 
-is_installed() {
+udev_breadcrumb="/tmp/pt-hotplug-display.breadcrumb"
+
+wait_for_file_to_exist() {
+	local path="${1}"
+	local dir
+	dir="$(dirname "${path}")"
+	local file
+	file="$(basename "${path}")"
+	while read -r i; do if [ "$i" = "${file}" ]; then break; fi; done \
+		< <(inotifywait -e create,open --format '%f' --quiet "${dir}" --monitor)
+}
+
+package_is_installed() {
 	if [ "$(dpkg -l "$1" 2>/dev/null | tail -n 1 | cut -d ' ' -f 1)" == "ii" ]; then
 		return 0
 	else
@@ -18,24 +30,32 @@ is_installed() {
 	fi
 }
 
-runlevel_is_x11() {
-	if [[ $(runlevel | awk '{print $NF}') -eq 5 ]]; then
-		return 0
+get_touchegg_start_command() {
+	if package_is_installed pt-ui-mods; then
+		echo "pt-touchegg"
 	else
-		return 1
+		echo "systemctl --user start touchegg"
 	fi
 }
 
-handle_gesture_support() {
-	if is_installed touchegg; then
-		if ! gesture_support_is_enabled_on_startup; then
-			ask_user_to_start_gesture_support
-		fi
-	fi
+get_user_using_display() {
+	pt-display | grep "User currently using display" | cut -d$'\t' -f2
+}
+
+run_systemd_command_as_user() {
+	local user="${1}"
+	local command="${2}"
+
+	local id
+	id="$(id -u "${user}")"
+	local args="DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/${id}/bus"
+
+	sudo -u "${user}" "${args}" "${command}"
 }
 
 gesture_support_is_enabled_on_startup() {
-	if [[ -f "/etc/xdg/autostart/touchegg.desktop" ]]; then
+	local user="${1}"
+	if [[ "$(run_systemd_command_as_user "${user}" "systemctl --user is-enabled touchegg")" == "enabled" ]]; then
 		return 0
 	else
 		return 1
@@ -43,29 +63,21 @@ gesture_support_is_enabled_on_startup() {
 }
 
 ask_user_to_start_gesture_support() {
-	if ! is_installed libnotify-bin; then
-		echo "No binary which sends notifications to notification daemon found - cannot ask user to start gesture support"
-		return 1
-	fi
+	title="pi-top Touchscreen Detected"
 
-	if is_installed pt-ui-mods; then
-		touchegg_command="pt-touchegg"
-	else
-		touchegg_command="touchegg"
-	fi
-	if is_installed pt-notifications; then
+	if package_is_installed pt-notifications; then
 		notify_send_command="pt-notify-send"
 		timeout=0
-		body="Would you like to start gesture support?"
+		body="Would you like to start multi-touch gesture support? This will enable functionality such as using 2 fingers to right-click in most applications."
 
-		now_action="--action=\"Start Now:${touchegg_command}\""
-		always_action="--action=\"Always Run:env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A cp /usr/share/applications/touchegg.desktop /etc/xdg/autostart/; ${touchegg_command}\""
+		now_action="--action=\"Start Now:${touchegg_start_command}\""
+		always_action="--action=\"Always Run:${touchegg_enable_command}; ${touchegg_start_command}\""
 	else
 		notify_send_command="notify-send"
 		timeout=10000
 		body="Run Touchégg from the start menu to start gesture support"
 	fi
-	title="pi-top Touchscreen Detected"
+
 	command="${notify_send_command} -i libinput-gestures -t ${timeout}"
 	if [[ -n "${now_action}" ]]; then
 		command="${command} ${now_action}"
@@ -73,11 +85,33 @@ ask_user_to_start_gesture_support() {
 	if [[ -n "${always_action}" ]]; then
 		command="${command} ${always_action}"
 	fi
+
 	eval "${command} \"${title}\" \"${body}\""
 }
 
-unblank_display() {
-	xset dpms force on
+start_gesture_support() {
+	local user="${1}"
+	run_systemd_command_as_user "${user}" "${touchegg_start_command}"
+}
+
+handle_gesture_support() {
+	local user
+	user=$(get_user_using_display)
+	if [[ -z "${user}" ]]; then
+		echo "Unable to determine user using current display - skipping gesture support"
+		return 1
+	fi
+
+	if package_is_installed touchegg; then
+		if ! gesture_support_is_enabled_on_startup "${user}"; then
+			if package_is_installed libnotify-bin; then
+				ask_user_to_start_gesture_support
+			else
+				echo "No binary which sends notifications to notification daemon found - cannot ask user to start gesture support"
+				start_gesture_support "${user}"
+			fi
+		fi
+	fi
 }
 
 update_resolution() {
@@ -85,14 +119,11 @@ update_resolution() {
 	xrandr --output "${display}" --mode 1920x1080
 }
 
-main() {
-	# Wait for graphical target runlevel
-	while ! runlevel_is_x11; do
-		sleep 1
-	done
+unblank_display() {
+	xset dpms force on
+}
 
-	handle_gesture_support
-
+handle_display_state() {
 	# Update display state - may not be connected!
 	for disp in "${displays[@]}"; do
 		if xrandr --query | grep -q "${disp} connected"; then
@@ -103,7 +134,18 @@ main() {
 	done
 }
 
-# This script requires monitor to be active
-# However, udev activates monitor AFTER this script returns
-# Therefore, we fork it
-main &
+main() {
+	while true; do
+		wait_for_file_to_exist "${udev_breadcrumb}"
+		rm "${udev_breadcrumb}"
+
+		handle_display_state
+
+		handle_gesture_support
+	done
+}
+
+touchegg_enable_command="systemctl --user enable touchegg"
+touchegg_start_command="$(get_touchegg_start_command)"
+
+main

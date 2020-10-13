@@ -2,4 +2,4 @@ ACTION=="add"                                             \
 , ATTR{idVendor}=="222a"                                  \
 , ATTR{idProduct}=="0001"                                 \
 , ENV{DISPLAY}=":0"                                       \
-, TAG+="systemd", ENV{SYSTEMD_WANTS}="pt-hotplug-display.service"
+, RUN="/usr/bin/touch /tmp/pt-hotplug-display.breadcrumb"
