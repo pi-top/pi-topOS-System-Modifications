@@ -2,8 +2,8 @@ Source: pt-os-mods
 Section: utils
 Priority: optional
 Maintainer: pi-top <deb-maintainers@pi-top.com>
-Build-Depends: debhelper (= 12)
-Standards-Version: 3.9.8
+Build-Depends: debhelper-compat (= 12)
+Standards-Version: 4.5.0
 Homepage: https://pi-top.com/
 
 Package: pt-os-mods
