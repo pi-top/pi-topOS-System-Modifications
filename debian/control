@@ -18,7 +18,7 @@ Depends: ${misc:Depends},
 # 'grep' command
  grep (>= 3.3-1),
 # 'getent' command
- libc-bin,
+ libc-bin (>= 2.28-10+rpi1),
 # 'awk' command
  mawk,
 # 'pgrep' command
