@@ -12,7 +12,7 @@ Depends: ${misc:Depends},
 # 'dpkg' command
  dpkg (>= 1.19.7),
 # 'cut' command
- coreutils,
+ coreutils (>= 8.30-3),
 # 'ischroot' command
  debianutils (>= 4.8.6.1),
 # 'grep' command
