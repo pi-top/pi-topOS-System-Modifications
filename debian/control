@@ -15,9 +15,8 @@ Depends: ${misc:Depends},
  coreutils,
 # 'ischroot' command
  debianutils (>= 4.8.6.1),
+# 'grep' command
  grep (>= 3.3-1),
-## Used when waiting for breadcrumb from udev rule
-# inotify-tools,
 # 'getent' command
  libc-bin,
 # 'awk' command
@@ -26,16 +25,11 @@ Depends: ${misc:Depends},
  procps,
 # Used to configure audio state
  raspi-config (>= 20200601),
-## Used for 'xset' and 'xrandr' commands
-# x11-xserver-utils,
 # Used for 'pt-host' call
  pt-device-manager,
 # Necessary to migrate from expired APT key
  pt-os-archive-keyring
 Replaces: pt-display
-# Gesture support for pi-top [4] touchscreen
-Recommends: touchegg, libnotify-bin
-Suggests: pt-ui-mods, pt-notifications
-Description: pi-top OS Config Management
- Manages pi-top modifications to the base operating system
+Description: pi-topOS Config Management
+ Manages pi-topOS specific modifications to the base operating system
  configuration
