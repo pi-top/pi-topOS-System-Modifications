@@ -2,26 +2,34 @@ Source: pt-os-mods
 Section: utils
 Priority: optional
 Maintainer: pi-top <deb-maintainers@pi-top.com>
-Build-Depends: debhelper (>= 10)
-Standards-Version: 3.9.8
+Build-Depends: debhelper-compat (= 12)
+Standards-Version: 4.5.0
 Homepage: https://pi-top.com/
 
 Package: pt-os-mods
 Architecture: all
 Depends: ${misc:Depends},
+# 'dpkg' command
  dpkg (>= 1.19.7),
-# Used for 'ischroot' command
+# 'cut' command
+ coreutils (>= 8.30-3),
+# 'ischroot' command
  debianutils (>= 4.8.6.1),
+# 'grep' command
  grep (>= 3.3-1),
+# 'getent' command
+ libc-bin,
+# 'awk' command
+ mawk,
+# 'pgrep' command
+ procps,
+# Used to configure audio state
  raspi-config (>= 20200601),
-# Used for 'xset' and 'xrandr' commands
- x11-xserver-utils,
 # Used for 'pt-host' call
  pt-device-manager,
+# Necessary to migrate from expired APT key
+ pt-os-archive-keyring
 Replaces: pt-display
-# Gesture support for pi-top [4] touchscreen
-Recommends: touchegg, libnotify-bin
-Suggests: pt-ui-mods, pt-notifications
-Description: pi-top OS Config Management
- Manages pi-top modifications to the base operating system
+Description: pi-topOS Config Management
+ Manages pi-topOS specific modifications to the base operating system
  configuration
