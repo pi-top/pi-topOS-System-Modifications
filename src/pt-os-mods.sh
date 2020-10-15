@@ -1,11 +1,4 @@
-#!/bin/bash
-###############################################################
-#                Unofficial 'Bash strict mode'                #
-# http://redsymbol.net/articles/unofficial-bash-strict-mode/  #
-###############################################################
-set -euo pipefail
-IFS=$'\n\t'
-###############################################################
+#!/bin/bash -e
 
 is_pi_top_os() {
 	if [[ -f "/etc/pt-issue" ]]; then

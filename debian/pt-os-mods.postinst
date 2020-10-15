@@ -1,11 +1,4 @@
-#!/bin/bash
-###############################################################
-#                Unofficial 'Bash strict mode'                #
-# http://redsymbol.net/articles/unofficial-bash-strict-mode/  #
-###############################################################
-set -euo pipefail
-IFS=$'\n\t'
-###############################################################
+#!/bin/bash -e
 
 RESOLV_CONF_HEAD_FILE="/etc/resolv.conf.head"
 apply_cloudflare_dns() {
