@@ -9,14 +9,25 @@ Homepage: https://pi-top.com/
 Package: pt-os-mods
 Architecture: all
 Depends: ${misc:Depends},
+# 'dpkg' command
  dpkg (>= 1.19.7),
-# Used for 'ischroot' command
+# 'cut' command
+ coreutils,
+# 'ischroot' command
  debianutils (>= 4.8.6.1),
  grep (>= 3.3-1),
- inotify-tools,
+## Used when waiting for breadcrumb from udev rule
+# inotify-tools,
+# 'getent' command
+ libc-bin,
+# 'awk' command
+ mawk,
+# 'pgrep' command
+ procps,
+# Used to configure audio state
  raspi-config (>= 20200601),
-# Used for 'xset' and 'xrandr' commands
- x11-xserver-utils,
+## Used for 'xset' and 'xrandr' commands
+# x11-xserver-utils,
 # Used for 'pt-host' call
  pt-device-manager,
 # Necessary to migrate from expired APT key
