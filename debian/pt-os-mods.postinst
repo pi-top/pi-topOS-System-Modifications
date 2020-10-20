@@ -25,6 +25,7 @@ do_update_check() {
 	env DISPLAY="${display}" /usr/lib/pt-os-updater/check-now
 }
 
+# TODO: replace with call to 'pt-user' command
 get_display() {
 	local display
 	display="$(pgrep -a Xorg | awk '{print $3}')"
