@@ -1,3 +1,9 @@
+pt-os-mods (8.0.1) buster; urgency=medium
+
+  * Add OS upgrade workaround dependencies
+
+ -- Mike Roberts <mike@pi-top.com>  Wed, 21 Oct 2020 14:05:42 +0100
+
 pt-os-mods (8.0.0) buster; urgency=medium
 
   * Migrate to native package
