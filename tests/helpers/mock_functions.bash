@@ -119,8 +119,8 @@ card 9: Headphones [bcm2835 Headphones], device 0: bcm2835 Headphones [bcm2835 H
 }
 export -f aplay
 
-pt-host() { echo "pi-top [4]"; }
-export -f pt-host
+pi-top() { echo "pi-top [4]"; }
+export -f pi-top
 
 uname() { echo "5.4.51-v7l+"; }
 export -f uname

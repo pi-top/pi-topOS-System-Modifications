@@ -34,12 +34,26 @@ Depends:
  procps,
 # Used to configure audio state
  raspi-config (>= 20200601),
-# Used for 'pt-host' call
+# Required for PulseAudio
+ pulseaudio-module-bluetooth,
+# Used for 'pi-top devices hub -n' call
+ python3-pitop,
+# Required by systemd service
+# Also used to restart the service after PulseAudio upgrade
  pt-device-manager,
 # Necessary to migrate from expired APT key
  pt-os-archive-keyring,
 Replaces:
  pt-display,
+# Remove bluealsa and pimixer, as we are now using PulseAudio
+ bluealsa,
+ pimixer,
+Provides:
+ bluealsa,
+ pimixer,
+Conflicts:
+ bluealsa,
+ pimixer,
 Description: pi-topOS Config Management
  Manages pi-topOS specific modifications to the base operating system
  configuration
