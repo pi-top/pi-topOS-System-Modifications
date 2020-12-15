@@ -30,8 +30,8 @@ pt-notify-send() {
 
 	[[ "${2}" == "--icon=dialog-warning" ]] || (echo "pt-notify-send err: wrong arg: #2 - '${2}'" && return 1)
 
-	[[ "${3}" == "Sound configuration updated" ]] ||
-		[[ "${3}" == "Sound configuration needs to be updated" ]] || (echo "pt-notify-send err: wrong arg: #3 - '${3}'" && return 1)
+	[[ "${3}" == "Audio configuration updated" ]] ||
+		[[ "${3}" == "PulseAudio installed, but not yet applied" ]] || (echo "pt-notify-send err: wrong arg: #3 - '${3}'" && return 1)
 
 	[[ "${4}" == "Please restart to apply changes.
 You may experience sound issues until you do." ]] ||

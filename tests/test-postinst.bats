@@ -23,6 +23,10 @@ load "helpers/postinst-hooks.bash"
 #--------
 @test "Version Check:  applies all patches if new installation" {
   # Set Up
+  notify_user_to_reboot_for_audio_update() {
+    echo "Notified user"
+  }
+
   apply_cloudflare_dns() {
     echo "Applied Cloudflare DNS"
   }
@@ -42,8 +46,9 @@ load "helpers/postinst-hooks.bash"
   run main
 
   # Verify
-  assert_line --index 0 "Applied Cloudflare DNS"
-  assert_line --index 1 "Attempted to check for updates"
+  assert_line --index 0 "Notified user"
+  assert_line --index 1 "Applied Cloudflare DNS"
+  assert_line --index 2 "Attempted to check for updates"
 }
 
 @test "Version Check:  patches are associated with correct versions" {
