@@ -1,3 +1,14 @@
+pt-os-mods (9.0.0) buster; urgency=medium
+
+  * Add PulseAudio dependency for automatic installation
+  * Notify user to upgrade to using PulseAudio
+  * On first session with PulseAudio, update sound configuration
+  * Restart device manager on upgrade, so that audio peripherals can be
+  reinitialised
+  * Specify that package breaks deprecated non-PulseAudio packages
+
+ -- Mike Roberts <mike@pi-top.com>  Tue, 15 Dec 2020 14:02:55 +0000
+
 pt-os-mods (8.0.2) buster; urgency=medium
 
   * Update copyright file formatting

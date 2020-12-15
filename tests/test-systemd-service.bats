@@ -114,17 +114,17 @@ load "helpers/systemd-service-hooks.bash"
 }
 
 @test "Set Default Sound Card:      gets the correct default sound card per pi-top device" {
-  pt-host() { echo "pi-top [4]"; }
+  pi-top() { echo "pi-top [4]"; }
 
   run get_default_audio_card_for_device
   assert_output "bcm2835 Headphones"
 
-  pt-host() { echo "pi-top [3]"; }
+  pi-top() { echo "pi-top [3]"; }
 
   run get_default_audio_card_for_device
   assert_output "bcm2835 HDMI 1"
 
-  pt-host() { echo "any"; }
+  pi-top() { echo "any"; }
 
   run get_default_audio_card_for_device
   assert_output "bcm2835 Headphones"
@@ -136,17 +136,17 @@ load "helpers/systemd-service-hooks.bash"
 }
 
 @test "Set Default Sound Card:      gets the correct default sound card number per pi-top device" {
-  pt-host() { echo "pi-top [4]"; }
+  pi-top() { echo "pi-top [4]"; }
 
   run get_alsa_card_number_by_name "$(get_default_audio_card_for_device)"
   assert_output 9
 
-  pt-host() { echo "pi-top [3]"; }
+  pi-top() { echo "pi-top [3]"; }
 
   run get_alsa_card_number_by_name "$(get_default_audio_card_for_device)"
   assert_output 0
 
-  pt-host() { echo "any"; }
+  pi-top() { echo "any"; }
 
   run get_alsa_card_number_by_name "$(get_default_audio_card_for_device)"
   assert_output 9
@@ -169,7 +169,7 @@ load "helpers/systemd-service-hooks.bash"
   }
 
   run main
-  assert_line --index 0 "System not using new ALSA config - doing nothing..."
+  assert_line --index 0 "System not using new ALSA config (and therefore also not using PulseAudio) - doing nothing..."
 }
 
 @test "Set Default Sound Card:      main runs apply audio fix if breadcrumb doesnt exist" {
@@ -182,19 +182,21 @@ load "helpers/systemd-service-hooks.bash"
   assert_line --index 0 "Applied audio fix"
 }
 
-@test "Set Default Sound Card:      main creates a breadcrumb if it doesn't exist" {
+@test "Set Default Sound Card:      main creates breadcrumbs if they don't exist" {
   # Set Up
   apply_audio_fix() { return ; }
   systemctl() { return ; }
 
   run main
-  assert [ -f "${FIX_SOUND_BREADCRUMB}" ]
+  assert [ -f "${NEW_ALSA_OUTPUT_BREADCRUMB}" ]
+  assert [ -f "${NEW_PULSEAUDIO_OUTPUT_BREADCRUMB}" ]
 }
 
-@test "Set Default Sound Card:      main does nothing if breadcrumb exists" {
+@test "Set Default Sound Card:      main does nothing if breadcrumbs exist" {
   # Set Up
-  touch "${FIX_SOUND_BREADCRUMB}"
+  touch "${NEW_ALSA_OUTPUT_BREADCRUMB}"
+  touch "${NEW_PULSEAUDIO_OUTPUT_BREADCRUMB}"
 
   run main
-  assert_output "Fix already applied - doing nothing..."
+  assert_output "Fixes already applied - doing nothing..."
 }

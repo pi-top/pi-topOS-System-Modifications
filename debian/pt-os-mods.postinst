@@ -1,4 +1,16 @@
-#!/bin/bash -e
+#!/bin/bash
+set -e
+# Note: this script deliberately doesn't make use of bash strict mode. Update with caution
+
+notify_user_to_reboot_for_audio_update() {
+	# Notify user using display that a restart is required
+	pt-notify-send \
+		--expire-time=0 \
+		--icon=dialog-warning \
+		"PulseAudio installed, but not yet applied" \
+		"Please restart to apply changes." \
+		--action=Restart:'env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A /sbin/reboot' || true
+}
 
 RESOLV_CONF_HEAD_FILE="/etc/resolv.conf.head"
 apply_cloudflare_dns() {
@@ -73,6 +85,11 @@ main() {
 
 		# NOTE: some patches are checked on each boot -
 		# 	see 'pt-os-mods' systemd service
+
+		# Handle upgrade to PulseAudio
+		if previous_version_requires_patch "9.0.0"; then
+			notify_user_to_reboot_for_audio_update
+		fi
 
 		# Apply Cloudflare DNS
 		if previous_version_requires_patch "6.1.0"; then

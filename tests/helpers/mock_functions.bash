@@ -30,8 +30,8 @@ pt-notify-send() {
 
 	[[ "${2}" == "--icon=dialog-warning" ]] || (echo "pt-notify-send err: wrong arg: #2 - '${2}'" && return 1)
 
-	[[ "${3}" == "Sound configuration updated" ]] ||
-		[[ "${3}" == "Sound configuration needs to be updated" ]] || (echo "pt-notify-send err: wrong arg: #3 - '${3}'" && return 1)
+	[[ "${3}" == "Audio configuration updated" ]] ||
+		[[ "${3}" == "PulseAudio installed, but not yet applied" ]] || (echo "pt-notify-send err: wrong arg: #3 - '${3}'" && return 1)
 
 	[[ "${4}" == "Please restart to apply changes.
 You may experience sound issues until you do." ]] ||
@@ -119,8 +119,8 @@ card 9: Headphones [bcm2835 Headphones], device 0: bcm2835 Headphones [bcm2835 H
 }
 export -f aplay
 
-pt-host() { echo "pi-top [4]"; }
-export -f pt-host
+pi-top() { echo "pi-top [4]"; }
+export -f pi-top
 
 uname() { echo "5.4.51-v7l+"; }
 export -f uname
