@@ -48,9 +48,6 @@ Replaces:
 # Remove bluealsa and pimixer, as we are now using PulseAudio
  bluealsa,
  pimixer,
-Provides:
- bluealsa,
- pimixer,
 Conflicts:
  bluealsa,
  pimixer,
