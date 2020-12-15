@@ -1,6 +1,7 @@
 [Unit]
 Description=pi-topOS system modifications service
 Documentation=https://knowledgebase.pi-top.com/knowledge
+# Required to determine what type of device
 After=pt-device-manager.service
 
 [Service]
