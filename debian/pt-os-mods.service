@@ -9,4 +9,4 @@ Type=simple
 ExecStart=/usr/lib/pt-os-mods/pt-os-mods.sh
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=graphical.target
