@@ -41,6 +41,8 @@ Depends:
 # Required by systemd service
 # Also used to restart the service after PulseAudio upgrade
  pt-device-manager,
+# To display notifications
+ pt-notifications,
 # Necessary to migrate from expired APT key
  pt-os-archive-keyring,
 Replaces:

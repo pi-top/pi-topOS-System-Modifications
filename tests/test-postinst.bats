@@ -1,8 +1,10 @@
+## shellcheck disable=SC2096,SC2239
 #!./Bash-Automated-Testing-System/bats-core/bin/bats
 
 ###############
 # BOILERPLATE #
 ###############
+# shellcheck disable=SC2034
 GIT_ROOT="$(git rev-parse --show-toplevel)"
 
 load "Bash-Automated-Testing-System/bats-support/load"
@@ -107,6 +109,7 @@ load "helpers/postinst-hooks.bash"
   run apply_cloudflare_dns
   # Verify
   assert_success
+  # shellcheck disable=SC2154
   assert diff -q "${expected_dns_config}" "${RESOLV_CONF_HEAD_FILE}"
 }
 
@@ -130,12 +133,13 @@ load "helpers/postinst-hooks.bash"
   run do_update_check
 
   # Verify
+  # shellcheck disable=SC2154
   assert [ -f "${valid_systemctl_breadcrumb}" ]
 }
 
 @test "Update Check:   correctly checks for updates (calls env with correct arguments)" {
   # Run
-  run do_update_check $(get_display)
+  run do_update_check "$(get_display)"
 
   # Verify
   assert_line --index 0 "Checking updates"

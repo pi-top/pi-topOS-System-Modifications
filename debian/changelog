@@ -1,3 +1,9 @@
+pt-os-mods (9.0.3) buster; urgency=medium
+
+  * Update pt-os-mods service to support pulseaudio
+
+ -- Jorge Capona <jorge@pi-top.com>  Wed, 16 Dec 2020 20:06:57 -0300
+
 pt-os-mods (9.0.2) buster; urgency=medium
 
   * Breaks bluealsa and pimixer
