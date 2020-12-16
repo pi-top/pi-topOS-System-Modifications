@@ -55,6 +55,10 @@ apply_audio_fix() {
 
 	# For user using the display
 	user=$(get_user_using_display ":0")
+	if [[ -z "${user}" ]]; then
+		echo "Unable to determine user using current display - exiting..."
+		exit 1
+	fi
 	home_dir="$(get_home_directory_for_user "${user}")"
 	asoundrc_file="${home_dir}/.asoundrc"
 
@@ -75,7 +79,7 @@ apply_audio_fix() {
 			"Audio configuration updated" \
 			"Please restart to apply changes.
 You may experience sound issues until you do." \
-			--action=Restart:'env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A /sbin/reboot' || true
+			--action=Restart:'env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A /sbin/reboot'
 	fi
 }
 
