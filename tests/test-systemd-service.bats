@@ -1,8 +1,10 @@
+## shellcheck disable=SC2096,SC2239
 #!./Bash-Automated-Testing-System/bats-core/bin/bats
 
 ###############
 # BOILERPLATE #
 ###############
+# shellcheck disable=SC2034
 GIT_ROOT="$(git rev-parse --show-toplevel)"
 
 load "Bash-Automated-Testing-System/bats-support/load"
@@ -23,20 +25,18 @@ load "helpers/systemd-service-hooks.bash"
 #--------
 @test "Set Default Sound Card:      backs up existing configuration" {
   # Set Up
-  for user in $(get_users); do
-    home_dir="$(get_home_directory_for_user "${user}")"
-    touch "${home_dir}/.asoundrc"
-  done
+  user=$(get_user_using_display 0)
+  home_dir=$(get_home_directory_for_user "${user}")
+  touch "${home_dir}/.asoundrc"
 
   # Run
   run apply_audio_fix
 
   # Verify
   assert_success
-  for user in $(get_users); do
-    home_dir="$(get_home_directory_for_user "${user}")"
-    assert [ -f "${home_dir}/.asoundrc.bak" ]
-  done
+  user=$(get_user_using_display 0)
+  home_dir=$(get_home_directory_for_user "${user}")
+  assert [ -f "${home_dir}/.asoundrc.bak" ]
 
 }
 
@@ -46,10 +46,9 @@ load "helpers/systemd-service-hooks.bash"
 
   # Verify
   assert_success
-  for user in $(get_users); do
-    home_dir="$(get_home_directory_for_user "${user}")"
-    assert [ ! -f "${home_dir}/.asoundrc.bak" ]
-  done
+  user=$(get_user_using_display 0)
+  home_dir=$(get_home_directory_for_user "${user}")
+  assert [ ! -f "${home_dir}/.asoundrc.bak" ]
 }
 
 @test "Set Default Sound Card:      creates a properly formatted configuration file" {
@@ -66,9 +65,8 @@ load "helpers/systemd-service-hooks.bash"
   # Verify
   echo "${output}"
   assert_success
-  assert_line --index 0 "env do_audio - SUDO_USER=root: OK"
-  assert_line --index 1 "env do_audio - SUDO_USER=pi: OK"
-  assert_line --index 2 "pt-notify-send: OK"
+  assert_line --index 0 "env do_audio - SUDO_USER=pi: OK"
+  assert_line --index 1 "pt-notify-send: OK"
 }
 
 @test "Set Default Sound Card:      default card number to -1 if Headphones isn't present in aplay" {
@@ -88,8 +86,7 @@ load "helpers/systemd-service-hooks.bash"
   assert_success
 
   run apply_audio_fix
-  assert_line --index 0 "env do_audio - SUDO_USER=root: OK"
-  assert_line --index 1 "env do_audio - SUDO_USER=pi: OK"
+  assert_line --index 0 "env do_audio - SUDO_USER=pi: OK"
 }
 
 @test "Set Default Sound Card:      raspi-config test function fails when run with incorrect parameters" {

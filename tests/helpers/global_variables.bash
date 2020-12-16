@@ -5,8 +5,7 @@ spoofed_home_dirs="/tmp/test/root
 /tmp/test/home/pi"
 export spoofed_home_dirs
 
-spoofed_users="root
-pi"
+spoofed_users="pi"
 export spoofed_users
 
 valid_systemctl_breadcrumb="/tmp/valid_systemctl"

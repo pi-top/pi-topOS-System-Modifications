@@ -17,11 +17,11 @@ get_home_directory_for_user() {
 }
 export -f get_home_directory_for_user
 
-get_users() {
+get_user_using_display() {
 	# Fail if not set
 	echo "${spoofed_users:?}"
 }
-export -f get_users
+export -f get_user_using_display
 
 pt-notify-send() {
 	[[ "${#}" == 5 ]] || (echo "pt-notify-send err: wrong # of args - ${#} != 5" && return 1)
@@ -69,6 +69,11 @@ get_display() {
 }
 export -f get_display
 
+id() {
+	echo "0"
+}
+export -f id
+
 env() {
 	if [[ "${#}" == 2 ]]; then
 		[[ "${1}" == "DISPLAY=$(get_display)" ]] || return 1
@@ -76,12 +81,13 @@ env() {
 		echo "env update check - ${1}: OK"
 
 		return 0
-	elif [[ "${#}" == 5 ]]; then
-		[[ "${1}" == "SUDO_USER=root" ]] || [[ "${1}" == "SUDO_USER=pi" ]] || return 1
-		[[ "${2}" == "raspi-config" ]] || return 1
-		[[ "${3}" == "nonint" ]] || return 1
-		[[ "${4}" == "do_audio" ]] || return 1
-		[[ "${5}" == "1" ]] || [[ "${5}" == "9" ]] || return 1
+	elif [[ "${#}" == 6 ]]; then
+		[[ "${1}" == "SUDO_USER=pi" ]] || return 1
+		[[ "${2}" == "SUDO_UID=0" ]] || return 1
+		[[ "${3}" == "raspi-config" ]] || return 1
+		[[ "${4}" == "nonint" ]] || return 1
+		[[ "${5}" == "do_audio" ]] || return 1
+		[[ "${6}" == "1" ]] || [[ "${6}" == "9" ]] || return 1
 		echo "env do_audio - ${1}: OK"
 
 		return 0
