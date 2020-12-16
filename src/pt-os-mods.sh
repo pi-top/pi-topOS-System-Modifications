@@ -54,7 +54,7 @@ apply_audio_fix() {
 	card_number=$(get_alsa_card_number_by_name "$(get_default_audio_card_for_device)")
 
 	# For user using the display
-	user=$(get_user_using_display 0)
+	user=$(get_user_using_display ":0")
 	home_dir="$(get_home_directory_for_user "${user}")"
 	asoundrc_file="${home_dir}/.asoundrc"
 
