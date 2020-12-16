@@ -10,8 +10,9 @@ is_pi_top_os() {
 	fi
 }
 
-get_users() {
-	getent passwd | grep -wFf /etc/shells | awk -F':' '{print $1}'
+get_user_using_display() {
+	local display_to_find_user_for="${1}"
+	who | grep "(${display_to_find_user_for})" | awk '{print $1}' | head -n 1
 }
 
 get_home_directory_for_user() {
@@ -52,20 +53,19 @@ apply_audio_fix() {
 	# Find default card number for device
 	card_number=$(get_alsa_card_number_by_name "$(get_default_audio_card_for_device)")
 
-	# For each user
-	for user in $(get_users); do
-		home_dir="$(get_home_directory_for_user "${user}")"
-		asoundrc_file="${home_dir}/.asoundrc"
+	# For user using the display
+	user=$(get_user_using_display 0)
+	home_dir="$(get_home_directory_for_user "${user}")"
+	asoundrc_file="${home_dir}/.asoundrc"
 
-		# Back up existing asound configuration
-		[[ -f "${asoundrc_file}" ]] && mv "${asoundrc_file}" "${asoundrc_file}.bak"
+	# Back up existing asound configuration
+	[[ -f "${asoundrc_file}" ]] && mv "${asoundrc_file}" "${asoundrc_file}.bak"
 
-		# Set audio card to headphones
-		env SUDO_USER="${user}" raspi-config nonint do_audio "${card_number}"
+	# Set audio card to correct sound card
+	env SUDO_USER="${user}" SUDO_UID="$(id -u "${user}")" raspi-config nonint do_audio "${card_number}"
 
-		# Fix file permissions
-		chown "${user}:${user}" "${asoundrc_file}"
-	done
+	# Fix file permissions
+	[[ -f "${asoundrc_file}" ]] && chown "${user}:${user}" "${asoundrc_file}"
 
 	if [ "${notify}" = "true" ]; then
 		# Notify user using display that a restart is required
