@@ -11,7 +11,7 @@ is_pi_top_os() {
 }
 
 get_user_using_display() {
-	local display_to_find_user_for="${1}"
+	local display_to_find_user_for=":${1}"
 	who | grep "(${display_to_find_user_for})" | awk '{print $1}' | head -n 1
 }
 
@@ -54,7 +54,7 @@ apply_audio_fix() {
 	card_number=$(get_alsa_card_number_by_name "$(get_default_audio_card_for_device)")
 
 	# For user using the display
-	user=$(get_user_using_display ":0")
+	user=$(get_user_using_display "0")
 	if [[ -z "${user}" ]]; then
 		echo "Unable to determine user using current display - exiting..."
 		exit 1
