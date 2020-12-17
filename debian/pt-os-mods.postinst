@@ -1,8 +1,14 @@
 #!/bin/bash
+set -x # Temporary, for debugging
 set -e
 # Note: this script deliberately doesn't make use of bash strict mode. Update with caution
 
 notify_user_to_reboot_for_audio_update() {
+	if ischroot; then
+		echo "In a chroot environment - skipping notify user for audio update..."
+		return
+	fi
+
 	# Notify user using display that a restart is required
 	pt-notify-send \
 		--expire-time=0 \
@@ -48,7 +54,7 @@ attempt_check_for_updates() {
 	echo "Attempting to check for updates"
 
 	if ischroot; then
-		echo "In a chroot environment - skipping..."
+		echo "In a chroot environment - skipping attempt to check for updates..."
 		return
 	fi
 
