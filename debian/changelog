@@ -1,3 +1,10 @@
+pt-os-mods (9.1.0) buster; urgency=medium
+
+  * Do not try to notify user if in chroot
+  * Enable debug printing
+
+ -- Mike Roberts <mike@pi-top.com>  Thu, 17 Dec 2020 17:01:55 +0000
+
 pt-os-mods (9.0.3) buster; urgency=medium
 
   * Update pt-os-mods service to support pulseaudio
