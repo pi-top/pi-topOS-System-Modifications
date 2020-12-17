@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 set -e
 # Note: this script deliberately doesn't make use of bash strict mode. Update with caution
 
@@ -86,6 +86,7 @@ is_pi_top_os() {
 
 main() {
 	if is_pi_top_os; then
+		shift # get rid of 'configure' from args
 		previous_version="${1}"
 
 		# NOTE: some patches are checked on each boot -
@@ -110,7 +111,6 @@ main() {
 
 case "${1}" in
 configure)
-	shift
 	main "${@}"
 	;;
 

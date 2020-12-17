@@ -1,7 +1,12 @@
+pt-os-mods (10.0.0) buster; urgency=medium
+
+  * Fix argument handling so that #DEBHELPER# works
+
+ -- Mike Roberts <mike@pi-top.com>  Thu, 17 Dec 2020 17:59:39 +0000
+
 pt-os-mods (9.1.0) buster; urgency=medium
 
   * Do not try to notify user if in chroot
-  * Enable debug printing
 
  -- Mike Roberts <mike@pi-top.com>  Thu, 17 Dec 2020 17:01:55 +0000
 
