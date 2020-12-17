@@ -1,5 +1,4 @@
-#!/bin/bash
-set -x # Temporary, for debugging
+#!/bin/bash -x
 set -e
 # Note: this script deliberately doesn't make use of bash strict mode. Update with caution
 
