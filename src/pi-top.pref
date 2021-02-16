@@ -1,7 +1,0 @@
-Package: *
-Pin: release a=sirius-unstable
-Pin-Priority: 100
-
-Package: *
-Pin: release a=sirius-experimental
-Pin-Priority: 1

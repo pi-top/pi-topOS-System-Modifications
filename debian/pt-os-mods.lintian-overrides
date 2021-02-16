@@ -1,1 +1,0 @@
-pt-os-mods: package-installs-apt-preferences etc/apt/preferences.d/pi-top.pref
