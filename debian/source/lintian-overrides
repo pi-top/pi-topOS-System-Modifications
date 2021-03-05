@@ -1,0 +1,7 @@
+pt-os-mods source: malformed-debian-changelog-version 6.0.1-2 (for native)
+pt-os-mods source: package-uses-debhelper-but-lacks-build-depends
+pt-os-mods source: ancient-standards-version 3.8.4 (released 2010-01-27) (current is 4.5.0)
+pt-os-mods source: missing-debian-source-format
+pt-os-mods source: missing-license-paragraph-in-dep5-copyright proprietary (paragraph at line 5)
+pt-os-mods source: odd-historical-debian-changelog-version 6.0.1-1 (for native)
+pt-os-mods source: package-uses-deprecated-debhelper-compat-version 9
