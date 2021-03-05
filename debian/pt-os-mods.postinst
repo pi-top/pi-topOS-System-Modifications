@@ -1,37 +1,40 @@
 #!/bin/bash -e
 
 case "${1}" in
-  configure)
-    min_version_w_apt_key="6.0.1"
+configure)
+	min_version_w_apt_key="6.0.1"
 
-    # If upgrading from pre-'6.0.1' running on pi-topOS, send desktop notification to run update again
-    if dpkg --compare-versions "$2" lt "${min_version_w_apt_key}" && [[ -f "/etc/pt-issue" ]]; then
-      display="$(pgrep -a Xorg | awk '{print $3}')"
+	# If upgrading from pre-'6.0.1' running on pi-topOS, send desktop notification to run update again
+	if dpkg --compare-versions "$2" lt "${min_version_w_apt_key}" && [[ -f "/etc/pt-issue" ]]; then
+		display="$(pgrep -a Xorg | awk '{print $3}')"
 
-      if [[ -z "${display}" ]]; then
-        echo "Unable to find a display"
-        exit
-      fi
+		# Patch pt-os-updater to use 'dist-upgrade'
+		sed -i 's/"upgrade"/"dist-upgrade"/1' /usr/lib/pt-os-updater/update_model.py
 
-      (
-        trap '' HUP EXIT INT TERM QUIT
-        while systemctl is-active --quiet pt-os-updater; do
-          sleep 1
-        done
-        env DISPLAY="${display}" /usr/lib/pt-os-updater/check-now
-      ) &
+		if [[ -z "${display}" ]]; then
+			echo "Unable to find a display"
+			exit
+		fi
 
-    fi
-    ;;
+		(
+			trap '' HUP EXIT INT TERM QUIT
+			while systemctl is-active --quiet pt-os-updater; do
+				sleep 1
+			done
+			env DISPLAY="${display}" /usr/lib/pt-os-updater/check-now
+		) &
 
-  abort-upgrade | abort-remove | abort-deconfigure) ;;
+	fi
+	;;
 
-  \
-    *)
+abort-upgrade | abort-remove | abort-deconfigure) ;;
 
-    echo "postinst called with unknown argument \`${1}'" >&2
-    exit 1
-    ;;
+\
+	*)
+
+	echo "postinst called with unknown argument \`${1}'" >&2
+	exit 1
+	;;
 esac
 
 #DEBHELPER#

@@ -1,3 +1,9 @@
+pt-os-mods (6.0.1-2) buster; urgency=medium
+
+  * Apply pt-os-updater patch in postinst
+
+ -- Mike Roberts <mike@pi-top.com>  Fri, 05 Mar 2021 13:51:01 +0000
+
 pt-os-mods (6.0.1-1) buster; urgency=medium
 
   * Instead of notifying user, check for updates again after pi-topOS Software Updater has finished
