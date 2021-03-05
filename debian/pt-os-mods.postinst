@@ -65,6 +65,9 @@ attempt_check_for_updates() {
 		exit
 	fi
 
+	# Patch pt-os-updater to use 'dist-upgrade'
+	sed -i 's/"upgrade"/"dist-upgrade"/1' /usr/lib/pt-os-updater/update_model.py
+
 	(do_update_check "${display}") &
 }
 
