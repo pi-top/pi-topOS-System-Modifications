@@ -2,7 +2,6 @@ pt-os-mods (10.0.2) buster; urgency=medium
 
   * Update packaging
   * Allow external sources when testing shell scripts
-  * Hotfix: apply pt-os-updater patch in postinst
 
  -- pi-top <deb-maintainers@pi-top.com>  Wed, 12 May 2021 18:53:23 +0000
 
