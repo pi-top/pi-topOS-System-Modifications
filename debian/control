@@ -8,7 +8,7 @@ Standards-Version: 4.5.1
 Homepage: https://pi-top.com/
 
 Package: pt-os-mods
-Architecture: armhf
+Architecture: all
 Depends: ${misc:Depends}, dpkg (>= 1.19.7), wmctrl (>= 1.07)
 Replaces: pt-display
 Recommends: lightdm
