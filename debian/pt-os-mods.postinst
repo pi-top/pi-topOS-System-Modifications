@@ -2,14 +2,16 @@
 
 case "${1}" in
 configure)
-	min_version_w_apt_key="6.0.1"
+	min_version_w_apt_key="6.0.1-3"
 
-	# If upgrading from pre-'6.0.1' running on pi-topOS, send desktop notification to run update again
+	# If upgrading from pre-'6.0.1-3' running on pi-topOS, send desktop notification to run update again
 	if dpkg --compare-versions "$2" lt "${min_version_w_apt_key}" && [[ -f "/etc/pt-issue" ]]; then
 		display="$(pgrep -a Xorg | awk '{print $3}')"
 
 		# Patch pt-os-updater to use 'dist-upgrade'
 		sed -i 's/"upgrade"/"dist-upgrade"/1' /usr/lib/pt-os-updater/update_model.py
+		# Drop now-invalid command line option
+		sed -i 's/"--with-new-pkgs", //1' /usr/lib/pt-os-updater/update_model.py
 
 		if [[ -z "${display}" ]]; then
 			echo "Unable to find a display"
