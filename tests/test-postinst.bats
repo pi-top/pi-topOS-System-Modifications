@@ -29,10 +29,10 @@ load "helpers/postinst-hooks.bash"
     echo "Notified user"
   }
 
-  apply_cloudflare_dns() {
-    echo "Applied Cloudflare DNS"
+  revert_cloudflare_dns() {
+    echo "Reverted Cloudflare DNS"
   }
-  export -f apply_cloudflare_dns
+  export -f revert_cloudflare_dns
 
   attempt_check_for_updates() {
     echo "Attempted to check for updates"
@@ -49,20 +49,20 @@ load "helpers/postinst-hooks.bash"
 
   # Verify
   assert_line --index 0 "Notified user"
-  assert_line --index 1 "Applied Cloudflare DNS"
+  assert_line --index 1 "Reverted Cloudflare DNS"
   assert_line --index 2 "Attempted to check for updates"
 }
 
 @test "Version Check:  patches are associated with correct versions" {
   # Set Up
-  apply_cloudflare_dns() { return; }
-  export -f apply_cloudflare_dns
+  revert_cloudflare_dns() { return; }
+  export -f revert_cloudflare_dns
 
   attempt_check_for_updates() { return; }
   export -f attempt_check_for_updates
 
   previous_version_requires_patch() {
-    [[ "${1}" == "6.1.0" ]] && echo "DNS"
+    [[ "${1}" == "11.0.0" ]] && echo "DNS"
     [[ "${1}" == "6.0.1" ]] && echo "Updates"
   }
   export -f previous_version_requires_patch
@@ -104,13 +104,13 @@ load "helpers/postinst-hooks.bash"
 #--------
 # Cloudflare DNS
 #--------
-@test "Cloudflare DNS: writes the DNS configuration to a file" {
+@test "Cloudflare DNS: removes DNS configuration file" {
   # Run
-  run apply_cloudflare_dns
+  run revert_cloudflare_dns
   # Verify
   assert_success
   # shellcheck disable=SC2154
-  assert diff -q "${expected_dns_config}" "${RESOLV_CONF_HEAD_FILE}"
+  assert [ ! -e "${RESOLV_CONF_HEAD_FILE}" ]
 }
 
 #--------
