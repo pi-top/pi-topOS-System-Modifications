@@ -18,18 +18,8 @@ notify_user_to_reboot_for_audio_update() {
 }
 
 RESOLV_CONF_HEAD_FILE="/etc/resolv.conf.head"
-apply_cloudflare_dns() {
-	echo "Setting DNS in ${RESOLV_CONF_HEAD_FILE}"
-	echo "# [pi-topOS] START
-#
-# Set Cloudflare as DNS provider
-#
-nameserver 1.1.1.1
-nameserver 1.0.0.1
-nameserver 2606:4700:4700::1111
-nameserver 2606:4700:4700::1001
-#
-# [pi-topOS] END" >"${RESOLV_CONF_HEAD_FILE}"
+revert_cloudflare_dns() {
+	rm "${RESOLV_CONF_HEAD_FILE}" || true
 }
 
 do_update_check() {
@@ -100,9 +90,9 @@ main() {
 			notify_user_to_reboot_for_audio_update
 		fi
 
-		# Apply Cloudflare DNS
-		if previous_version_requires_patch "6.1.0"; then
-			apply_cloudflare_dns
+		# Revert Cloudflare DNS
+		if previous_version_requires_patch "11.0.0"; then
+			revert_cloudflare_dns
 		fi
 
 		# Check for updates again (with new apt key)
