@@ -1,3 +1,28 @@
+pt-os-mods (11.0.1) buster; urgency=medium
+
+  [ Mike Roberts ]
+  * Add Lintian override
+  * Try fix Lintian override
+  * Revert 10.1.0
+  * Revert 10.1.0
+  * Allow external sources when testing shell scripts
+  * Architecture: any --> all
+  * Hotfix: apply pt-os-updater patch in postinst
+  * Standards-Version: 4.5.1
+  * Add GitHub workflows
+
+  [ Jorge Capona ]
+  * Remove build-python from create-draft workflow
+
+  [ github-actions[bot] ]
+  * [CI] Update debian/changelog for next release (#23)
+
+  [ Mike Roberts ]
+  * Drop README
+  * Drop Cloudflare DNS (#25)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Wed, 02 Jun 2021 15:07:24 +0000
+
 pt-os-mods (11.0.0) buster; urgency=medium
 
   * Drop Cloudflare DNS
