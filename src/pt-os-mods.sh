@@ -100,6 +100,15 @@ is_pulseaudio() {
 NEW_ALSA_OUTPUT_BREADCRUMB="/etc/pi-top/.configuredDefaultAlsaOutput"
 NEW_PULSEAUDIO_OUTPUT_BREADCRUMB="/etc/pi-top/.configuredDefaultPulseAudioOutput"
 main() {
+	# Set EEPROM installation directory
+	sed -i '/BOOTFS/d' /etc/default/rpi-eeprom-update
+	if [[ -d /recovery ]]; then
+		BOOTFS=/recovery
+	else
+		BOOTFS=/boot
+	fi
+	echo "BOOTFS=${BOOTFS}" >>/etc/default/rpi-eeprom-update
+
 	# Run fix only once
 	[[ -f "${NEW_ALSA_OUTPUT_BREADCRUMB}" ]] &&
 		[[ -f "${NEW_PULSEAUDIO_OUTPUT_BREADCRUMB}" ]] &&
