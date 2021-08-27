@@ -1,3 +1,0 @@
-src/70-wlan-disable-powersave.rules             /lib/udev/rules.d/
-src/pt-os-mods.sh                               /usr/lib/pt-os-mods/
-pkg/pwdptom.sh                                  /usr/lib/pt-os-mods/

@@ -1,70 +1,16 @@
 #!/bin/bash
-set -e
-# Note: this script deliberately doesn't make use of bash strict mode. Update with caution
-
-notify_user_to_reboot_for_audio_update() {
-	if ischroot; then
-		echo "In a chroot environment - skipping notify user for audio update..."
-		return
-	fi
-
-	# Notify user using display that a restart is required
-	pt-notify-send \
-		--expire-time=0 \
-		--icon=dialog-warning \
-		"PulseAudio installed, but not yet applied" \
-		"Please restart to apply changes." \
-		--action=Restart:'env SUDO_ASKPASS=/usr/lib/pt-os-mods/pwdptom.sh sudo -A /sbin/reboot' || true
-}
-
-RESOLV_CONF_HEAD_FILE="/etc/resolv.conf.head"
-revert_cloudflare_dns() {
-	rm "${RESOLV_CONF_HEAD_FILE}" || true
-}
-
-do_update_check() {
-	echo "Checking updates"
-	local display="${1}"
-	trap '' HUP EXIT INT TERM QUIT
-	while systemctl is-active --quiet pt-os-updater; do
-		sleep 1
-	done
-	env DISPLAY="${display}" /usr/lib/pt-os-updater/check-now
-}
-
-# TODO: replace with call to 'pt-user' command
-get_display() {
-	local display
-	display="$(pgrep -a Xorg | awk '{print $3}')"
-	[[ -n "${display}" ]] && echo "${display}"
-}
-
-attempt_check_for_updates() {
-	echo "Attempting to check for updates"
-
-	if ischroot; then
-		echo "In a chroot environment - skipping attempt to check for updates..."
-		return
-	fi
-
-	local display
-	display="$(get_display)"
-
-	if [[ -z "${display}" ]]; then
-		echo "Unable to find a display"
-		exit
-	fi
-
-	# Patch pt-os-updater to use 'dist-upgrade'
-	sed -i 's/"upgrade"/"dist-upgrade"/1' /usr/lib/pt-os-updater/update_model.py
-
-	(do_update_check "${display}") &
-}
+###############################################################
+#                Unofficial 'Bash strict mode'                #
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/  #
+###############################################################
+set -euo pipefail
+IFS=$'\n\t'
+###############################################################
 
 previous_version_requires_patch() {
 	local version_to_check_against="${1}"
 	# Is new install or version is earlier than upgrade check
-	[[ -z "${previous_version}" ]] && return 0
+	[[ -z "${previous_version:-}" ]] && return 0
 	dpkg --compare-versions "${previous_version}" lt "${version_to_check_against}" && return 0
 	return 1
 }
@@ -80,25 +26,11 @@ is_pi_top_os() {
 main() {
 	if is_pi_top_os; then
 		shift # get rid of 'configure' from args
-		previous_version="${1}"
+		previous_version="${1:-}"
 
-		# NOTE: some patches are checked on each boot -
-		# 	see 'pt-os-mods' systemd service
-
-		# Handle upgrade to PulseAudio
-		if previous_version_requires_patch "9.0.0"; then
-			notify_user_to_reboot_for_audio_update
-		fi
-
-		# Revert Cloudflare DNS
-		if previous_version_requires_patch "11.0.0"; then
-			revert_cloudflare_dns
-		fi
-
-		# Check for updates again (with new apt key)
-		if previous_version_requires_patch "6.0.1"; then
-			attempt_check_for_updates
-		fi
+		# if previous_version_requires_patch "x.y.z"; then
+		# 	do_thing
+		# fi
 	fi
 }
 

@@ -11,51 +11,6 @@ Package: pt-os-mods
 Architecture: all
 Depends:
  ${misc:Depends},
-#######################################################################################
-# This is a fudge to ensure that pt-os-updater (<< 3.0.0) does not uninstall packages
-#
-# Forgive me...
-#######################################################################################
-  pt-sys-oled, pt-touchscreen, sonic-pi,
-#######################################################################################
-# 'dpkg' command
- dpkg (>= 1.19.7),
-# 'cut' command
- coreutils (>= 8.30-3),
-# 'ischroot' command
- debianutils (>= 4.8.6.1),
-# 'grep' command
- grep (>= 3.3-1),
-# 'getent' command
- libc-bin (>= 2.28-10+rpi1),
-# 'awk' command
- mawk,
-# 'pgrep' command
- procps,
-# Used to configure audio state
- raspi-config (>= 20200601),
-# Required for PulseAudio
- pulseaudio-module-bluetooth,
-# Used for 'pi-top devices hub -n' call
- python3-pitop,
-# Required by systemd service
-# Also used to restart the service after PulseAudio upgrade
- pt-device-manager,
-# To display notifications
- pt-notifications,
-# Necessary to migrate from expired APT key
- pt-os-archive-keyring,
-Replaces:
- pt-display,
-# Remove bluealsa and pimixer, as we are now using PulseAudio
- bluealsa,
- pimixer,
-Breaks:
- bluealsa,
- pimixer,
-Conflicts:
- bluealsa,
- pimixer,
-Description: pi-topOS Config Management
- Manages pi-topOS specific modifications to the base operating system
- configuration
+Description: pi-topOS Post-launch Config Management
+ Manages pi-topOS modifications to the base operating system
+ configuration that are implemented after launch
