@@ -1,5 +1,5 @@
-pt-os-mods (12.0.0) bullseye; urgency=medium
+pt-os-sys-mods (1.0.0) bullseye; urgency=medium
 
-  * Reset package for Bullseye
+  * Initial release
 
  -- pi-top <deb-maintainers@pi-top.com>  Thu, 05 Aug 2021 14:27:44 +0000
