@@ -10,7 +10,7 @@ pi-top-os-system-modifications (1.0.1) bullseye; urgency=medium
   * Fix source package name
   * Updated master workflow files
 
- -- pi-top <deb-maintainers@pi-top.com>  Wed, 01 Sep 2021 20:47:13 +0000
+ -- pi-top <deb-maintainers@pi-top.com>  Wed, 01 Sep 2021 20:48:13 +0000
 
 pi-top-os-system-modifications (1.0.0) bullseye; urgency=medium
 
