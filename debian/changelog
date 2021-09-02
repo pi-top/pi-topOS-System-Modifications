@@ -1,3 +1,12 @@
+pi-top-os-system-modifications (1.0.1) bullseye; urgency=medium
+
+  * Bullseye release (#30)
+  * Rename: pt-os-sys-mods
+  * Updated master workflow files
+  * Fix source package name
+
+ -- pi-top <deb-maintainers@pi-top.com>  Wed, 01 Sep 2021 20:48:13 +0000
+
 pi-top-os-system-modifications (1.0.0) bullseye; urgency=medium
 
   * Initial release
