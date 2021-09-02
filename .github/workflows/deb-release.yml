@@ -31,7 +31,7 @@ jobs:
 
       - name: Clean latest tag string
         run: |
-          LATEST_TAG_COMPLETE="${{ steps.version.outputs.tag_latest }}""
+          LATEST_TAG_COMPLETE=${{ steps.version.outputs.tag_latest }}
           if [[ "${LATEST_TAG_COMPLETE:0:1}" == "v" ]]; then
             echo "LATEST_TAG=${LATEST_TAG_COMPLETE:1}" >> $GITHUB_ENV
           else
