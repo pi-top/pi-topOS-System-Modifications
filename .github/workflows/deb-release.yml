@@ -31,10 +31,11 @@ jobs:
 
       - name: Clean latest tag string
         run: |
-          if [[ "${${{ steps.version.outputs.tag_latest }}:0:1}" == "v" ]]; then
-            "LATEST_TAG=${${{ steps.version.outputs.tag_latest }}:1}" >> $GITHUB_ENV
+          LATEST_TAG_COMPLETE=${{ steps.version.outputs.tag_latest }}
+          if [[ "${LATEST_TAG_COMPLETE:0:1}" == "v" ]]; then
+            "LATEST_TAG=${LATEST_TAG_COMPLETE:1}" >> $GITHUB_ENV
           else
-            "LATEST_TAG=${${{ steps.version.outputs.tag_latest }}}" >> $GITHUB_ENV
+            "LATEST_TAG=${LATEST_TAG_COMPLETE}" >> $GITHUB_ENV
           fi
 
       - name: Confirm version is higher than last tagged version
