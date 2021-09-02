@@ -29,9 +29,17 @@ jobs:
           sudo apt install -y dpkg-dev
           echo "CURRENT_VERSION=$(dpkg-parsechangelog -Sversion)" >> $GITHUB_ENV
 
+      - name: Clean latest tag string
+        run: |
+          if [[ "${${{ steps.version.outputs.tag_latest }}:0:1}" == "v" ]]; then
+            "LATEST_TAG=${${{ steps.version.outputs.tag_latest }}:1}" >> $GITHUB_ENV
+          else
+            "LATEST_TAG=${${{ steps.version.outputs.tag_latest }}}" >> $GITHUB_ENV
+          fi
+
       - name: Confirm version is higher than last tagged version
-        if: ${{ steps.version.outputs.tag_latest != '' }}
-        run: dpkg --compare-versions ${{ env.CURRENT_VERSION }} gt ${{ steps.version.outputs.tag_latest }}
+        if: ${{ env.LATEST_TAG != '' }}
+        run: dpkg --compare-versions ${{ env.CURRENT_VERSION }} gt ${{ env.LATEST_TAG }}
 
       - name: Determine architecture to use from package info
         # If architecture is 'all', then it can be compiled on host architecture
