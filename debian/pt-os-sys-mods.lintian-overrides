@@ -1,2 +1,2 @@
-# This package is for deploying configuration changes when other use-cases are difficult/impossible
+# This is intentional
 pt-os-sys-mods: empty-binary-package
