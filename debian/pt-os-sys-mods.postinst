@@ -16,7 +16,7 @@ previous_version_requires_patch() {
 }
 
 is_pi_top_os() {
-	if [[ -f "/etc/pt-issue" ]]; then
+	if [[ -f "/boot/pt-issue.txt" ]]; then
 		return 0
 	else
 		return 1
