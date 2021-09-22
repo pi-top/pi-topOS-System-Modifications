@@ -1,0 +1,4 @@
+#!/bin/bash
+
+/sbin/dphys-swapfile setup
+/sbin/dphys-swapfile swapon
