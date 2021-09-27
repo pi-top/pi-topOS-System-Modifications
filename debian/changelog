@@ -1,6 +1,5 @@
-pi-top-os-system-modifications (1.0.1-2) bullseye; urgency=medium
+pi-top-os-system-modifications (1.1.0-1) bullseye; urgency=medium
 
-  * Updated master workflow files
   * Use /boot/pt-issue.txt to determine pi-topOS
   * Override swapfile service to run in background
 
