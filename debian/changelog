@@ -1,3 +1,15 @@
+pi-top-os-system-modifications (1.1.0-2) bullseye; urgency=medium
+
+  * Updated master workflow files
+  * Use /boot/pt-issue.txt to determine pi-topOS
+  * Override swapfile service to run in background
+  * New changelog entry: v1.1.0-1 (#31)
+  * Drop files
+  * Update lintian comment
+  * Add README
+
+ -- pi-top <deb-maintainers@pi-top.com>  Mon, 01 Nov 2021 16:22:12 +0000
+
 pi-top-os-system-modifications (1.1.0-1) bullseye; urgency=medium
 
   * Use /boot/pt-issue.txt to determine pi-topOS
