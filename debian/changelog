@@ -1,3 +1,20 @@
+pi-top-os-system-modifications (1.1.0-3) bullseye; urgency=medium
+
+  * Updated master workflow files
+  * Add signing key and passphrase to deb_release workflow
+  * Add pull request template
+  * Update PR template to track Github issues
+  * [pre-commit.ci] pre-commit autoupdate (#34)
+  * Updated master workflow files
+  * Updated master workflow files
+  * [pre-commit.ci] pre-commit autoupdate (#35)
+  * Updated master workflow files
+  * Updated master workflow files
+  * Updated master workflow files
+  * Package for bookworm (#37)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Fri, 12 Apr 2024 19:20:56 +0000
+
 pi-top-os-system-modifications (1.1.0-2) bullseye; urgency=medium
 
   * Updated master workflow files
