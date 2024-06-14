@@ -15,8 +15,19 @@ previous_version_requires_patch() {
 	return 1
 }
 
+boot_partition_mountpont() {
+	if [ -e /boot/firmware/config.txt ] ; then
+		FIRMWARE="/firmware"
+	else
+		FIRMWARE=""
+	fi
+	echo "/boot${FIRMWARE}"
+}
+
+
 is_pi_top_os() {
-	if [[ -f "/boot/pt-issue.txt" ]]; then
+	BOOT_MOUNTPOINT=$(boot_partition_mountpont)
+	if [[ -f "${BOOT_MOUNTPOINT}/pt-issue.txt" ]]; then
 		return 0
 	else
 		return 1
