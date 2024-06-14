@@ -1,3 +1,9 @@
+pi-top-os-system-modifications (1.1.0-4) bullseye; urgency=medium
+
+  * Find path to boot partition (#38)
+
+ -- pi-top <deb-maintainers@pi-top.com>  Fri, 14 Jun 2024 19:41:11 +0000
+
 pi-top-os-system-modifications (1.1.0-3) bullseye; urgency=medium
 
   * Updated master workflow files
